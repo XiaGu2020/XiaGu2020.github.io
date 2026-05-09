@@ -40,7 +40,8 @@ export default defineConfig({
           text: '技术',
           items: [
             { text: '分类首页', link: '/tech/' },
-            { text: 'Stock Advisor 开发记录', link: '/tech/stock-advisor-dev' }
+            { text: '三个Agent粗评', link: '/tech/agent-frameworks-comparison.md' }
+          
           ]
         }
       ],
@@ -48,7 +49,8 @@ export default defineConfig({
         {
           text: '项目',
           items: [
-            { text: '分类首页', link: '/lab/' }
+            { text: '分类首页', link: '/lab/' },
+            { text: 'Stock Advisor 开发记录', link: '/lab/stock-advisor-dev' }
           ]
         }
       ],
@@ -65,7 +67,8 @@ export default defineConfig({
           text: '随笔',
           items: [
             { text: '分类首页', link: '/essay/' },
-            { text: '迎接小生命', link: '/essay/welcome-baby' }
+            { text: '迎接小生命', link: '/essay/welcome-baby' },
+            { text: '新生儿育儿SOP', link: '/essay/newborn-care-guide' }
           ]
         }
       ]

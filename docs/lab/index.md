@@ -4,8 +4,7 @@
 
 ## 项目列表
 
-- Stock Advisor — A 股量化分析工具（Node.js + Vue3，持续迭代中）
-- 穿衣风格面板 — 个人穿搭分析 + 图片提示词生成
+- [Stock Advisor 开发记录](./stock-advisor-dev) — 用 Node.js + Vue3 做一个个人的 A 股量化分析工具
 - 内容审核规则引擎 — 规则先行、命中再调大模型精准判断
 - Agent 副业探索 — 用 Agent 做可落地的小工具
 
