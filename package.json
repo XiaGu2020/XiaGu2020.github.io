@@ -1,0 +1,14 @@
+{
+  "name": "xiagu2020-blog",
+  "version": "1.0.0",
+  "description": "老李的个人博客 - 技术、投资、随笔",
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev docs",
+    "build": "vitepress build docs",
+    "preview": "vitepress preview docs"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.3"
+  }
+}
