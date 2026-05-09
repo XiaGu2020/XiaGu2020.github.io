@@ -4,7 +4,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   lang: 'zh-CN',
   title: '老李的博客',
-  description: '一个后端工程师的技术与生活笔记',
+  description: '一个后端工程师的技术、项目、读书与生活笔记',
 
   // 部署到 https://xiagu2020.github.io，base 用根路径
   base: '/',
@@ -13,7 +13,7 @@ export default defineConfig({
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }],
     ['meta', { name: 'author', content: '老李 (XiaGu)' }],
-    ['meta', { name: 'keywords', content: '后端,AI,内容审核,Vue,Agent,网文,生活' }]
+    ['meta', { name: 'keywords', content: '后端,AI,内容审核,Agent,Vue,读书,育儿' }]
   ],
 
   lastUpdated: true,
@@ -23,23 +23,40 @@ export default defineConfig({
     // logo: '/logo.png',  // 想加 logo 时取消注释，把 logo.png 放进 docs/public/
     siteTitle: '老李的博客',
 
-    // 顶部导航
+    // 顶部导航（顺序：技术 → 项目 → 读书 → 随笔）
     nav: [
       { text: '首页', link: '/' },
       { text: '技术', link: '/tech/', activeMatch: '/tech/' },
+      { text: '项目', link: '/lab/', activeMatch: '/lab/' },
+      { text: '读书', link: '/notes/', activeMatch: '/notes/' },
       { text: '随笔', link: '/essay/', activeMatch: '/essay/' },
       { text: '关于', link: '/about' }
     ],
 
-    // 侧边栏（按分类配置）
+    // 侧边栏（按分类配置，顺序对齐 nav）
     sidebar: {
       '/tech/': [
         {
           text: '技术',
           items: [
             { text: '分类首页', link: '/tech/' },
-            { text: '三大Agent框架横评 OpenClaw / Hermes / Claude Code', link: '/tech/agent-frameworks-comparison' },
             { text: 'Stock Advisor 开发记录', link: '/tech/stock-advisor-dev' }
+          ]
+        }
+      ],
+      '/lab/': [
+        {
+          text: '项目',
+          items: [
+            { text: '分类首页', link: '/lab/' }
+          ]
+        }
+      ],
+      '/notes/': [
+        {
+          text: '读书',
+          items: [
+            { text: '分类首页', link: '/notes/' }
           ]
         }
       ],
@@ -48,7 +65,6 @@ export default defineConfig({
           text: '随笔',
           items: [
             { text: '分类首页', link: '/essay/' },
-            { text: '新生儿育儿安全 SOP（循证版）', link: '/essay/newborn-care-guide' },
             { text: '迎接小生命', link: '/essay/welcome-baby' }
           ]
         }
