@@ -4,7 +4,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   lang: 'zh-CN',
   title: '老李的博客',
-  description: '一个后端工程师的技术、投资与生活笔记',
+  description: '一个后端工程师的技术与生活笔记',
 
   // 部署到 https://xiagu2020.github.io，base 用根路径
   base: '/',
@@ -13,7 +13,7 @@ export default defineConfig({
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }],
     ['meta', { name: 'author', content: '老李 (XiaGu)' }],
-    ['meta', { name: 'keywords', content: '后端,AI,内容审核,Vue,股票,量化,网文' }]
+    ['meta', { name: 'keywords', content: '后端,AI,内容审核,Vue,Agent,网文,生活' }]
   ],
 
   lastUpdated: true,
@@ -27,7 +27,6 @@ export default defineConfig({
     nav: [
       { text: '首页', link: '/' },
       { text: '技术', link: '/tech/', activeMatch: '/tech/' },
-      { text: '投资', link: '/invest/', activeMatch: '/invest/' },
       { text: '随笔', link: '/essay/', activeMatch: '/essay/' },
       { text: '关于', link: '/about' }
     ],
@@ -41,15 +40,6 @@ export default defineConfig({
             { text: '分类首页', link: '/tech/' },
             { text: '三大Agent框架横评 OpenClaw / Hermes / Claude Code', link: '/tech/agent-frameworks-comparison' },
             { text: 'Stock Advisor 开发记录', link: '/tech/stock-advisor-dev' }
-          ]
-        }
-      ],
-      '/invest/': [
-        {
-          text: '投资',
-          items: [
-            { text: '分类首页', link: '/invest/' },
-            { text: '我的持仓与建仓原则', link: '/invest/portfolio-principles' }
           ]
         }
       ],
