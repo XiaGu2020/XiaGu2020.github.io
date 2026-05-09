@@ -39,6 +39,7 @@ export default defineConfig({
           text: '技术',
           items: [
             { text: '分类首页', link: '/tech/' },
+            { text: '三大Agent框架横评 OpenClaw / Hermes / Claude Code', link: '/tech/agent-frameworks-comparison' },
             { text: 'Stock Advisor 开发记录', link: '/tech/stock-advisor-dev' }
           ]
         }

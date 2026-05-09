@@ -4,6 +4,7 @@
 
 ## 文章列表
 
+- [三大Agent框架横评：OpenClaw / Hermes / Claude Code](./agent-frameworks-comparison) — 从架构、记忆、工具调用、上下文管理四个维度横向对比
 - [Stock Advisor 开发记录](./stock-advisor-dev) — 用 Node.js + Vue3 做一个个人的 A 股量化分析工具
 
 ## 写作主题
