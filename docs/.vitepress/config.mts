@@ -48,6 +48,7 @@ export default defineConfig({
           text: '随笔',
           items: [
             { text: '分类首页', link: '/essay/' },
+            { text: '新生儿育儿安全 SOP（循证版）', link: '/essay/newborn-care-guide' },
             { text: '迎接小生命', link: '/essay/welcome-baby' }
           ]
         }
