@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Phase 1 完整教材 · Transformer 原理 + 推理模型（W4-W6）</title>
+<style>
+  :root{
+    --bg:#0f1115;--card:#181b22;--card2:#1f232c;--line:#2a2f3a;
+    --txt:#e6e8ec;--muted:#9aa3b2;--hint:#6b7280;
+    --code:#0d1117;--str:#9ece6a;--kw:#c099f0;--num:#ff9e64;--cmt:#8b95b8;--fn:#7aa2f7;
+    --blue:#378ADD;--teal:#1D9E75;--amber:#EF9F27;--red:#E24B4A;--purple:#7F77DD;--coral:#D85A30;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,"PingFang SC",sans-serif;line-height:1.7;font-size:14.5px}
+  .layout{display:grid;grid-template-columns:240px 1fr;max-width:1400px;margin:0 auto}
+  aside{position:sticky;top:0;height:100vh;overflow-y:auto;padding:24px 16px;border-right:1px solid var(--line);background:var(--bg)}
+  aside h4{font-size:12px;color:var(--muted);text-transform:uppercase;margin:14px 0 6px;font-weight:500}
+  aside a{display:block;color:var(--muted);text-decoration:none;font-size:13px;padding:4px 8px;border-radius:5px;margin:1px 0}
+  aside a:hover{color:var(--txt);background:var(--card2)}
+  main{padding:32px 40px;max-width:920px}
+  h1{font-size:26px;font-weight:600;margin-bottom:8px}
+  h2{font-size:21px;font-weight:600;margin:42px 0 14px;padding-bottom:6px;border-bottom:2px solid var(--blue)}
+  h3{font-size:17px;font-weight:600;margin:26px 0 10px}
+  h4{font-size:15px;font-weight:600;margin:18px 0 8px;color:var(--blue)}
+  p{margin:8px 0;color:var(--txt)}
+  .lead{color:var(--muted);font-size:14px;margin:10px 0;border-left:3px solid var(--blue);padding:10px 14px;background:var(--card2);border-radius:0 8px 8px 0}
+  pre{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow-x:auto;font-family:"SF Mono","Menlo",Consolas,monospace;font-size:13.5px;line-height:1.7;margin:10px 0;color:#e6edf3}
+  code{font-family:"SF Mono","Menlo",Consolas,monospace;font-size:12.5px;background:var(--card2);padding:2px 6px;border-radius:4px;color:#f0d97a}
+  pre code{background:transparent;padding:0;color:inherit}
+  .kw{color:var(--kw)}.str{color:var(--str)}.num{color:var(--num)}.cmt{color:var(--cmt)}.fn{color:var(--fn)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:12px 0}
+  th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:var(--card2);color:var(--muted);font-weight:500;font-size:12px}
+  td code{font-size:12.5px}
+  ul,ol{margin:8px 0 8px 22px}
+  li{margin:4px 0;color:var(--txt)}
+  .tip{background:rgba(29,158,117,.1);border-left:3px solid var(--teal);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:13.5px}
+  .warn{background:rgba(226,75,74,.1);border-left:3px solid var(--red);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:13.5px}
+  .info{background:rgba(55,138,221,.1);border-left:3px solid var(--blue);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:13.5px}
+  .formula{background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:14px;margin:10px 0;font-family:"SF Mono",monospace;font-size:14px;color:#cdd6f4;text-align:center;line-height:2}
+  .badge{display:inline-block;background:var(--card2);border:1px solid var(--line);border-radius:4px;padding:2px 8px;font-size:11px;margin-right:5px;color:var(--muted)}
+  .qa{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 18px;margin:10px 0}
+  .qa .q{font-weight:500;color:var(--amber);margin-bottom:6px}
+  .qa .a{color:var(--muted);font-size:13.5px}
+  .chap{background:linear-gradient(180deg,var(--card),transparent);border-radius:10px;padding:18px 20px;margin:24px 0 16px;border:1px solid var(--line)}
+  .chap .num{display:inline-block;width:36px;height:36px;background:var(--blue);color:#fff;border-radius:8px;text-align:center;line-height:36px;font-weight:600;margin-right:10px;vertical-align:middle}
+  .chap .ttl{display:inline-block;font-size:18px;font-weight:600;vertical-align:middle}
+  .footer{margin-top:50px;padding-top:18px;border-top:1px solid var(--line);color:var(--hint);font-size:12px}
+  .meta-bar{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 18px}
+  details{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin:8px 0}
+  details summary{cursor:pointer;font-weight:500;color:var(--blue)}
+  details[open] summary{margin-bottom:8px}
+  .ascii{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:14px;overflow-x:auto;font-family:"SF Mono",monospace;font-size:12.5px;line-height:1.5;color:#9aa3b2;white-space:pre}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside>
+  <h4>Phase 1 教材目录</h4>
+  <a href="#intro">📖 阅读说明</a>
+  <a href="#w4">第 4 周 · 注意力机制</a>
+  <a href="#ch1">① Tokenizer 原理与 BPE</a>
+  <a href="#ch2">② Embedding：从词到向量</a>
+  <a href="#ch3">③ Self-Attention 完整推导</a>
+  <a href="#ch4">④ Multi-Head Attention</a>
+  <a href="#ch5">⑤ 手写 10 行 Attention</a>
+  <a href="#w5">第 5 周 · Transformer 全貌</a>
+  <a href="#ch6">⑥ Transformer 总架构</a>
+  <a href="#ch7">⑦ 位置编码（RoPE 重点）</a>
+  <a href="#ch8">⑧ LayerNorm + 残差</a>
+  <a href="#ch9">⑨ Encoder/Decoder/Decoder-Only</a>
+  <a href="#ch10">⑩ 预训练 vs 微调</a>
+  <a href="#ch11">⑪ 上下文窗口与 KV Cache</a>
+  <a href="#ch11moe">⑪.5 MoE 混合专家(2026 新增)</a>
+  <a href="#w6">第 6 周 · 推理模型</a>
+  <a href="#ch12">⑫ 幻觉成因</a>
+  <a href="#ch13">⑬ CoT / Self-Consistency</a>
+  <a href="#ch14">⑭ o1 / R1 / QwQ 推理范式</a>
+  <a href="#ch15">⑮ Test-Time Compute</a>
+  <h4>速查</h4>
+  <a href="#qa">🎯 Phase 1 高频面试题（20道）</a>
+  <a href="#cheat">📋 速查表</a>
+</aside>
+
+<main>
+
+<h1>Phase 1 完整教材：Transformer 原理 + 推理模型</h1>
+<p class="lead">
+<b>本教材的承诺</b>：3 周（W4–W6，约 30 小时）读完此一份文档 + 跟着推一遍公式，你将能：<br>
+① 在白板上画出 Transformer 完整架构并讲清每个组件的作用；<br>
+② 推导 Self-Attention 公式，解释每一步为什么这样设计；<br>
+③ 区分 BERT / GPT / T5 / DeepSeek-R1 的范式差异；<br>
+④ 答对 Phase 1 范畴 20 道一面高频题。<br>
+<b>不需要再上网搜资料</b>——所有原理、推导、面试要点都在这里。
+</p>
+
+<div class="meta-bar">
+  <span class="badge">前置：已完成 Phase 0（W1-W3）</span>
+  <span class="badge">总时长：≈30 小时</span>
+  <span class="badge">代码：PyTorch，~50 行</span>
+  <span class="badge">里程碑：W6 末完成 15 道八股自答</span>
+</div>
+
+<h2 id="intro">📖 阅读说明</h2>
+<p>本教材是 <b>「够用级原理」</b>定位——目标是能在面试中清晰讲出原理直觉，而不是手写训练框架。每章固定 4 段：① 5 句话原理 → ② 公式/代码 → ③ 易混淆点 → ④ 面试连接。</p>
+<div class="info"><b>学习节奏</b>：W4 学 ch1-5（注意力），W5 学 ch6-11（Transformer 全貌），W6 学 ch12-15（推理模型）+ 复习 + 八股自答。</div>
+
+<!-- =================== W4 =================== -->
+<h2 id="w4">📅 第 4 周 · 注意力机制（07/06–07/12）</h2>
+
+<div class="chap"><span class="num">1</span><span class="ttl">Tokenizer 原理与 BPE</span></div>
+
+<h3 id="ch1">1.1 五句话原理</h3>
+<ol>
+<li>计算机不懂文字，只懂数字 → 必须把文本切成 token 再映射成 id</li>
+<li>切到字符太碎（"unhappy" → u/n/h/a/p/p/y 失语义），切到词太大（OOV 严重，词表爆炸）</li>
+<li>BPE（Byte-Pair Encoding）= 频次驱动的子词切分，平衡词表大小和语义</li>
+<li>训练时统计 byte 对频次，反复合并最高频对到词表里直到达到目标大小</li>
+<li>2024 后主流 LLM 都用 BPE 变体（GPT 用 cl100k_base，Qwen 用 tiktoken 兼容版）</li>
+</ol>
+
+<h3>1.2 BPE 算法（伪代码）</h3>
+<pre><code><span class="kw">def</span> <span class="fn">bpe_train</span>(corpus, vocab_size):
+    <span class="cmt"># ① 初始词表 = 所有单字符</span>
+    vocab = <span class="fn">set</span>(c <span class="kw">for</span> word <span class="kw">in</span> corpus <span class="kw">for</span> c <span class="kw">in</span> word)
+    splits = {w: <span class="fn">list</span>(w) <span class="kw">for</span> w <span class="kw">in</span> corpus}
+
+    <span class="kw">while</span> <span class="fn">len</span>(vocab) &lt; vocab_size:
+        <span class="cmt"># ② 统计相邻 token 对的频次</span>
+        pair_freq = <span class="fn">Counter</span>()
+        <span class="kw">for</span> word, sym_list <span class="kw">in</span> splits.<span class="fn">items</span>():
+            <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(sym_list)-<span class="num">1</span>):
+                pair_freq[(sym_list[i], sym_list[i+<span class="num">1</span>])] += corpus[word]
+
+        <span class="cmt"># ③ 合并最高频对</span>
+        best = <span class="fn">max</span>(pair_freq, key=pair_freq.get)
+        new_token = <span class="str">""</span>.<span class="fn">join</span>(best)
+        vocab.<span class="fn">add</span>(new_token)
+
+        <span class="cmt"># ④ 在所有 splits 里把这个对替换为新 token</span>
+        <span class="kw">for</span> word <span class="kw">in</span> splits:
+            splits[word] = <span class="fn">merge_pair</span>(splits[word], best, new_token)
+    <span class="kw">return</span> vocab</code></pre>
+
+<h3>1.3 中英文 token 化对比</h3>
+<table>
+<tr><th>文本</th><th>tiktoken cl100k 切分</th><th>tokens</th></tr>
+<tr><td>hello world</td><td>[hello][ world]</td><td>2</td></tr>
+<tr><td>internationalization</td><td>[international][ization]</td><td>2</td></tr>
+<tr><td>你好世界</td><td>[你好][世界]（或单字）</td><td>2-4</td></tr>
+<tr><td>阅文集团</td><td>[阅][文][集团]</td><td>3</td></tr>
+</table>
+
+<div class="warn"><b>⚠️ 易混淆</b>
+<ul>
+<li><b>BPE vs WordPiece</b>：BPE 选频次最高对，WordPiece（BERT 用）选最大化语料概率的对。结果差不多</li>
+<li><b>SentencePiece</b>：是 Google 的 tokenizer 库，可以选 BPE 或 Unigram 算法，跨语言友好</li>
+<li><b>Tokenizer 是先训练好的</b>：训练时已固定，推理时不能再改；微调小模型时通常沿用原 tokenizer</li>
+</ul>
+</div>
+
+<h3>1.4 实战：用 tiktoken 算 token</h3>
+<pre><code><span class="kw">import</span> tiktoken
+enc = tiktoken.<span class="fn">get_encoding</span>(<span class="str">"cl100k_base"</span>)
+
+text = <span class="str">"漫剧审核中台支持新剧首发审核与连载更新审核"</span>
+ids = enc.<span class="fn">encode</span>(text)
+<span class="fn">print</span>(<span class="fn">len</span>(ids), ids[:<span class="num">10</span>])           <span class="cmt"># 看 token 数</span>
+<span class="fn">print</span>([enc.<span class="fn">decode</span>([i]) <span class="kw">for</span> i <span class="kw">in</span> ids])  <span class="cmt"># 看每个 token 是什么</span></code></pre>
+
+<div class="tip"><b>💡 工程价值</b>：所有大模型 API 按 token 计费。中文一个汉字平均 1.5–2 token，英文一个单词 1.3 token。一段 1000 字中文 ≈ 1500–2000 token。提前算清楚才能控成本。</div>
+
+<!-- ============ ch2 Embedding ============ -->
+<div class="chap"><span class="num">2</span><span class="ttl">Embedding：从词到向量</span></div>
+
+<h3 id="ch2">2.1 五句话原理</h3>
+<ol>
+<li>token id 只是一个整数，模型没法直接计算 → 必须查表变成稠密向量</li>
+<li>Embedding 矩阵 = [vocab_size × d_model]，每行是一个 token 的向量表示</li>
+<li>这个矩阵是<b>可训练参数</b>，训练时与其他权重一起反向传播更新</li>
+<li>训练完成后，语义相近的 token 在向量空间里距离更近（"国王-男+女≈女王" 经典）</li>
+<li>注意：模型内部的 token embedding ≠ 我们 RAG 用的 sentence embedding（前者按 token，后者按句子聚合）</li>
+</ol>
+
+<h3>2.2 Embedding lookup 在 PyTorch 里就一行</h3>
+<pre><code><span class="kw">import</span> torch
+<span class="kw">import</span> torch.nn <span class="kw">as</span> nn
+
+vocab_size, d_model = <span class="num">50000</span>, <span class="num">768</span>
+emb = nn.<span class="fn">Embedding</span>(vocab_size, d_model)   <span class="cmt"># 等价于一张可训练大表</span>
+
+token_ids = torch.<span class="fn">tensor</span>([[<span class="num">101</span>, <span class="num">2034</span>, <span class="num">9089</span>, <span class="num">102</span>]])   <span class="cmt"># [batch=1, seq=4]</span>
+x = <span class="fn">emb</span>(token_ids)                      <span class="cmt"># [1, 4, 768]</span>
+<span class="fn">print</span>(x.shape)</code></pre>
+
+<h3>2.3 词嵌入 vs 句嵌入</h3>
+<table>
+<tr><th>类型</th><th>粒度</th><th>来源</th><th>用途</th></tr>
+<tr><td>Token Embedding</td><td>token 级</td><td>LLM 内部第一层</td><td>模型计算</td></tr>
+<tr><td>Word Embedding（Word2Vec/GloVe）</td><td>词级</td><td>独立模型</td><td>历史方案，已被淘汰</td></tr>
+<tr><td>Sentence Embedding</td><td>句子/段落</td><td>BGE、text-embedding-v3 等</td><td>RAG 检索</td></tr>
+<tr><td>Contextualized Embedding</td><td>token 级但带上下文</td><td>BERT/GPT 中间层</td><td>下游 NLP 任务</td></tr>
+</table>
+
+<div class="info"><b>面试要点</b>：被问"什么是 Embedding"时，先问对方指哪一种。RAG 场景默认指句嵌入；讲 Transformer 内部结构时指 token embedding。</div>
+
+<!-- ============ ch3 Self-Attention ============ -->
+<div class="chap"><span class="num">3</span><span class="ttl">Self-Attention 完整推导（最重要的一章）</span></div>
+
+<h3 id="ch3">3.1 直觉先行：注意力解决什么</h3>
+<p>RNN 处理"<b>这只动物没过马路因为<u>它</u>太累了</b>"时，"它"指什么？RNN 必须把信息逐步传递，距离越远越易丢失。注意力机制让<b>序列里任意两个位置直接对话</b>，根据"相关性"加权聚合信息——"它"可以同时看所有词，发现"动物"权重最大。</p>
+
+<h3>3.2 Q / K / V 三个角色</h3>
+<p>这是最被问烂的题——但正确答案其实只有一句："<b>QKV 是同一序列的三个不同投影，分别扮演问询者、被检索者、信息提供者</b>"。</p>
+<table>
+<tr><th>角色</th><th>类比图书馆</th><th>来源</th></tr>
+<tr><td>Query (Q)</td><td>"我想找什么"（搜索关键词）</td><td>x · W_Q</td></tr>
+<tr><td>Key (K)</td><td>"我是关于什么"（书的标签）</td><td>x · W_K</td></tr>
+<tr><td>Value (V)</td><td>"我有什么内容"（书的正文）</td><td>x · W_V</td></tr>
+</table>
+
+<h3>3.3 完整公式（背下来）</h3>
+<div class="formula">
+Attention(Q, K, V) = softmax( Q · K<sup>T</sup> / √d_k ) · V
+</div>
+
+<h3>3.4 五步分解（每一步都要能解释）</h3>
+<div class="ascii">
+输入 X：[seq_len, d_model]    例如 (4, 768)
+
+Step 1  线性投影
+  Q = X @ W_Q     # [4, 64]
+  K = X @ W_K     # [4, 64]
+  V = X @ W_V     # [4, 64]
+
+Step 2  打分（Q 和 K 内积）
+  scores = Q @ K.T            # [4, 4]
+  含义：第 i 行第 j 列 = 第 i 个 token 对第 j 个 token 的"相关度"
+
+Step 3  缩放（除根号 d_k）
+  scores = scores / sqrt(64)
+  原因：d_k 越大，内积方差越大，softmax 变陡峭，梯度消失
+
+Step 4  归一化（softmax）
+  weights = softmax(scores, dim=-1)   # [4, 4]，每行和为 1
+  含义：每个 token 该把多少注意力分给其他 token
+
+Step 5  加权求和
+  output = weights @ V        # [4, 64]
+  含义：用 attention 权重对 V 做加权汇总
+</div>
+
+<h3>3.5 为什么除以 √d_k？（高频面试题）</h3>
+<p>设 q、k 的每一维都是均值 0、方差 1 的独立随机变量，则 q·k 的方差是 d_k。当 d_k 大（如 64、128）时，scores 的标准差 √d_k 也大，softmax 把绝大部分概率压到最大那一项 → 其他位置梯度几乎为 0，模型学不动。除以 √d_k 把方差拉回 1，softmax 平缓，梯度健康。</p>
+
+<div class="warn"><b>⚠️ 高频面试坑</b>：
+<ul>
+<li>问"为什么除 √d_k 而不是 √d_model"——答：每个 head 的维度是 d_k = d_model / h，是 head 维度而非整体</li>
+<li>问"K 和 V 必须不同吗"——答：理论上可同源（用 X 直接当 V），分开是给模型更多表达自由度，类似 ResNet 中的多分支</li>
+</ul>
+</div>
+
+<h3>3.6 Causal Mask（因果遮罩，GPT 必备）</h3>
+<p>训练 Decoder-Only 模型时，预测第 i 个 token 不能偷看 i+1 之后的 token，否则就是抄答案。Mask 就是把 scores 上三角设为 -∞，softmax 后变成 0。</p>
+<pre><code>seq = <span class="num">4</span>
+mask = torch.<span class="fn">triu</span>(torch.<span class="fn">ones</span>(seq, seq), diagonal=<span class="num">1</span>).<span class="fn">bool</span>()
+<span class="cmt"># mask = [[F, T, T, T],</span>
+<span class="cmt">#         [F, F, T, T],</span>
+<span class="cmt">#         [F, F, F, T],</span>
+<span class="cmt">#         [F, F, F, F]]</span>
+scores = scores.<span class="fn">masked_fill</span>(mask, <span class="fn">float</span>(<span class="str">"-inf"</span>))</code></pre>
+
+<!-- ============ ch4 Multi-Head ============ -->
+<div class="chap"><span class="num">4</span><span class="ttl">Multi-Head Attention</span></div>
+
+<h3 id="ch4">4.1 为什么要多头</h3>
+<p>一个注意力头只能学一种"视角"的依赖关系。多头 = 把 d_model 切成 h 份，每份各自做一次 attention，然后拼起来过一个线性层。<b>类比</b>：Java 里同一个对象用不同 interface 看到不同侧面。</p>
+
+<h3>4.2 维度变化（容易绕晕，画清楚）</h3>
+<div class="ascii">
+d_model = 768, num_heads = 12, d_k = 768/12 = 64
+
+输入 X:               [batch, seq, 768]
+                          │
+       W_Q, W_K, W_V      │ 各 [768, 768]
+                          ▼
+Q,K,V:                [batch, seq, 768]
+                          │
+              reshape 成多头
+                          ▼
+Q,K,V (multi-head):   [batch, 12, seq, 64]   # 把 768 切成 12 份每份 64
+                          │
+            每个 head 各自算 Attention
+                          ▼
+heads_out:            [batch, 12, seq, 64]
+                          │
+              concat 回去
+                          ▼
+out:                  [batch, seq, 768]
+                          │
+                  W_O   [768, 768]
+                          ▼
+final:                [batch, seq, 768]
+</div>
+
+<h3>4.3 参数量计算（面试可能让你算）</h3>
+<p>单层 Multi-Head Attention 参数量 = 4 × d_model² （W_Q, W_K, W_V, W_O 各一个）。<br>例：d_model=768 → 4 × 768² ≈ 2.36M 参数/层。一个 12 层 BERT-Base 仅 attention 部分就 28M 参数。</p>
+
+<!-- ============ ch5 手写代码 ============ -->
+<div class="chap"><span class="num">5</span><span class="ttl">手写 10 行 Attention（必须自己敲一遍）</span></div>
+
+<h3 id="ch5">5.1 极简版（10 行核心）</h3>
+<pre><code><span class="kw">import</span> torch
+<span class="kw">import</span> torch.nn.functional <span class="kw">as</span> F
+<span class="kw">import</span> math
+
+<span class="kw">def</span> <span class="fn">attention</span>(Q, K, V, mask=<span class="kw">None</span>):
+    d_k = Q.<span class="fn">size</span>(-<span class="num">1</span>)
+    scores = Q @ K.<span class="fn">transpose</span>(-<span class="num">2</span>, -<span class="num">1</span>) / math.<span class="fn">sqrt</span>(d_k)
+    <span class="kw">if</span> mask <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span>:
+        scores = scores.<span class="fn">masked_fill</span>(mask == <span class="num">0</span>, <span class="fn">float</span>(<span class="str">"-inf"</span>))
+    weights = F.<span class="fn">softmax</span>(scores, dim=-<span class="num">1</span>)
+    <span class="kw">return</span> weights @ V, weights</code></pre>
+
+<h3>5.2 带多头的完整模块（30 行）</h3>
+<pre><code><span class="kw">class</span> <span class="fn">MultiHeadAttention</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, d_model=<span class="num">768</span>, num_heads=<span class="num">12</span>):
+        <span class="fn">super</span>().<span class="fn">__init__</span>()
+        <span class="kw">assert</span> d_model % num_heads == <span class="num">0</span>
+        self.h = num_heads
+        self.d_k = d_model // num_heads
+        self.W_Q = nn.<span class="fn">Linear</span>(d_model, d_model)
+        self.W_K = nn.<span class="fn">Linear</span>(d_model, d_model)
+        self.W_V = nn.<span class="fn">Linear</span>(d_model, d_model)
+        self.W_O = nn.<span class="fn">Linear</span>(d_model, d_model)
+
+    <span class="kw">def</span> <span class="fn">forward</span>(self, x, mask=<span class="kw">None</span>):
+        B, T, D = x.shape
+        <span class="cmt"># 投影 + reshape 成 [B, h, T, d_k]</span>
+        Q = self.<span class="fn">W_Q</span>(x).<span class="fn">view</span>(B, T, self.h, self.d_k).<span class="fn">transpose</span>(<span class="num">1</span>,<span class="num">2</span>)
+        K = self.<span class="fn">W_K</span>(x).<span class="fn">view</span>(B, T, self.h, self.d_k).<span class="fn">transpose</span>(<span class="num">1</span>,<span class="num">2</span>)
+        V = self.<span class="fn">W_V</span>(x).<span class="fn">view</span>(B, T, self.h, self.d_k).<span class="fn">transpose</span>(<span class="num">1</span>,<span class="num">2</span>)
+
+        scores = Q @ K.<span class="fn">transpose</span>(-<span class="num">2</span>,-<span class="num">1</span>) / math.<span class="fn">sqrt</span>(self.d_k)
+        <span class="kw">if</span> mask <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span>:
+            scores = scores.<span class="fn">masked_fill</span>(mask == <span class="num">0</span>, <span class="fn">float</span>(<span class="str">"-inf"</span>))
+        attn = F.<span class="fn">softmax</span>(scores, dim=-<span class="num">1</span>)
+        out = attn @ V                        <span class="cmt"># [B, h, T, d_k]</span>
+
+        <span class="cmt"># concat 回去 + 输出投影</span>
+        out = out.<span class="fn">transpose</span>(<span class="num">1</span>,<span class="num">2</span>).<span class="fn">contiguous</span>().<span class="fn">view</span>(B, T, D)
+        <span class="kw">return</span> self.<span class="fn">W_O</span>(out)</code></pre>
+
+<div class="tip"><b>验证</b>：跑这段不报错就 OK。<br>
+<code>mha = MultiHeadAttention()<br>x = torch.randn(2, 10, 768)<br>print(mha(x).shape)  # torch.Size([2, 10, 768])</code></div>
+
+<!-- =================== W5 =================== -->
+<h2 id="w5">📅 第 5 周 · Transformer 全貌（07/13–07/19）</h2>
+
+<div class="chap"><span class="num">6</span><span class="ttl">Transformer 总架构（必背图）</span></div>
+
+<h3 id="ch6">6.1 一张图说清</h3>
+<div class="ascii">
+                  原版 Transformer (2017)
+
+         Encoder side                  Decoder side
+   ┌─────────────────────┐       ┌─────────────────────┐
+   │                     │       │                     │
+   │  Input Embedding    │       │  Output Embedding   │
+   │  + Positional Enc   │       │  + Positional Enc   │
+   │         │           │       │         │           │
+   │         ▼           │       │         ▼           │
+   │ ┌──────────────┐    │       │ ┌──────────────┐    │
+   │ │ Multi-Head   │    │       │ │ Masked MHA   │    │ ← 不能看后文
+   │ │  Attention   │    │       │ │              │    │
+   │ └──────┬───────┘    │       │ └──────┬───────┘    │
+   │        ▼            │       │        ▼            │
+   │   Add & LayerNorm   │       │   Add & LayerNorm   │
+   │        │            │       │        │            │
+   │        ▼            │       │        ▼            │
+   │ ┌──────────────┐    │       │ ┌──────────────┐    │
+   │ │  FFN (MLP)   │    │ ────► │ │ Cross-Attn   │    │ ← K,V 来自 Encoder
+   │ │  4×d_model   │    │       │ │ Q 来自 Decoder│   │
+   │ └──────┬───────┘    │       │ └──────┬───────┘    │
+   │        ▼            │       │        ▼            │
+   │   Add & LayerNorm   │       │   Add & LayerNorm   │
+   │        │            │       │        ▼            │
+   │   × N (一般6或12层)  │       │ ┌──────────────┐    │
+   │                     │       │ │     FFN      │    │
+   │                     │       │ └──────┬───────┘    │
+   │                     │       │   Add & LayerNorm   │
+   │                     │       │        │            │
+   │                     │       │   × N 层            │
+   └─────────┬───────────┘       │        ▼            │
+             │                   │   Linear + Softmax  │
+             │                   │        │            │
+             └──────────────────►│        ▼            │
+                                 │   下一个 token       │
+                                 └─────────────────────┘
+</div>
+
+<h3>6.2 三种范式（必须背熟）</h3>
+<table>
+<tr><th>范式</th><th>典型模型</th><th>特点</th><th>适用</th></tr>
+<tr><td>Encoder-Only</td><td>BERT, RoBERTa</td><td>双向注意力，看全句</td><td>分类/抽取/编码</td></tr>
+<tr><td>Decoder-Only</td><td>GPT, Qwen, Llama, DeepSeek</td><td>因果注意力，只能看左边</td><td>生成（2024 主流）</td></tr>
+<tr><td>Encoder-Decoder</td><td>T5, BART</td><td>翻译范式，跨注意力</td><td>翻译/摘要</td></tr>
+</table>
+
+<div class="info"><b>面试要点</b>：为什么 Decoder-Only 一统江湖？答：① 训练目标统一（全是 next token prediction）② 工程简单 ③ Scaling Law 上 Decoder-Only 表现最好 ④ Few-shot 能力强。BERT 这种 Encoder-Only 现在主要用于审核分类等专门任务（你的本职就是用 RoBERTa）。</div>
+
+<!-- ============ ch7 RoPE ============ -->
+<div class="chap"><span class="num">7</span><span class="ttl">位置编码（重点 RoPE）</span></div>
+
+<h3 id="ch7">7.1 为什么需要位置编码</h3>
+<p>Self-Attention 是 <b>位置无关</b> 的——把 "我打你" 和 "你打我" 的输入顺序打乱，attention 输出也打乱但内容相同，模型分不清谁打谁。所以必须额外注入位置信息。</p>
+
+<h3>7.2 三代位置编码演进</h3>
+<table>
+<tr><th>代</th><th>方法</th><th>典型模型</th><th>问题</th></tr>
+<tr><td>1代</td><td>固定正弦余弦（绝对位置）</td><td>原版 Transformer</td><td>外推差</td></tr>
+<tr><td>2代</td><td>可学习位置 embedding</td><td>BERT, GPT-2</td><td>超过训练长度直接坏</td></tr>
+<tr><td>3代</td><td>相对位置（T5 bias / ALiBi / RoPE）</td><td>2024 主流</td><td>各有取舍</td></tr>
+</table>
+
+<h3>7.3 RoPE（Rotary Position Embedding）核心</h3>
+<p>2024 后几乎所有主流 LLM（Llama / Qwen / DeepSeek / GLM）都用 RoPE。一句话：<b>用旋转矩阵把位置信息编进 Q 和 K</b>。</p>
+<p>关键性质：</p>
+<ul>
+<li>相对位置自然嵌入：q_m 和 k_n 的内积只依赖 m-n 的差值</li>
+<li>训练 4K 推理 32K 也能用（外推性好，配合 NTK / YaRN 可达 128K）</li>
+<li>计算开销小，不增加参数量</li>
+</ul>
+
+<div class="formula">
+RoPE: q_m' = R_θ_m · q_m,  k_n' = R_θ_n · k_n<br>
+&lt;q_m', k_n'&gt; = &lt;q_m, k_n&gt;_θ_(m-n)
+</div>
+
+<div class="warn"><b>⚠️ 面试常被深问</b>：上下文窗口怎么从 4K 扩到 128K？<br>
+<b>答</b>：① RoPE base 频率插值（PI）② NTK-aware（高频不变，低频拉伸）③ YaRN（更智能的频率分段缩放）④ 长度外推训练（先短后长继续训练）。这是 Qwen2.5、Llama3 长上下文的核心技术。</div>
+
+<!-- ============ ch8 LayerNorm ============ -->
+<div class="chap"><span class="num">8</span><span class="ttl">LayerNorm + 残差连接</span></div>
+
+<h3 id="ch8">8.1 LayerNorm vs BatchNorm</h3>
+<table>
+<tr><th></th><th>BatchNorm</th><th>LayerNorm</th></tr>
+<tr><td>归一化维度</td><td>跨样本（batch 维）</td><td>跨特征（feature 维）</td></tr>
+<tr><td>依赖 batch_size</td><td>是（小 batch 不稳）</td><td>否</td></tr>
+<tr><td>序列任务</td><td>不适合（变长）</td><td>完美适配</td></tr>
+<tr><td>典型用途</td><td>CNN</td><td>Transformer</td></tr>
+</table>
+
+<h3>8.2 Pre-Norm vs Post-Norm（细节但常考）</h3>
+<div class="ascii">
+Post-Norm（原版 2017）              Pre-Norm（GPT-2 起主流）
+       ▲                                     ▲
+   LayerNorm                              + (残差)
+       │                                  ┌──┴──┐
+       + (残差)                            │     │
+       ┌─┴─┐                            FFN  LayerNorm
+       │   │                              │     │
+     FFN   │                              └──┬──┘
+       │   │                                 ▲
+       └─┬─┘                                 │
+         │                                 ...
+        ...
+</div>
+<p><b>Pre-Norm 优势</b>：训练更稳定，深层模型不易梯度爆炸。代价：表达能力略弱。<b>2024 后几乎全用 Pre-Norm</b>，且 Norm 多换成 RMSNorm（Llama 用，速度更快）。</p>
+
+<h3>8.3 残差连接（Skip Connection）的作用</h3>
+<ul>
+<li><b>梯度高速公路</b>：让梯度可以直接从顶层流到底层，缓解深层网络梯度消失</li>
+<li><b>恒等学习</b>：当前层最差也能学成"什么都不变"，不会比浅层差</li>
+<li><b>是堆深层的前提</b>：没有残差，10 层以上的 Transformer 训不动</li>
+</ul>
+
+<!-- ============ ch9 三种范式 ============ -->
+<div class="chap"><span class="num">9</span><span class="ttl">Encoder / Decoder / Decoder-Only 深入</span></div>
+
+<h3 id="ch9">9.1 BERT vs GPT 完整对比</h3>
+<table>
+<tr><th></th><th>BERT（2018）</th><th>GPT 系列（2018-now）</th></tr>
+<tr><td>结构</td><td>Encoder-only</td><td>Decoder-only</td></tr>
+<tr><td>注意力</td><td>双向（看全句）</td><td>因果（只看左边）</td></tr>
+<tr><td>训练目标</td><td>MLM（遮 15% token 让其预测）+ NSP</td><td>Next Token Prediction</td></tr>
+<tr><td>使用方式</td><td>下游任务微调</td><td>Few-shot / Zero-shot prompt</td></tr>
+<tr><td>典型用途</td><td>分类、抽取、句嵌入</td><td>对话、生成</td></tr>
+<tr><td>2024 地位</td><td>NLU 任务仍主力（你的审核就是）</td><td>主流大模型范式</td></tr>
+</table>
+
+<h3>9.2 你为什么仍然用 RoBERTa 做审核</h3>
+<div class="info">RoBERTa = Robustly Optimized BERT。审核场景本质是<b>分类任务</b>（涉黄/涉政/正常），不需要生成。BERT 类双向注意力对短文本分类天然占优，且：<br>① 模型小（base 110M / large 340M），可本地部署 ② 推理快（一次 forward 出结果）③ 微调数据需求少（千级样本即可）④ 解释性强（可看 attention map）。<br>对生成式审核（带修改建议）才需要 Decoder-Only（如 Qwen3Guard）。</div>
+
+<!-- ============ ch10 预训练 ============ -->
+<div class="chap"><span class="num">10</span><span class="ttl">预训练 vs 微调 vs RAG 选型</span></div>
+
+<h3 id="ch10">10.1 预训练做什么</h3>
+<p>用海量无标注文本（万亿 token 级别），让模型学会语言的统计规律。GPT-3 在 300B token 上训练，Qwen3 在 36T token 上训练。这是大模型"涌现能力"的来源。</p>
+
+<h3>10.2 预训练 → SFT → RLHF/DPO 的完整流程</h3>
+<div class="ascii">
+   万亿级无监督文本
+          │
+          ▼
+   ┌────────────────┐
+   │  预训练 (PT)    │ ← Next Token Prediction
+   │  Base Model    │ ← 学会语言+知识
+   └────────┬───────┘
+            │
+   ┌────────▼───────┐
+   │  指令微调 (SFT) │ ← 几十万对话样本
+   │  Instruct Model│ ← 学会"对话+遵循指令"
+   └────────┬───────┘
+            │
+   ┌────────▼───────┐
+   │  对齐 (RLHF/DPO)│ ← 人类偏好数据
+   │  Chat Model    │ ← 学会"安全+有帮助"
+   └────────────────┘
+</div>
+
+<h3>10.3 三选一决策表</h3>
+<table>
+<tr><th>需求</th><th>选 RAG</th><th>选 SFT</th><th>选预训练</th></tr>
+<tr><td>知识更新快</td><td>✓✓✓</td><td>✗</td><td>✗</td></tr>
+<tr><td>专业领域语言风格</td><td>✗</td><td>✓✓✓</td><td>✓</td></tr>
+<tr><td>需要溯源</td><td>✓✓✓</td><td>✗</td><td>✗</td></tr>
+<tr><td>计算资源</td><td>少</td><td>中（LoRA 极少）</td><td>巨大</td></tr>
+<tr><td>数据量</td><td>少（直接堆文档）</td><td>千-万级</td><td>百亿级</td></tr>
+<tr><td>典型场景</td><td>企业知识库问答</td><td>客服特定话术、审核分类</td><td>从头训行业大模型</td></tr>
+</table>
+
+<!-- ============ ch11 KV Cache ============ -->
+<div class="chap"><span class="num">11</span><span class="ttl">上下文窗口与 KV Cache（推理性能基础）</span></div>
+
+<h3 id="ch11">11.1 上下文窗口是什么</h3>
+<p>模型一次能处理的最大 token 数。Qwen3 默认 128K，DeepSeek-V3 128K。决定能塞多长的文档/对话历史。<br>
+注意：上下文越长，<b>推理成本越高</b>（attention 是 O(n²)，KV Cache 是 O(n)），不是越长越好。</p>
+
+<h3>11.2 KV Cache 直觉</h3>
+<p>生成式模型一个 token 一个 token 出。每生成一个 token 要做一次完整 attention——但前面 t-1 个 token 的 K 和 V 在每一步都一样，重复算就浪费。<b>KV Cache = 把已经算过的 K/V 存下来，下一步直接用</b>。</p>
+
+<h3>11.3 内存计算（面试可能考）</h3>
+<div class="formula">
+KV Cache 内存 = 2 × num_layers × num_heads × d_head × seq_len × dtype × batch
+</div>
+<p>例：Qwen3-7B（32 层，32 头，d_head=128，FP16），batch=1，seq=8K：<br>
+2 × 32 × 32 × 128 × 8192 × 2 byte ≈ <b>4.3 GB</b>。<br>
+单条 8K 上下文就吃 4G 显存——为什么大模型推理这么吃显存的核心原因。</p>
+
+<div class="info"><b>引出 Phase 4 重点</b>：MQA / GQA（多个头共享一组 KV）、PagedAttention（vLLM 核心）、量化 KV Cache，都是为了压缩这个数字。</div>
+
+<!-- ============ ch11.5 MoE 补充（2026-06-13 校验补全） ============ -->
+<h3 id="ch11moe">11.5 MoE 混合专家（2026 必考）</h3>
+<p>2026 主流大模型（DeepSeek-V3 671B、Qwen3-235B-A22B、Mixtral 8x22B、GPT-4 系列推测、Claude 4.5）都用 <b>MoE 架构</b>。如果不会讲 MoE，P8 面试基本卡死。</p>
+
+<h3>11.5.1 一句话原理</h3>
+<p>把 FFN 层换成 <b>N 个并列的 Expert（专家）</b>，每个 token 经过一个 <b>Router（门控）</b>选 Top-K 个专家激活，剩下的不参与计算。<br>
+DeepSeek-V3：<b>671B 总参数，激活 37B</b>（Top-8 of 256）→ 推理算力 ≈ 37B 稠密模型，但效果接近 671B。</p>
+
+<h3>11.5.2 计算流程（伪代码）</h3>
+<pre><code><span class="cmt"># 每个 token 单独路由，不是整个 batch 一起</span>
+<span class="kw">for</span> token <span class="kw">in</span> sequence:
+    gate_logits = Router(hidden)        <span class="cmt"># [num_experts]</span>
+    top_k_idx = topk(gate_logits, k=<span class="num">2</span>)   <span class="cmt"># 选 Top-2</span>
+    top_k_w = softmax(top_k_idx)         <span class="cmt"># 加权</span>
+    out = sum(top_k_w[i] * Expert[idx](hidden) <span class="kw">for</span> i, idx <span class="kw">in</span> top_k)
+</code></pre>
+
+<h3>11.5.3 三大工程难点（面试连环问）</h3>
+<ol style="margin:8px 0 8px 22px">
+<li><b>负载均衡</b>：朴素训练会出现少数专家被狂选、大部分专家闲置 → 加 <b>auxiliary loss</b> 或 DeepSeek 的 <b>auxiliary-loss-free</b>（用偏置项软调）。</li>
+<li><b>显存爆炸</b>：671B 总参数即使激活 37B，显存还是要装下全部专家 → 用 <b>EP（Expert Parallel）</b>把不同专家分到不同 GPU。</li>
+<li><b>训练不稳定</b>：路由抖动导致梯度噪声大 → DeepSeekMoE 用「细粒度专家 + 共享专家」（256 个细专家 + 8 个共享专家）改善。</li>
+</ol>
+
+<h3>11.5.4 稠密 vs MoE 选型</h3>
+<table>
+<tr><th>维度</th><th>稠密（Llama3-70B）</th><th>MoE（DeepSeek-V3）</th></tr>
+<tr><td>训练成本</td><td>固定</td><td>同效果下省 5-10x FLOPs</td></tr>
+<tr><td>推理显存</td><td>140GB</td><td>1342GB（全专家加载）</td></tr>
+<tr><td>推理算力</td><td>140G FLOPs/token</td><td>74G FLOPs/token</td></tr>
+<tr><td>部署难度</td><td>低</td><td>高（需 EP + 高带宽互联）</td></tr>
+<tr><td>适合场景</td><td>单卡 / 小集群</td><td>大集群 / 云推理</td></tr>
+</table>
+
+<h3>11.5.5 面试三段位答法</h3>
+<div class="info">
+<b>P7 答</b>：知道 MoE 是混合专家，DeepSeek 用了。<br>
+<b>P8 答</b>：「MoE 把 FFN 改成 N 个 Expert + Router 选 Top-K。DeepSeek-V3 671B 总参激活 37B，是稀疏激活。三大难点：负载均衡（aux loss）、显存（EP 并行）、训练稳定（细粒度+共享专家）。和稠密相比同效果省 5-10x 训练 FLOPs，但推理需大集群 + 高速互联。」<br>
+<b>P9 答</b>：「MoE 是<b>计算-显存 trade-off</b>：用更多显存换更少算力。选稠密还是 MoE 看部署形态——单机/边缘 → 稠密；大集群云推理 → MoE。2026 趋势是 MoE 通用化（GPT-4/Claude 4.5/Gemini 都是 MoE 推测），稠密只在端侧/小模型场景。审核业务 70B 以下选稠密（Qwen3-8B），疑难复核可调用 DeepSeek-V3 MoE API。」
+</div>
+
+<div class="warn"><b>易踩坑</b>：① 误以为 MoE 推理省显存——错，全专家都要在显存里；② 把 K（每 token 选几个专家）和 N（总专家数）搞混；③ 单卡跑 MoE 模型不开 EP，专家来回切换比稠密还慢。</div>
+
+<!-- =================== W6 =================== -->
+<h2 id="w6">📅 第 6 周 · 推理模型 + Test-Time Compute（07/20–07/26）</h2>
+
+<div class="chap"><span class="num">12</span><span class="ttl">幻觉成因（高频面试）</span></div>
+
+<h3 id="ch12">12.1 什么是幻觉</h3>
+<p>大模型自信地输出错误信息。例：你问"《庆余年》第 80 章主要讲什么"，模型可能编造一个看起来很合理但完全错误的剧情。</p>
+
+<h3>12.2 五大成因</h3>
+<table>
+<tr><th>成因</th><th>例子</th><th>缓解</th></tr>
+<tr><td>训练目标偏差</td><td>NTP 鼓励"流畅"，未必"正确"</td><td>RLHF/DPO 对齐</td></tr>
+<tr><td>训练数据噪声</td><td>训练数据里就有错</td><td>数据清洗</td></tr>
+<tr><td>知识过时/缺失</td><td>2023 训完不知道 2026 的事</td><td>RAG / 联网搜索</td></tr>
+<tr><td>长尾知识不足</td><td>冷门事实记不清</td><td>RAG 注入</td></tr>
+<tr><td>解码随机性</td><td>temperature 高时</td><td>降 temp，self-consistency</td></tr>
+</table>
+
+<!-- ============ ch13 CoT ============ -->
+<div class="chap"><span class="num">13</span><span class="ttl">CoT / Self-Consistency / ToT</span></div>
+
+<h3 id="ch13">13.1 CoT（Chain of Thought）</h3>
+<p><b>核心发现</b>：让模型在给出最终答案前先"写出推理过程"，准确率显著提升。<br>
+<b>触发方式</b>：① Zero-shot CoT：在 prompt 里加 "Let's think step by step" ② Few-shot CoT：示例里展示推理过程</p>
+
+<h3>13.2 Self-Consistency</h3>
+<p>同一问题让模型答 N 次（temperature&gt;0），投票取最多的答案。GSM8K 上 +18% 准确率。代价：N 倍 token 成本。</p>
+
+<h3>13.3 ToT（Tree of Thoughts）</h3>
+<p>把推理建模成树搜索，每步生成多个候选思路，评分后选最优分支继续。适合"24 点"、密码破解这类需要回溯的题。</p>
+
+<table>
+<tr><th>方法</th><th>成本</th><th>适用</th></tr>
+<tr><td>Direct</td><td>1×</td><td>简单题</td></tr>
+<tr><td>CoT</td><td>1.5×</td><td>多步推理</td></tr>
+<tr><td>Self-Consistency</td><td>5–10×</td><td>数学/逻辑题</td></tr>
+<tr><td>ToT</td><td>20–50×</td><td>需回溯的难题</td></tr>
+</table>
+
+<!-- ============ ch14 推理模型 ============ -->
+<div class="chap"><span class="num">14</span><span class="ttl">o1 / R1 / QwQ — 2026 推理模型范式</span></div>
+
+<h3 id="ch14">14.1 推理模型是什么</h3>
+<p>2024 年 OpenAI o1 横空出世，开创"推理模型"新范式：<b>把 CoT 内化到模型权重里，模型生成时自动产生超长思维链</b>，而不是靠 prompt 触发。</p>
+
+<h3>14.2 三大代表对比</h3>
+<table>
+<tr><th></th><th>OpenAI o1/o3</th><th>DeepSeek-R1</th><th>Qwen QwQ-32B</th></tr>
+<tr><td>训练核心</td><td>未公开（猜测大规模 RL）</td><td>纯 RL（GRPO，无 SFT 起步）</td><td>RL（基于 Qwen2.5）</td></tr>
+<tr><td>是否开源</td><td>否</td><td>✓ 全开源 + 论文</td><td>✓ 模型权重</td></tr>
+<tr><td>思维链</td><td>对用户隐藏</td><td>对用户可见</td><td>可见</td></tr>
+<tr><td>典型场景</td><td>SOTA</td><td>行业标杆，性价比之王</td><td>32B 极致性价比</td></tr>
+</table>
+
+<h3>14.3 R1 训练范式（必懂）</h3>
+<div class="ascii">
+DeepSeek-R1 训练流程（简化版）
+
+  Base Model (DeepSeek-V3)
+         │
+         ▼
+   ┌─────────────────────┐
+   │ R1-Zero 实验：       │
+   │ 直接 RL（GRPO）       │ ← 完全跳过 SFT，纯靠 RL 涌现推理
+   │ 发现：效果好但可读性差│
+   └──────────┬──────────┘
+              │
+              ▼
+   ┌─────────────────────┐
+   │ R1 正式版：           │
+   │ 1. 少量冷启动 SFT     │ ← 让格式好看
+   │ 2. 推理 RL           │
+   │ 3. 拒绝采样 SFT       │
+   │ 4. 全场景 RL         │
+   └─────────────────────┘
+</div>
+
+<div class="info"><b>面试要点</b>：R1 最重要的发现是 <b>"RL 可以直接让模型涌现长思维链能力"</b>，这颠覆了"必须先 SFT 再 RL"的传统认知。GRPO（Group Relative Policy Optimization）是核心算法，比 PPO 更省（不需要 critic 模型）。</div>
+
+<h3>14.4 什么时候用推理模型</h3>
+<table>
+<tr><th>该用</th><th>不该用</th></tr>
+<tr><td>数学题、代码、逻辑推理</td><td>普通对话、闲聊</td></tr>
+<tr><td>需要严谨步骤的任务</td><td>风格化创作（容易过度推理）</td></tr>
+<tr><td>评估、批判类</td><td>低延迟场景（推理慢得多）</td></tr>
+<tr><td>翻译、摘要</td><td>高 throughput 服务</td></tr>
+</table>
+
+<!-- ============ ch15 TTC ============ -->
+<div class="chap"><span class="num">15</span><span class="ttl">Test-Time Compute（测试时计算）</span></div>
+
+<h3 id="ch15">15.1 概念</h3>
+<p>传统观点：算力都花在训练，推理越快越好。<b>新观点（OpenAI o1 后）</b>：<b>推理时多花算力可换取更高质量</b>，类似人类"想得久答得对"。</p>
+
+<h3>15.2 三种增加推理算力的方式</h3>
+<ol>
+<li><b>更长思维链</b>（推理模型默认做的）：让模型多想几千 token 再输出答案</li>
+<li><b>多次采样投票</b>（Self-Consistency / Best-of-N）：算 N 次取最优</li>
+<li><b>搜索 + 验证</b>（ToT、PRM 引导搜索）：用 Process Reward Model 评每一步，剪枝</li>
+</ol>
+
+<h3>15.3 经济学视角</h3>
+<p>训练一次模型 = 一次性高成本。推理时 = 每次调用都付费。Test-Time Compute 让"小模型 + 多算"可能赢"大模型 + 一次"——这是 2026 行业的关键变化。审核场景应用：<b>对疑难案例多算几次比一次过更准</b>。</p>
+
+<!-- ============ 面试题 ============ -->
+<h2 id="qa">🎯 Phase 1 高频面试题（20 道，含答案要点）</h2>
+
+<details><summary>1. 用一句话解释 Self-Attention</summary>
+<div class="qa"><div class="a">把序列里每个位置的特征，按它和其他位置的"相关度"加权聚合，让任意两个位置可以直接交互。</div></div>
+</details>
+
+<details><summary>2. Q、K、V 分别是什么？为什么不直接用 X？</summary>
+<div class="qa"><div class="a">Q/K/V 都是 X 的线性投影：Q = X·W_Q（问询）、K = X·W_K（被检索）、V = X·W_V（信息载体）。直接用 X 会限制表达力（Q 和 K 必须长得一样），分开投影让模型能学三种不同视角。</div></div>
+</details>
+
+<details><summary>3. 为什么 Attention 公式里要除 √d_k？</summary>
+<div class="qa"><div class="a">d_k 越大，q·k 内积方差越大（≈ d_k），softmax 在大方差下变陡峭，几乎只激活最大值，其他位置梯度为 0，模型学不动。除 √d_k 把方差拉回 1，softmax 平缓，梯度健康。</div></div>
+</details>
+
+<details><summary>4. Multi-Head 比 Single-Head 好在哪？</summary>
+<div class="qa"><div class="a">单头只能学一种关注模式（如句法）；多头可以并行学多种（句法/语义/位置/共指等），最后拼起来。代价是参数量不变（d_model 切成 h 份），所以"几乎免费的多视角"。</div></div>
+</details>
+
+<details><summary>5. BERT 和 GPT 的本质差异？</summary>
+<div class="qa"><div class="a">① 结构：BERT Encoder-only 双向 / GPT Decoder-only 因果 ② 训练：BERT MLM（遮词预测）/ GPT NTP（next token）③ 用法：BERT 微调下游 / GPT prompt 直用 ④ 现状：BERT 仍主导分类抽取，GPT 主导生成。</div></div>
+</details>
+
+<details><summary>6. 为什么现在主流大模型都用 Decoder-Only？</summary>
+<div class="qa"><div class="a">① 训练目标统一（NTP 一招通吃）② 工程简单（一种 attention）③ Scaling Law 上 Decoder-Only 表现最佳 ④ Few-shot/in-context learning 能力强 ⑤ 长上下文友好。Encoder-Only 仅在专门 NLU 任务（分类抽取）有优势。</div></div>
+</details>
+
+<details><summary>7. 位置编码为什么必要？演进路线？</summary>
+<div class="qa"><div class="a">Self-Attention 位置无关，必须额外注入位置信息。1代正弦/余弦绝对位置 → 2代可学习 embedding → 3代相对位置（T5 bias、ALiBi、RoPE）。2024+ 主流是 RoPE，外推性最好。</div></div>
+</details>
+
+<details><summary>8. RoPE 比之前的位置编码强在哪？</summary>
+<div class="qa"><div class="a">① 用旋转矩阵把位置编进 Q/K，&lt;q_m, k_n&gt; 自然只依赖 m-n（相对位置）② 训练 4K 推理 32K 也能用（外推性好）③ 不增加参数 ④ 配合 NTK/YaRN 可达 128K+。</div></div>
+</details>
+
+<details><summary>9. LayerNorm 和 BatchNorm 区别？为什么 Transformer 用前者？</summary>
+<div class="qa"><div class="a">BN 跨样本归一化（依赖 batch_size，序列变长时不便），LN 跨特征归一化（与 batch 解耦）。Transformer 序列任务变长且推理 batch=1 常见，必须用 LN。</div></div>
+</details>
+
+<details><summary>10. Pre-Norm 和 Post-Norm 选哪个？为什么？</summary>
+<div class="qa"><div class="a">2024+ 主流 Pre-Norm（在 attention/FFN 前 norm）。原因：训练更稳定，深层（&gt;100 层）也能收敛。Post-Norm 表达更强但容易梯度爆炸。Llama 等还把 LN 换成 RMSNorm（去掉减均值，更快）。</div></div>
+</details>
+
+<details><summary>11. 残差连接的作用？没有它会怎样？</summary>
+<div class="qa"><div class="a">① 梯度高速公路（缓解深层梯度消失）② 恒等学习（最坏情况是不变，不会更差）③ 是堆深层的前提。没有残差连接，10 层以上 Transformer 训不动。</div></div>
+</details>
+
+<details><summary>12. KV Cache 是什么？为什么必要？</summary>
+<div class="qa"><div class="a">生成式模型一次出一个 token，每步要做完整 attention，但前面 t-1 个 token 的 K/V 不变。把它们缓存下来下次直接用，就是 KV Cache。不做就 O(n²) 重复计算，慢且贵。</div></div>
+</details>
+
+<details><summary>13. KV Cache 占多大显存？怎么算？</summary>
+<div class="qa"><div class="a">公式：2 × num_layers × num_heads × d_head × seq_len × dtype_bytes × batch。Qwen3-7B（32层32头d=128 FP16）batch=1 seq=8K → ≈4.3GB。压缩方案：MQA/GQA、PagedAttention、INT8 KV 量化。</div></div>
+</details>
+
+<details><summary>14. 上下文窗口怎么从 4K 扩到 128K？</summary>
+<div class="qa"><div class="a">① RoPE base 频率插值（PI）② NTK-aware（高频不变低频拉伸）③ YaRN（智能分段缩放）④ 长度外推训练（先短后长继续训练）⑤ 用 Sliding Window / Sparse Attention 让 attention 不再 O(n²)。Qwen2.5、Llama3 都靠组合方案。</div></div>
+</details>
+
+<details><summary>15. 幻觉是什么？怎么缓解？</summary>
+<div class="qa"><div class="a">大模型自信输出错误信息。成因：训练目标偏向"流畅"非"正确"、训练数据噪声、知识过时、长尾不足、解码随机。缓解：RAG 注入事实、降低 temperature、引用验证、self-consistency 投票、对齐训练。</div></div>
+</details>
+
+<details><summary>16. CoT 为什么有效？</summary>
+<div class="qa"><div class="a">把"一步出答案"变成"多步小推理"，每步只解决子问题，复杂度大大降低。本质是把模型推理空间从单 token 扩展到多 token，让 attention 在中间步骤分摊计算。GSM8K 上 +30% 准确率。</div></div>
+</details>
+
+<details><summary>17. CoT、Self-Consistency、ToT 的差别？</summary>
+<div class="qa"><div class="a">CoT：单条思维链（1×成本）。Self-Consistency：多条思维链投票（5-10×）。ToT：树搜索 + 评分剪枝（20-50×）。成本与可靠性递增。审核疑难案例可用 Self-Consistency。</div></div>
+</details>
+
+<details><summary>18. o1 / R1 这类"推理模型"和普通大模型的区别？</summary>
+<div class="qa"><div class="a">普通模型靠 prompt 触发 CoT；推理模型把"长 CoT 思考"内化到权重里，生成时自动产生超长思维链。训练核心是大规模 RL（DeepSeek-R1 用 GRPO）。强项：数学/代码/逻辑；弱项：闲聊、风格化创作、低延迟场景。</div></div>
+</details>
+
+<details><summary>19. DeepSeek-R1 的 GRPO 是什么？比 PPO 强在哪？</summary>
+<div class="qa"><div class="a">GRPO = Group Relative Policy Optimization。同一 prompt 采样一组回答（如 8 条），组内归一化算 advantage，不需要 critic 模型。比 PPO 省一半显存且训练更稳。是 R1 涌现长 CoT 的关键。</div></div>
+</details>
+
+<details><summary>20. Test-Time Compute 是什么？为什么 2026 这么火？</summary>
+<div class="qa"><div class="a">推理时多花算力换更高质量（更长 CoT、多次采样、搜索验证）。火起来因为：① o1 实证有效 ② 训练 Scaling 趋缓，推理 Scaling 是新维度 ③ 让小模型 + 多算可以打败大模型 + 一次。审核场景：疑难案例多算几次比一次过更准。</div></div>
+</details>
+
+<!-- ============ 速查 ============ -->
+<h2 id="cheat">📋 速查表汇总</h2>
+
+<h4>核心公式速记</h4>
+<div class="formula">
+Attention(Q,K,V) = softmax(QK<sup>T</sup>/√d_k) · V<br>
+&nbsp;<br>
+KV Cache 内存 = 2·L·H·d_h·n·dtype·B<br>
+&nbsp;<br>
+参数量 ≈ 12·L·d_model²  （单层 Transformer 主体）
+</div>
+
+<h4>关键术语速查</h4>
+<table>
+<tr><td>NTP</td><td>Next Token Prediction，预训练目标</td></tr>
+<tr><td>MLM</td><td>Masked Language Model，BERT 训练目标</td></tr>
+<tr><td>SFT</td><td>Supervised Fine-Tuning，指令微调</td></tr>
+<tr><td>RLHF</td><td>RL with Human Feedback，人类反馈强化学习</td></tr>
+<tr><td>DPO</td><td>Direct Preference Optimization，直接偏好优化（无需 reward model）</td></tr>
+<tr><td>GRPO</td><td>Group Relative PO，DeepSeek 改进版 PPO</td></tr>
+<tr><td>RoPE</td><td>Rotary Position Embedding，旋转位置编码</td></tr>
+<tr><td>MQA / GQA</td><td>Multi/Group Query Attention，省 KV 内存</td></tr>
+<tr><td>RMSNorm</td><td>Root Mean Square Norm，简化版 LayerNorm</td></tr>
+<tr><td>CoT</td><td>Chain of Thought，思维链</td></tr>
+<tr><td>TTC</td><td>Test-Time Compute，推理时计算</td></tr>
+</table>
+
+<div class="footer">
+本教材是 Phase 1 的全部内容。学完按 W6 自查清单（≥15 道八股能自答）确认 ✓ 后即可进入 Phase 2（RAG）。<br>
+配套排期：<code>outputs/ai-2026-schedule-21weeks.html</code> · 配套 Phase 0：<code>outputs/phase0-python-llm-handbook.html</code><br>
+WorkBuddy · 2026-06-13
+</div>
+
+</main>
+</div>
+</body>
+</html>

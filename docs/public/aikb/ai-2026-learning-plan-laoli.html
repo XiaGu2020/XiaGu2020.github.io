@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>老李的 2026 AI 时代学习大纲</title>
+<style>
+  :root{
+    --bg:#0f1115; --card:#181b22; --card2:#1f232c; --line:#2a2f3a;
+    --txt:#e6e8ec; --muted:#9aa3b2; --hint:#6b7280;
+    --blue:#378ADD; --teal:#1D9E75; --coral:#D85A30; --amber:#EF9F27;
+    --red:#E24B4A; --purple:#7F77DD; --pink:#D4537E; --green:#639922;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.65;padding:32px 20px;font-size:14px}
+  .wrap{max-width:1100px;margin:0 auto}
+  h1{font-size:24px;font-weight:600;margin-bottom:6px}
+  h2{font-size:18px;font-weight:600;margin:36px 0 14px;padding-left:10px;border-left:3px solid var(--blue)}
+  h3{font-size:15px;font-weight:600;margin:18px 0 8px;color:var(--txt)}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:4px}
+  .lead{color:var(--muted);font-size:14px;margin:10px 0 0;max-width:820px}
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:1fr 1fr 1fr}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
+  .card h3{margin-top:0}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:500;font-size:12px;background:var(--card2)}
+  td code{background:var(--card2);padding:1px 6px;border-radius:4px;font-size:12px;color:#cdd3dc}
+  .tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;margin:2px 4px 2px 0}
+  .t-p0{background:rgba(226,75,74,.18);color:#f0999} 
+  .t-p1{background:rgba(239,159,39,.18);color:#f0bf7e}
+  .t-p2{background:rgba(55,138,221,.18);color:#8fc0ef}
+  .t-have{background:rgba(29,158,117,.2);color:#6fd6b3}
+  .t-gap{background:rgba(226,75,74,.18);color:#f0999}
+  .phase{display:flex;gap:14px;margin-bottom:12px}
+  .phase-num{flex:0 0 46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:600;color:#fff}
+  .phase-body{flex:1}
+  .phase-body .t{font-weight:600;font-size:15px}
+  .phase-body .d{color:var(--muted);font-size:13px;margin-top:2px}
+  .meta{color:var(--hint);font-size:12px;margin-top:4px}
+  ul{margin:6px 0 0 18px}
+  li{margin:3px 0;color:var(--muted);font-size:13px}
+  li b{color:var(--txt);font-weight:500}
+  .pill{display:inline-block;background:var(--card2);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:12px;margin:3px 5px 3px 0;color:var(--muted)}
+  .bar-row{display:flex;align-items:center;gap:10px;margin:7px 0}
+  .bar-label{flex:0 0 150px;font-size:13px}
+  .bar-track{flex:1;background:var(--card2);border-radius:6px;height:20px;overflow:hidden;position:relative}
+  .bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:11px;color:#fff;font-weight:500}
+  .footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--hint);font-size:12px}
+  .badge{display:inline-block;background:var(--card2);border:1px solid var(--line);border-radius:6px;padding:3px 9px;font-size:12px;margin-right:6px;color:var(--muted)}
+  .hl{color:var(--amber);font-weight:500}
+  .ok{color:var(--teal)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>老李的 2026 AI 时代学习大纲</h1>
+  <p class="sub">7 年 Java 网文审核后端 · 转型 AI 应用工程 / 多模态审核 / Agent 全栈</p>
+  <div>
+    <span class="badge">数据来源：字节 / 快手 / 腾讯 / Shopee 近 1 个月真实面经</span>
+    <span class="badge">更新日期：2026-06-13</span>
+    <span class="badge">在职学习节奏：10–15h/周</span>
+  </div>
+  <p class="lead">核心判断：2026 的大厂 AI 面试已经从「问模型原理」转向「<span class="hl">拷打系统能力</span>」——RAG 不再问流程而追问 trade-off，微调从 SFT 扩到 DPO/LoRA/QLoRA，推理优化成了拉开差距的分水岭。你的优势是工程思维 + 审核领域壁垒，要补的是 AI 工程范式 + Python 生态 + 系统设计的「AI 味」。</p>
+
+  <h2>① 全景：6 阶段从 0 到能上岸（含复习锚点）</h2>
+  <div class="card">
+    <div class="phase">
+      <div class="phase-num" style="background:var(--gray,#5F5E5A)">0</div>
+      <div class="phase-body">
+        <div class="t">地基期 · Python 生态 + 大模型初体验 <span class="meta">约 2–3 周</span></div>
+        <div class="d">你不需要从 0 学 Python，目标是「够用」：能流畅调 API、处理数据、写脚本。一周内跑通第一个 LLM 调用。</div>
+        <ul>
+          <li><b>Python 速通</b>：语法差异速查（对照 Java）、虚拟环境、NumPy/Pandas、requests/httpx</li>
+          <li><b>大模型调用</b>：OpenAI / Qwen / DeepSeek API、流式输出、Function Calling、结构化输出（JSON mode）</li>
+          <li><b>Java 选手专属</b>：Spring AI / LangChain4j 入门（你的主栈不丢）</li>
+          <li>📌 复习锚点：<code>python-for-java-devs</code> · <code>python-env-setup</code></li>
+        </ul>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num" style="background:var(--blue)">1</div>
+      <div class="phase-body">
+        <div class="t">原理期 · 大模型「够用级」原理 <span class="meta">约 3 周</span></div>
+        <div class="d">不深挖数学，但面试一面常问「对 AIGC 的理解」「了解哪些大模型」。要能讲清 Transformer/Attention 的直觉和 trade-off。</div>
+        <ul>
+          <li><b>必懂</b>：Tokenizer/Embedding、Attention、Transformer、预训练 vs 微调、上下文窗口、幻觉成因</li>
+          <li><b>2026 新增热点</b>：推理模型（o1/o3/R1/QwQ）、Test-Time Compute、MoE、长上下文</li>
+          <li>📌 复习锚点：<code>transformer-architecture</code> · <code>attention-mechanism</code> · <code>reasoning-models-and-test-time-compute</code></li>
+        </ul>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num" style="background:var(--teal)">2</div>
+      <div class="phase-body">
+        <div class="t">RAG 期 · 检索增强（面试必问，深挖 trade-off）<span class="meta">约 4 周 ★重点</span></div>
+        <div class="d">2026 面试不再问「RAG 流程是什么」，而追问每个环节你做了什么优化。这是你审核知识库经验的最佳变现点。</div>
+        <ul>
+          <li><b>全链路</b>：文档解析 → 切块策略（语义切分 vs 固定长度）→ Embedding 选型 → 向量库 → 混合检索（向量+BM25+RRF）→ Rerank → 生成引用标注</li>
+          <li><b>深水区</b>：Lost in the Middle、Query Rewrite、知识库更新防旧索引污染、检索质量 vs 答案质量评估、元数据过滤 / 权限隔离</li>
+          <li><b>进阶范式</b>：Self-RAG、GraphRAG、自适应检索</li>
+          <li>📌 复习锚点：<code>rag-architecture</code> · <code>vector-database</code> · <code>embedding-and-encoding</code></li>
+        </ul>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num" style="background:var(--purple)">3</div>
+      <div class="phase-body">
+        <div class="t">Agent 期 · 智能体编排（2026 最热）<span class="meta">约 4 周 ★重点</span></div>
+        <div class="d">字节/快手/腾讯 Agent 岗高频。核心判断标准：多步自主决策 + 反馈闭环。你的审核链路天然是多步决策场景。</div>
+        <ul>
+          <li><b>基础</b>：ReAct vs Plan-and-Execute、Function Calling 原理、Agent vs Prompt Chain 本质区别</li>
+          <li><b>记忆设计</b>：工作记忆 / 会话记忆（摘要滚动）/ 长期记忆（向量+结构化）三层架构</li>
+          <li><b>多智能体</b>：Multi-Agent 协作、A2A 框架、MCP 协议、框架选型（LangGraph/LlamaIndex）</li>
+          <li><b>工程化</b>：Agent 评估指标、失败模式、可控性与对齐</li>
+          <li>📌 复习锚点：<code>agent-architecture</code> · <code>react-and-planning</code> · <code>mcp-protocol</code></li>
+        </ul>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num" style="background:var(--amber)">4</div>
+      <div class="phase-body">
+        <div class="t">微调 + 推理优化期 · 工程分水岭 <span class="meta">约 4 周 ★拉差距</span></div>
+        <div class="d">微调题从 SFT 扩到 DPO/LoRA/QLoRA，核心考 trade-off 不是公式。推理优化是 2026 最能拉开差距的一块——很多人模型能跑起来，一问线上服务就虚。</div>
+        <ul>
+          <li><b>微调</b>：SFT/RLHF/DPO/GRPO 区别、LoRA rank 影响、QLoRA 低显存原理、何时不该微调</li>
+          <li><b>推理优化五层</b>：模型层（量化/蒸馏/小模型路由）· 结构层（KV Cache/MQA/GQA/投机解码）· 算子层（FlashAttention）· 服务层（连续批处理/PagedAttention/Prefix Cache）· 业务层（缓存/降级/上下文裁剪）</li>
+          <li><b>部署</b>：vLLM / Ollama / TensorRT-LLM 选型、Prefill vs Decode、TTFT/TBT/吞吐/P99 指标</li>
+          <li>📌 复习锚点：<code>lora-and-peft</code> · <code>dpo-grpo-alignment</code> · <code>precision-and-quantization</code> · <code>small-language-models-on-device</code></li>
+        </ul>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-num" style="background:var(--coral)">5</div>
+      <div class="phase-body">
+        <div class="t">系统设计 + 项目 + 面试期 · 收口上岸 <span class="meta">约 4 周 ★决定 offer</span></div>
+        <div class="d">二面必考系统设计：「设计支持百万文档的 RAG 系统」「设计企业智能客服」。要有 2–3 个能写简历、能口述、可演示的项目。</div>
+        <ul>
+          <li><b>系统设计</b>：高并发 LLM 后端架构（FastAPI+vLLM+Redis）、限流/降级/监控、成本控制</li>
+          <li><b>项目（直接写简历）</b>：① 审核 RAG 知识库 ② 审核 Agent 助手 ③ 多模态审核 Pipeline（结合你的漫剧业务）</li>
+          <li><b>面试</b>：Java+AI 双语言八股、项目亮点包装、口述训练</li>
+          <li>📌 复习锚点：<code>fastapi-audit-service</code> · <code>springboot-integration</code> · <code>llm-as-judge-and-red-teaming</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h2>② 2026 大厂面试考点热度（按面经出现频率）</h2>
+  <div class="card">
+    <div class="bar-row"><div class="bar-label">RAG 深度优化</div><div class="bar-track"><div class="bar-fill" style="width:96%;background:var(--teal)">几乎每篇面经必问</div></div></div>
+    <div class="bar-row"><div class="bar-label">Agent 架构 / 记忆</div><div class="bar-track"><div class="bar-fill" style="width:90%;background:var(--purple)">字节快手腾讯高频</div></div></div>
+    <div class="bar-row"><div class="bar-label">推理优化 / 部署</div><div class="bar-track"><div class="bar-fill" style="width:82%;background:var(--amber)">分水岭，拉差距</div></div></div>
+    <div class="bar-row"><div class="bar-label">微调 trade-off</div><div class="bar-track"><div class="bar-fill" style="width:75%;background:var(--blue)">SFT/DPO/LoRA/QLoRA</div></div></div>
+    <div class="bar-row"><div class="bar-label">系统设计（AI 场景）</div><div class="bar-track"><div class="bar-fill" style="width:70%;background:var(--coral)">二面必考</div></div></div>
+    <div class="bar-row"><div class="bar-label">Prompt 工程</div><div class="bar-track"><div class="bar-fill" style="width:55%;background:var(--pink)">基础门槛</div></div></div>
+    <div class="bar-row"><div class="bar-label">大模型原理</div><div class="bar-track"><div class="bar-fill" style="width:45%;background:var(--green)">够用即可</div></div></div>
+    <div class="bar-row"><div class="bar-label">Java 后端八股</div><div class="bar-track"><div class="bar-fill" style="width:40%;background:#5F5E5A">一面 70% 仍考</div></div></div>
+    <p class="meta" style="margin-top:12px">⚠️ 关键转向：面试官想听的是 <span class="hl">trade-off 判断</span>，不是术语堆砌。「召回差不一定换 embedding，可能切片先坏了」这种细节才是做过的人的回答。</p>
+  </div>
+
+  <h2>③ 个人背景映射：哪些你已有壁垒，哪些要补</h2>
+  <div class="grid g2">
+    <div class="card">
+      <h3 class="ok">✓ 你的天然优势（直接变现）</h3>
+      <ul>
+        <li><b>工程思维成熟</b>：系统设计/分布式/高并发，AI 落地同样关键</li>
+        <li><b>审核领域壁垒</b>：规则引擎+敏感词+分级标签的工程经验，是 RAG/Agent 落地的差异化故事</li>
+        <li><b>API 调用 + 数据处理</b>：RAG 核心就是数据流，你轻车熟路</li>
+        <li><b>Spring Boot 主栈</b>：Spring AI / LangChain4j 让你不用丢 Java 生态</li>
+        <li><b>真实业务场景</b>：漫剧多模态审核 = 现成的简历项目，比 demo 强 10 倍</li>
+        <li><b>误伤/漏过 trade-off 感</b>：天然契合 2026 面试的「trade-off 判断」考法</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--red)">△ 需要补强（针对性突破）</h3>
+      <ul>
+        <li><b>Python 生态熟练度</b>：工具链主要是 Python，要从「会写」到「流畅」</li>
+        <li><b>AI 工程范式</b>：Prompt/RAG/Agent 的工程化最佳实践</li>
+        <li><b>推理优化深度</b>：vLLM/KV Cache/量化的实操，这是分水岭</li>
+        <li><b>微调实操</b>：亲手 LoRA/QLoRA 微调过一个模型（你已部署 Qwen3Guard 是加分）</li>
+        <li><b>系统设计的「AI 味」</b>：从后端系统设计迁移到 LLM 系统设计</li>
+        <li><b>多模态审核 SOTA</b>：你的方向，要跟踪视频/图像审核最新进展</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>④ 高频真题速查（按主题，建议打印自查）</h2>
+  <div class="card">
+    <table>
+      <tr><th style="width:90px">主题</th><th>必背高频题</th><th style="width:70px">优先级</th></tr>
+      <tr><td>RAG</td><td>RAG 完整链路 + 每环节优化？切块大小 trade-off？混合检索何时更优？Rerank 作用？Lost in the Middle 怎么缓解？如何评估检索质量 vs 答案质量？</td><td><span class="tag t-p0">P0</span></td></tr>
+      <tr><td>Agent</td><td>用自己话定义 LLM Agent？ReAct vs Plan-and-Execute？Agent 记忆三层怎么设计？Function Calling 原理？Multi-Agent 优势与新复杂性？</td><td><span class="tag t-p0">P0</span></td></tr>
+      <tr><td>推理优化</td><td>大模型为什么慢？Prefill vs Decode？KV Cache 是什么/怎么优化？PagedAttention 原理？连续批处理？投机解码？vLLM 选型？</td><td><span class="tag t-p0">P0</span></td></tr>
+      <tr><td>微调</td><td>RAG vs 微调怎么选？LoRA 为何省参数？rank 怎么影响？QLoRA 低显存原理？SFT/RLHF/DPO/GRPO 区别？DPO 为何不要 reward model？</td><td><span class="tag t-p1">P1</span></td></tr>
+      <tr><td>系统设计</td><td>设计百万文档 RAG 系统？设计企业智能客服？500+ 并发 LLM 后端怎么扛？成本怎么控？</td><td><span class="tag t-p1">P1</span></td></tr>
+      <tr><td>Prompt</td><td>CoT/ToT/GoT 区别？Few-shot 何时失效？如何防 Prompt 注入？</td><td><span class="tag t-p2">P2</span></td></tr>
+      <tr><td>审核特化<br>（你的差异化）</td><td>如何做对抗性文本检测？LLM-as-Judge 怎么评？多模态审核 Pipeline 怎么设计？误伤/漏过怎么平衡？</td><td><span class="tag t-have">壁垒</span></td></tr>
+    </table>
+  </div>
+
+  <h2>⑤ 落地资源 + 节奏建议</h2>
+  <div class="grid g2">
+    <div class="card">
+      <h3>课程 / 资源（免费优先）</h3>
+      <span class="pill">李宏毅 机器学习 2024/2025（B站）</span>
+      <span class="pill">李沐 动手学深度学习</span>
+      <span class="pill">Spring AI 官方文档</span>
+      <span class="pill">LangChain4j 项目</span>
+      <span class="pill">OpenAI Cookbook 中文版</span>
+      <span class="pill">面试鸭 AI 题库</span>
+      <span class="pill">牛客网 AI Agent 面经</span>
+      <span class="pill">vLLM 官方文档</span>
+    </div>
+    <div class="card">
+      <h3>节奏与策略</h3>
+      <ul>
+        <li><b>代码 > 公式</b>：先跑通再补理论，不要陷入数学黑洞</li>
+        <li><b>边学边产出</b>：每阶段做一个小项目沉淀到简历</li>
+        <li><b>用工作场景练手</b>：在审核业务里找 AI 落地点，一举两得</li>
+        <li><b>双线并行</b>：Java 八股别丢（一面仍 70% 后端），AI 是增量</li>
+        <li><b>总周期</b>：约 21 周（5 个月），在职 10–15h/周</li>
+        <li><b>先 RAG 后 Agent</b>：RAG 是 Agent 的子能力，顺序不能反</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    定制对象：老李（lvzeping.a） · 阅文内容审核后端 → AI 应用工程<br>
+    本看板与知识库 <code>ai-learning-roadmap</code>（算法/训练路线）互补：那份偏「训练自己的审核模型」，本份偏「2026 大厂面试 + AI 应用工程上岸」。<br>
+    生成于 WorkBuddy · 2026-06-13
+  </div>
+
+</div>
+</body>
+</html>

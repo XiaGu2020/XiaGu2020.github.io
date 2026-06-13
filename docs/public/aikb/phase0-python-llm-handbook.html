@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Phase 0 完整教材 · Python 生态 + 大模型初体验</title>
+<style>
+  :root{
+    --bg:#0f1115;--card:#181b22;--card2:#1f232c;--line:#2a2f3a;
+    --txt:#e6e8ec;--muted:#9aa3b2;--hint:#6b7280;
+    --code:#0d1117;--str:#9ece6a;--kw:#c099f0;--num:#ff9e64;--cmt:#8b95b8;--fn:#7aa2f7;
+    --blue:#378ADD;--teal:#1D9E75;--amber:#EF9F27;--red:#E24B4A;--purple:#7F77DD;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,"PingFang SC",sans-serif;line-height:1.7;font-size:14.5px}
+  .layout{display:grid;grid-template-columns:240px 1fr;max-width:1400px;margin:0 auto}
+  aside{position:sticky;top:0;height:100vh;overflow-y:auto;padding:24px 16px;border-right:1px solid var(--line);background:var(--bg)}
+  aside h4{font-size:12px;color:var(--muted);text-transform:uppercase;margin:14px 0 6px;font-weight:500}
+  aside a{display:block;color:var(--muted);text-decoration:none;font-size:13px;padding:4px 8px;border-radius:5px;margin:1px 0}
+  aside a:hover{color:var(--txt);background:var(--card2)}
+  main{padding:32px 40px;max-width:920px}
+  h1{font-size:26px;font-weight:600;margin-bottom:8px}
+  h2{font-size:21px;font-weight:600;margin:42px 0 14px;padding-bottom:6px;border-bottom:2px solid var(--blue)}
+  h3{font-size:17px;font-weight:600;margin:26px 0 10px}
+  h4{font-size:15px;font-weight:600;margin:18px 0 8px;color:var(--blue)}
+  p{margin:8px 0;color:var(--txt)}
+  .lead{color:var(--muted);font-size:14px;margin:10px 0;border-left:3px solid var(--blue);padding:10px 14px;background:var(--card2);border-radius:0 8px 8px 0}
+  pre{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow-x:auto;font-family:"SF Mono","Menlo",Consolas,monospace;font-size:13.5px;line-height:1.7;margin:10px 0;color:#e6edf3}
+  code{font-family:"SF Mono","Menlo",Consolas,monospace;font-size:12.5px;background:var(--card2);padding:2px 6px;border-radius:4px;color:#f0d97a}
+  pre code{background:transparent;padding:0;color:inherit}
+  .kw{color:var(--kw)}.str{color:var(--str)}.num{color:var(--num)}.cmt{color:var(--cmt)}.fn{color:var(--fn)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:12px 0}
+  th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:var(--card2);color:var(--muted);font-weight:500;font-size:12px}
+  td code{font-size:12.5px}
+  ul,ol{margin:8px 0 8px 22px}
+  li{margin:4px 0;color:var(--txt)}
+  .tip{background:rgba(29,158,117,.1);border-left:3px solid var(--teal);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:13.5px}
+  .warn{background:rgba(226,75,74,.1);border-left:3px solid var(--red);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:13.5px}
+  .info{background:rgba(55,138,221,.1);border-left:3px solid var(--blue);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:13.5px}
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+  .cmp>div{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px}
+  .cmp>div h5{font-size:12px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+  .badge{display:inline-block;background:var(--card2);border:1px solid var(--line);border-radius:4px;padding:2px 8px;font-size:11px;margin-right:5px;color:var(--muted)}
+  .qa{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 18px;margin:10px 0}
+  .qa .q{font-weight:500;color:var(--amber);margin-bottom:6px}
+  .qa .a{color:var(--muted);font-size:13.5px}
+  .chap{background:linear-gradient(180deg,var(--card),transparent);border-radius:10px;padding:18px 20px;margin:24px 0 16px;border:1px solid var(--line)}
+  .chap .num{display:inline-block;width:36px;height:36px;background:var(--blue);color:#fff;border-radius:8px;text-align:center;line-height:36px;font-weight:600;margin-right:10px;vertical-align:middle}
+  .chap .ttl{display:inline-block;font-size:18px;font-weight:600;vertical-align:middle}
+  .footer{margin-top:50px;padding-top:18px;border-top:1px solid var(--line);color:var(--hint);font-size:12px}
+  .meta-bar{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 18px}
+  .meta-bar .badge{background:var(--card2)}
+  hr{border:none;border-top:1px dashed var(--line);margin:20px 0}
+  .toc-num{display:inline-block;width:22px;color:var(--muted);font-size:12px}
+  details{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin:8px 0}
+  details summary{cursor:pointer;font-weight:500;color:var(--blue)}
+  details[open] summary{margin-bottom:8px}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside>
+  <h4>Phase 0 教材目录</h4>
+  <a href="#intro">📖 阅读说明</a>
+  <a href="#ch1">① 环境搭建</a>
+  <a href="#ch2">② Python 速通（Java 视角）</a>
+  <a href="#ch3">③ NumPy / Pandas</a>
+  <a href="#ch4">④ HTTP 与 API 调用</a>
+  <a href="#ch5">⑤ 第一个大模型应用</a>
+  <a href="#ch6">⑥ 流式输出</a>
+  <a href="#ch7">⑦ Function Calling</a>
+  <a href="#ch8">⑧ 结构化输出 JSON Mode</a>
+  <a href="#ch9">⑨ Spring AI / LangChain4j</a>
+  <a href="#ch10">⑩ 第一个 mini-RAG</a>
+  <h4>速查卡</h4>
+  <a href="#qa">🎯 Phase 0 高频面试题（25 道）</a>
+  <a href="#cheat">📋 速查表汇总</a>
+  <a href="#troubleshoot">🔧 常见报错速查</a>
+</aside>
+
+<main>
+
+<h1>Phase 0 完整教材</h1>
+<p class="lead">
+<b>本教材的承诺</b>：3 周（W1–W3，约 30–40 小时）读完此一份文档 + 跟着把代码全部敲一遍，你将能：<br>
+① 流畅地用 Python 调用大模型 API 并处理数据；<br>
+② 用 Spring AI 在 Java 里集成大模型；<br>
+③ 跑通一个最小可用的 RAG 系统；<br>
+④ 答对 Phase 0 范畴 25 道高频面试题。<br>
+<b>不需要再上网搜资料</b>——所有概念、代码、调试要点都在这里。
+</p>
+
+<div class="meta-bar">
+  <span class="badge">阅读对象：7 年 Java 后端</span>
+  <span class="badge">本地环境：macOS · Python 3.13</span>
+  <span class="badge">总时长：30–40 小时</span>
+  <span class="badge">最后更新：2026-06-13</span>
+</div>
+
+<h2 id="intro">📖 阅读说明</h2>
+<p>每章结构固定：<b>① 5 句话原理 → ② 完整代码 → ③ 易踩坑点 → ④ 面试连接</b>。代码都能直接 copy 跑。遇到 ⚠️ 标记必须停下解决，不能跳过。</p>
+
+<div class="info"><b>学习节奏建议</b>：W1 学 ①②③④，W2 学 ⑤⑥⑦⑧，W3 学 ⑨⑩ + 复习 + 面试题。不必死磕一次读完，每章独立可读。</div>
+
+<!-- ============ 第1章 ============ -->
+<div class="chap"><span class="num">1</span><span class="ttl">环境搭建（30 分钟搞定）</span></div>
+
+<h3 id="ch1">为什么是 uv 而不是 pip？</h3>
+<p>2024 后 Python 生态首选 <code>uv</code>（Rust 写的，比 pip 快 10–100 倍），它把虚拟环境、包管理、版本管理一锅端，比 conda 轻、比 pyenv+pip 快。</p>
+
+<h4>步骤 1：安装 uv</h4>
+<pre><code><span class="cmt"># macOS 一行命令</span>
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+<span class="cmt"># 验证</span>
+uv --version</code></pre>
+
+<h4>步骤 2：创建项目</h4>
+<pre><code>mkdir ~/ai-learn && cd ~/ai-learn
+uv init phase0
+cd phase0
+
+<span class="cmt"># 此时目录结构</span>
+<span class="cmt"># phase0/</span>
+<span class="cmt"># ├── pyproject.toml   # 类似 Java 的 pom.xml</span>
+<span class="cmt"># ├── README.md</span>
+<span class="cmt"># └── main.py</span></code></pre>
+
+<h4>步骤 3：装核心包</h4>
+<pre><code>uv add openai dashscope httpx python-dotenv
+uv add numpy pandas
+uv add langchain langchain-community langchain-openai
+uv add chromadb sentence-transformers</code></pre>
+
+<h4>步骤 4：配置 API Key</h4>
+<pre><code><span class="cmt"># 创建 .env 文件（一定要 .gitignore）</span>
+cat &gt; .env &lt;&lt;EOF
+OPENAI_API_KEY=sk-xxx
+DASHSCOPE_API_KEY=sk-xxx        <span class="cmt"># 阿里通义千问</span>
+DEEPSEEK_API_KEY=sk-xxx
+EOF
+
+echo ".env" &gt;&gt; .gitignore</code></pre>
+
+<div class="tip"><b>💡 Java 工程师对照表</b>
+<table>
+<tr><th>Java 概念</th><th>Python 等价物</th></tr>
+<tr><td>Maven/Gradle</td><td>uv（pyproject.toml）</td></tr>
+<tr><td>JDK 多版本切换</td><td>uv python install 3.13</td></tr>
+<tr><td>application.yml</td><td>.env + python-dotenv</td></tr>
+<tr><td>main 方法入口</td><td>if __name__ == "__main__":</td></tr>
+<tr><td>System.out.println</td><td>print()</td></tr>
+</table>
+</div>
+
+<h4>步骤 5：跑通第一个脚本</h4>
+<pre><code><span class="cmt"># main.py</span>
+<span class="kw">from</span> dotenv <span class="kw">import</span> load_dotenv
+<span class="kw">import</span> os
+
+load_dotenv()
+<span class="fn">print</span>(<span class="str">"OPENAI_API_KEY 已加载："</span>, <span class="fn">bool</span>(os.<span class="fn">getenv</span>(<span class="str">"OPENAI_API_KEY"</span>)))</code></pre>
+<pre><code>uv run python main.py</code></pre>
+
+<div class="warn"><b>⚠️ 易踩坑</b>
+<ul>
+<li>不要混用 <code>pip install</code>，全用 <code>uv add</code>，否则环境会乱</li>
+<li>API Key 千万不要提交 git，每次新建项目第一件事是 <code>echo .env &gt;&gt; .gitignore</code></li>
+<li>苹果 M 芯片优先用 Python 3.13（部分包对 3.14 还没适配）</li>
+</ul>
+</div>
+
+<!-- ============ 第2章 ============ -->
+<div class="chap"><span class="num">2</span><span class="ttl">Python 速通（Java 视角，3 小时建立直觉）</span></div>
+
+<h3 id="ch2">2.1 语法对照速查</h3>
+<table>
+<tr><th>主题</th><th>Java</th><th>Python</th><th>关键差异</th></tr>
+<tr><td>变量</td><td><code>String s = "x";</code></td><td><code>s = "x"</code></td><td>动态类型，无需声明</td></tr>
+<tr><td>条件</td><td><code>if (x &gt; 0) { ... }</code></td><td><code>if x &gt; 0:</code></td><td><b>缩进定义代码块</b></td></tr>
+<tr><td>循环</td><td><code>for (int i=0;i&lt;n;i++)</code></td><td><code>for i in range(n):</code></td><td>没有 C-style 循环</td></tr>
+<tr><td>遍历</td><td><code>for (T t : list)</code></td><td><code>for t in list:</code></td><td>统一</td></tr>
+<tr><td>列表</td><td><code>List&lt;Integer&gt;</code></td><td><code>[1, 2, 3]</code></td><td>列表是内置语法</td></tr>
+<tr><td>Map</td><td><code>Map&lt;K,V&gt;</code></td><td><code>{"k": "v"}</code></td><td>叫 dict</td></tr>
+<tr><td>函数</td><td><code>public T m(T a)</code></td><td><code>def m(a):</code></td><td>可不写类型</td></tr>
+<tr><td>类</td><td><code>class A { ... }</code></td><td><code>class A:</code></td><td>self 替代 this</td></tr>
+<tr><td>null</td><td><code>null</code></td><td><code>None</code></td><td>语义相同</td></tr>
+<tr><td>true/false</td><td><code>true / false</code></td><td><code>True / False</code></td><td>首字母大写</td></tr>
+<tr><td>异常</td><td><code>try{}catch(E e){}</code></td><td><code>try: ... except E:</code></td><td>结构相似</td></tr>
+<tr><td>main</td><td><code>public static void main</code></td><td><code>if __name__ == "__main__":</code></td><td>条件判断不是关键字</td></tr>
+</table>
+
+<h3>2.2 Python 6 个 Java 没有的特性</h3>
+
+<h4>① 列表/字典推导式（Comprehension）</h4>
+<pre><code><span class="cmt"># Java：</span>
+<span class="cmt"># List&lt;Integer&gt; squares = new ArrayList&lt;&gt;();</span>
+<span class="cmt"># for (int i = 0; i &lt; 10; i++) squares.add(i * i);</span>
+
+<span class="cmt"># Python：一行搞定</span>
+squares = [i*i <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">10</span>)]
+<span class="cmt"># 带过滤</span>
+evens  = [i <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">10</span>) <span class="kw">if</span> i % <span class="num">2</span> == <span class="num">0</span>]
+<span class="cmt"># dict 推导</span>
+char_count = {c: text.<span class="fn">count</span>(c) <span class="kw">for</span> c <span class="kw">in</span> <span class="fn">set</span>(text)}</code></pre>
+
+<h4>② 切片（Slice）</h4>
+<pre><code>arr = [<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>,<span class="num">5</span>]
+arr[<span class="num">1</span>:<span class="num">3</span>]   <span class="cmt"># [2,3]   左闭右开</span>
+arr[:-<span class="num">1</span>]   <span class="cmt"># [1,2,3,4]</span>
+arr[::-<span class="num">1</span>]  <span class="cmt"># [5,4,3,2,1]   逆序</span>
+arr[::<span class="num">2</span>]   <span class="cmt"># [1,3,5]   步长2</span></code></pre>
+
+<h4>③ f-string（Java 13 文本块的强化版）</h4>
+<pre><code>name, age = <span class="str">"老李"</span>, <span class="num">34</span>
+<span class="fn">print</span>(<span class="str">f"</span>{name}<span class="str"> 今年 </span>{age*<span class="num">2</span>-<span class="num">10</span>}<span class="str"> 岁"</span>)
+<span class="cmt"># 老李 今年 58 岁  —— f-string 内可以直接写表达式</span></code></pre>
+
+<h4>④ 多返回值（无需 Tuple class）</h4>
+<pre><code><span class="kw">def</span> <span class="fn">divmod_</span>(a, b):
+    <span class="kw">return</span> a // b, a % b   <span class="cmt"># 实际是返回 tuple</span>
+
+q, r = <span class="fn">divmod_</span>(<span class="num">17</span>, <span class="num">5</span>)   <span class="cmt"># q=3, r=2</span></code></pre>
+
+<h4>⑤ 装饰器（@Decorator，本质是函数包装）</h4>
+<pre><code><span class="kw">import</span> time, functools
+
+<span class="kw">def</span> <span class="fn">timer</span>(fn):
+    <span class="fn">@functools.wraps</span>(fn)
+    <span class="kw">def</span> <span class="fn">wrap</span>(*args, **kwargs):
+        t = time.<span class="fn">time</span>()
+        r = <span class="fn">fn</span>(*args, **kwargs)
+        <span class="fn">print</span>(<span class="str">f"</span>{fn.__name__}<span class="str"> 用时 </span>{time.<span class="fn">time</span>()-t:.<span class="num">3</span>f}<span class="str">s"</span>)
+        <span class="kw">return</span> r
+    <span class="kw">return</span> wrap
+
+<span class="fn">@timer</span>
+<span class="kw">def</span> <span class="fn">slow</span>():
+    time.<span class="fn">sleep</span>(<span class="num">1</span>)
+
+<span class="fn">slow</span>()  <span class="cmt"># slow 用时 1.001s</span></code></pre>
+<div class="info"><b>对照</b>：装饰器约等于 Java 的 AOP 切面，但是函数级、运行时、可组合。<code>@app.route</code> / <code>@pytest.fixture</code> 都是它。</div>
+
+<h4>⑥ Generator 与 yield（流式处理利器）</h4>
+<pre><code><span class="kw">def</span> <span class="fn">read_big_file</span>(path):
+    <span class="kw">with</span> <span class="fn">open</span>(path) <span class="kw">as</span> f:
+        <span class="kw">for</span> line <span class="kw">in</span> f:        <span class="cmt"># 每次只读一行，省内存</span>
+            <span class="kw">yield</span> line.<span class="fn">strip</span>()
+
+<span class="kw">for</span> line <span class="kw">in</span> <span class="fn">read_big_file</span>(<span class="str">"huge.log"</span>):
+    <span class="kw">if</span> <span class="str">"ERROR"</span> <span class="kw">in</span> line:
+        <span class="fn">print</span>(line)</code></pre>
+<p>大模型流式输出本质就是 generator——理解 yield 就理解了流式。</p>
+
+<h3>2.3 类与对象（最小够用版）</h3>
+<pre><code><span class="kw">class</span> <span class="fn">User</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, name, age):       <span class="cmt"># 构造器，对应 Java 的 constructor</span>
+        self.name = name
+        self.age = age
+
+    <span class="kw">def</span> <span class="fn">greet</span>(self):
+        <span class="kw">return</span> <span class="str">f"hi, </span>{self.name}<span class="str">"</span>
+
+    <span class="kw">def</span> <span class="fn">__repr__</span>(self):                    <span class="cmt"># 类似 Java 的 toString</span>
+        <span class="kw">return</span> <span class="str">f"User(</span>{self.name}<span class="str">,</span>{self.age}<span class="str">)"</span>
+
+u = <span class="fn">User</span>(<span class="str">"老李"</span>, <span class="num">34</span>)
+<span class="fn">print</span>(u.<span class="fn">greet</span>())</code></pre>
+
+<div class="tip"><b>面试常考</b>：Python 没有真正的 private，约定俗成 <code>_xxx</code> 表"内部用"，<code>__xxx</code> 触发 name mangling 改名（不推荐过度依赖）。</div>
+
+<h3>2.4 错误处理与 with 语句</h3>
+<pre><code><span class="kw">try</span>:
+    <span class="kw">with</span> <span class="fn">open</span>(<span class="str">"data.json"</span>) <span class="kw">as</span> f:    <span class="cmt"># with = Java try-with-resources</span>
+        data = json.<span class="fn">load</span>(f)
+<span class="kw">except</span> FileNotFoundError:
+    data = {}
+<span class="kw">except</span> json.JSONDecodeError <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="str">f"json 解析错: </span>{e}<span class="str">"</span>)
+<span class="kw">finally</span>:
+    <span class="fn">print</span>(<span class="str">"无论是否出错都会执行"</span>)</code></pre>
+
+<h3>2.5 GIL 必须知道</h3>
+<div class="warn"><b>⚠️ 面试必问</b>：GIL（Global Interpreter Lock）= 一个进程同一时刻只有一个线程执行 Python 字节码。<br>
+影响：<b>多线程做 CPU 密集任务无并行加速</b>，得用多进程或 asyncio。<br>
+但 IO 密集（网络/磁盘）多线程仍有效（IO 阻塞时释放 GIL）。<br>
+结论：调大模型 API 这种 IO 密集场景，用 <code>asyncio</code> + <code>httpx</code> 或 <code>concurrent.futures.ThreadPoolExecutor</code> 都行。</div>
+
+<!-- ============ 第3章 ============ -->
+<div class="chap"><span class="num">3</span><span class="ttl">NumPy / Pandas（4 小时够用版）</span></div>
+
+<h3 id="ch3">3.1 NumPy：所有 AI 库的底座</h3>
+<p>把 NumPy 当成"超快的数组"，<code>ndarray</code> 等价于 Java 的 <code>double[]</code> 但有：① 多维 ② 向量化运算 ③ 广播。</p>
+
+<pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+a = np.<span class="fn">array</span>([<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>])
+b = np.<span class="fn">array</span>([<span class="num">10</span>,<span class="num">20</span>,<span class="num">30</span>])
+
+a + b              <span class="cmt"># [11, 22, 33]   元素级</span>
+a * <span class="num">2</span>              <span class="cmt"># [2, 4, 6]      标量广播</span>
+a @ b              <span class="cmt"># 140            点积（@ = matmul）</span>
+
+m = np.<span class="fn">array</span>([[<span class="num">1</span>,<span class="num">2</span>],[<span class="num">3</span>,<span class="num">4</span>]])
+m.shape            <span class="cmt"># (2, 2)</span>
+m.<span class="fn">reshape</span>(<span class="num">4</span>,)       <span class="cmt"># [1,2,3,4]</span>
+m.T                <span class="cmt"># 转置</span>
+
+np.<span class="fn">random</span>.<span class="fn">randn</span>(<span class="num">3</span>,<span class="num">4</span>)  <span class="cmt"># 标准正态分布 3x4</span></code></pre>
+
+<h4>广播规则（这一条理解透就够）</h4>
+<pre><code><span class="cmt"># 规则：从右往左对齐，维度等于1或缺失则可广播</span>
+A = np.<span class="fn">ones</span>((<span class="num">3</span>,<span class="num">4</span>))    <span class="cmt"># shape (3,4)</span>
+v = np.<span class="fn">arange</span>(<span class="num">4</span>)       <span class="cmt"># shape (4,)</span>
+A + v                <span class="cmt"># OK，v 广播为 (3,4)</span>
+
+w = np.<span class="fn">arange</span>(<span class="num">3</span>).<span class="fn">reshape</span>(<span class="num">3</span>,<span class="num">1</span>)   <span class="cmt"># (3,1)</span>
+A + w                <span class="cmt"># OK，w 广播为 (3,4)</span></code></pre>
+
+<h3>3.2 Pandas：会用 SQL 就会 Pandas</h3>
+<table>
+<tr><th>SQL</th><th>Pandas</th></tr>
+<tr><td><code>SELECT * FROM t</code></td><td><code>df</code></td></tr>
+<tr><td><code>SELECT a, b FROM t</code></td><td><code>df[["a","b"]]</code></td></tr>
+<tr><td><code>WHERE a &gt; 10</code></td><td><code>df[df.a &gt; 10]</code></td></tr>
+<tr><td><code>ORDER BY a DESC</code></td><td><code>df.sort_values("a", ascending=False)</code></td></tr>
+<tr><td><code>GROUP BY a, COUNT(*)</code></td><td><code>df.groupby("a").size()</code></td></tr>
+<tr><td><code>JOIN</code></td><td><code>df1.merge(df2, on="key")</code></td></tr>
+<tr><td><code>LIMIT 10</code></td><td><code>df.head(10)</code></td></tr>
+</table>
+
+<h4>实战：处理审核日志</h4>
+<pre><code><span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+df = pd.<span class="fn">read_csv</span>(<span class="str">"audit.csv"</span>)
+df.<span class="fn">head</span>()                       <span class="cmt"># 前 5 行</span>
+df.<span class="fn">describe</span>()                   <span class="cmt"># 数值列统计</span>
+df.<span class="fn">info</span>()                       <span class="cmt"># 列+类型+空值</span>
+
+<span class="cmt"># 过滤 + 聚合</span>
+risky = df[df.<span class="fn">label</span>.<span class="fn">isin</span>([<span class="str">"涉黄"</span>,<span class="str">"涉政"</span>])]
+risky.<span class="fn">groupby</span>(<span class="str">"book_id"</span>)[<span class="str">"chapter_id"</span>].<span class="fn">count</span>()
+
+<span class="cmt"># 时间处理</span>
+df[<span class="str">"created_at"</span>] = pd.<span class="fn">to_datetime</span>(df[<span class="str">"created_at"</span>])
+daily = df.<span class="fn">set_index</span>(<span class="str">"created_at"</span>).<span class="fn">resample</span>(<span class="str">"D"</span>).<span class="fn">size</span>()</code></pre>
+
+<div class="tip"><b>速记</b>：Pandas 90% 的工作就是 <code>read_xxx → 过滤/groupby/merge → to_xxx</code>。先把这条路径练熟。</div>
+
+<!-- ============ 第4章 ============ -->
+<div class="chap"><span class="num">4</span><span class="ttl">HTTP 与 API 调用（1 小时）</span></div>
+
+<h3 id="ch4">4.1 三个客户端各自适用什么</h3>
+<table>
+<tr><th>库</th><th>适用</th><th>类比 Java</th></tr>
+<tr><td><code>requests</code></td><td>同步、简单脚本</td><td>OkHttp 同步</td></tr>
+<tr><td><code>httpx</code></td><td>同步+异步通用</td><td>Spring WebClient</td></tr>
+<tr><td><code>openai/dashscope</code> SDK</td><td>调大模型</td><td>已封装的客户端</td></tr>
+</table>
+
+<pre><code><span class="kw">import</span> httpx
+<span class="cmt"># 同步</span>
+r = httpx.<span class="fn">post</span>(<span class="str">"https://api.x/v1"</span>, json={<span class="str">"k"</span>:<span class="str">"v"</span>}, timeout=<span class="num">30</span>)
+r.<span class="fn">raise_for_status</span>()                       <span class="cmt"># 非 2xx 抛错</span>
+data = r.<span class="fn">json</span>()
+
+<span class="cmt"># 异步</span>
+<span class="kw">import</span> asyncio
+<span class="kw">async</span> <span class="kw">def</span> <span class="fn">fetch</span>():
+    <span class="kw">async</span> <span class="kw">with</span> httpx.<span class="fn">AsyncClient</span>() <span class="kw">as</span> c:
+        r = <span class="kw">await</span> c.<span class="fn">get</span>(<span class="str">"https://x"</span>)
+        <span class="kw">return</span> r.<span class="fn">json</span>()
+asyncio.<span class="fn">run</span>(<span class="fn">fetch</span>())</code></pre>
+
+<!-- ============ 第5章 ============ -->
+<div class="chap"><span class="num">5</span><span class="ttl">第一个大模型应用（30 分钟）</span></div>
+
+<h3 id="ch5">5.1 OpenAI 兼容协议（行业事实标准）</h3>
+<p>2024 后几乎所有国产模型都兼容 OpenAI Chat Completions 协议。换 API Key + base_url 就能切模型。</p>
+
+<pre><code><span class="kw">from</span> openai <span class="kw">import</span> OpenAI
+<span class="kw">from</span> dotenv <span class="kw">import</span> load_dotenv
+<span class="kw">import</span> os
+
+load_dotenv()
+
+<span class="cmt"># 通义千问</span>
+client = <span class="fn">OpenAI</span>(
+    api_key=os.<span class="fn">getenv</span>(<span class="str">"DASHSCOPE_API_KEY"</span>),
+    base_url=<span class="str">"https://dashscope.aliyuncs.com/compatible-mode/v1"</span>,
+)
+
+resp = client.chat.completions.<span class="fn">create</span>(
+    model=<span class="str">"qwen-plus"</span>,
+    messages=[
+        {<span class="str">"role"</span>: <span class="str">"system"</span>, <span class="str">"content"</span>: <span class="str">"你是网文审核助手，简明回答。"</span>},
+        {<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="str">"什么是 Tokenizer？"</span>}
+    ],
+    temperature=<span class="num">0.3</span>,
+)
+<span class="fn">print</span>(resp.choices[<span class="num">0</span>].message.content)
+<span class="fn">print</span>(<span class="str">"input tokens:"</span>, resp.usage.prompt_tokens)
+<span class="fn">print</span>(<span class="str">"output tokens:"</span>, resp.usage.completion_tokens)</code></pre>
+
+<h4>四种切模型只改 2 行</h4>
+<table>
+<tr><th>模型</th><th>base_url</th><th>常用 model</th></tr>
+<tr><td>OpenAI</td><td>默认</td><td>gpt-4o-mini, gpt-4o</td></tr>
+<tr><td>通义千问</td><td>dashscope.../v1</td><td>qwen-plus, qwen3-72b-instruct</td></tr>
+<tr><td>DeepSeek</td><td>api.deepseek.com</td><td>deepseek-chat, deepseek-reasoner</td></tr>
+<tr><td>本地 Ollama</td><td>http://localhost:11434/v1</td><td>qwen3:4b（任意）</td></tr>
+</table>
+
+<h3>5.2 Message 角色与 temperature</h3>
+<table>
+<tr><th>role</th><th>用途</th></tr>
+<tr><td>system</td><td>设定身份与规则，全局生效，最重要</td></tr>
+<tr><td>user</td><td>用户输入</td></tr>
+<tr><td>assistant</td><td>模型上一轮回复（多轮对话时回填）</td></tr>
+<tr><td>tool</td><td>Function Calling 工具结果（见第7章）</td></tr>
+</table>
+
+<table>
+<tr><th>参数</th><th>建议值</th><th>说明</th></tr>
+<tr><td>temperature</td><td>0.0–1.0</td><td>越高越随机；分类/抽取用 0–0.3，创作用 0.7+</td></tr>
+<tr><td>top_p</td><td>0.9</td><td>核采样，与 temperature 二选一调即可</td></tr>
+<tr><td>max_tokens</td><td>视场景</td><td>限制输出长度，省钱+防失控</td></tr>
+<tr><td>seed</td><td>42</td><td>固定后输出更可复现（不保证 100%）</td></tr>
+</table>
+
+<!-- ============ 第6章 ============ -->
+<div class="chap"><span class="num">6</span><span class="ttl">流式输出（必会，前端体验关键）</span></div>
+
+<h3 id="ch6">为什么要流式？</h3>
+<p>非流式：等模型生成完才返回，用户盯着白屏等 5 秒。<br>
+流式（SSE）：每生成一个 token 就推一段，用户立即看到打字效果，TTFT (Time to First Token) 大幅降低。</p>
+
+<pre><code>stream = client.chat.completions.<span class="fn">create</span>(
+    model=<span class="str">"qwen-plus"</span>,
+    messages=[{<span class="str">"role"</span>:<span class="str">"user"</span>,<span class="str">"content"</span>:<span class="str">"写一首关于审核的打油诗"</span>}],
+    stream=<span class="kw">True</span>,
+)
+
+<span class="kw">for</span> chunk <span class="kw">in</span> stream:
+    delta = chunk.choices[<span class="num">0</span>].delta
+    <span class="kw">if</span> delta.content:
+        <span class="fn">print</span>(delta.content, end=<span class="str">""</span>, flush=<span class="kw">True</span>)
+<span class="fn">print</span>()</code></pre>
+
+<div class="info"><b>面试连接</b>：什么是 SSE？答：Server-Sent Events，HTTP 之上的服务器单向推送协议，<code>Content-Type: text/event-stream</code>，每条以 <code>data: </code>开头、<code>\n\n</code> 结尾。OpenAI 流式就是 SSE。</div>
+
+<!-- ============ 第7章 ============ -->
+<div class="chap"><span class="num">7</span><span class="ttl">Function Calling（让大模型会用工具）</span></div>
+
+<h3 id="ch7">7.1 核心理解：模型不真调函数，它只输出"调用意图"</h3>
+<p>流程：① 你给模型工具定义 → ② 模型决定要调哪个工具+参数 → ③ <b>你的代码</b>实际执行 → ④ 把结果回填给模型 → ⑤ 模型生成最终回答。</p>
+
+<pre><code><span class="kw">import</span> json
+
+<span class="cmt"># ① 定义工具（JSON Schema 风格）</span>
+tools = [{
+    <span class="str">"type"</span>: <span class="str">"function"</span>,
+    <span class="str">"function"</span>: {
+        <span class="str">"name"</span>: <span class="str">"check_sensitive_word"</span>,
+        <span class="str">"description"</span>: <span class="str">"检测一段文本中是否包含敏感词"</span>,
+        <span class="str">"parameters"</span>: {
+            <span class="str">"type"</span>: <span class="str">"object"</span>,
+            <span class="str">"properties"</span>: {
+                <span class="str">"text"</span>: {<span class="str">"type"</span>: <span class="str">"string"</span>, <span class="str">"description"</span>: <span class="str">"待检测文本"</span>}
+            },
+            <span class="str">"required"</span>: [<span class="str">"text"</span>]
+        }
+    }
+}]
+
+<span class="cmt"># 真正的工具实现（你写）</span>
+<span class="kw">def</span> <span class="fn">check_sensitive_word</span>(text: <span class="fn">str</span>):
+    bad = [<span class="str">"违禁词1"</span>, <span class="str">"违禁词2"</span>]
+    hits = [w <span class="kw">for</span> w <span class="kw">in</span> bad <span class="kw">if</span> w <span class="kw">in</span> text]
+    <span class="kw">return</span> {<span class="str">"hit"</span>: <span class="fn">bool</span>(hits), <span class="str">"words"</span>: hits}
+
+<span class="cmt"># ② 第一次调用：模型可能返回 tool_calls</span>
+messages = [{<span class="str">"role"</span>:<span class="str">"user"</span>, <span class="str">"content"</span>:<span class="str">"帮我检查这句话有没有问题：xxx 内容 yyy"</span>}]
+resp = client.chat.completions.<span class="fn">create</span>(
+    model=<span class="str">"qwen-plus"</span>, messages=messages, tools=tools,
+)
+msg = resp.choices[<span class="num">0</span>].message
+
+<span class="kw">if</span> msg.tool_calls:
+    messages.<span class="fn">append</span>(msg)            <span class="cmt"># 把模型的 assistant 消息原样回填</span>
+    <span class="kw">for</span> call <span class="kw">in</span> msg.tool_calls:
+        args = json.<span class="fn">loads</span>(call.function.arguments)
+        result = <span class="fn">check_sensitive_word</span>(**args)
+        <span class="cmt"># ③ 把工具结果作为 tool 角色喂回去</span>
+        messages.<span class="fn">append</span>({
+            <span class="str">"role"</span>: <span class="str">"tool"</span>,
+            <span class="str">"tool_call_id"</span>: call.id,
+            <span class="str">"content"</span>: json.<span class="fn">dumps</span>(result, ensure_ascii=<span class="kw">False</span>)
+        })
+
+    <span class="cmt"># ④ 第二次调用：模型基于工具结果生成最终回答</span>
+    final = client.chat.completions.<span class="fn">create</span>(model=<span class="str">"qwen-plus"</span>, messages=messages)
+    <span class="fn">print</span>(final.choices[<span class="num">0</span>].message.content)</code></pre>
+
+<div class="warn"><b>⚠️ 三个易错点</b>
+<ol>
+<li>第一次调用后必须把 <code>msg</code>（含 tool_calls）原样 append，不能丢</li>
+<li><code>tool</code> 角色消息的 <code>tool_call_id</code> 必须对应模型给的 id</li>
+<li>有些场景模型会在一次回复里要求并行调多个工具，要循环处理</li>
+</ol>
+</div>
+
+<!-- ============ 第8章 ============ -->
+<div class="chap"><span class="num">8</span><span class="ttl">结构化输出 JSON Mode（让大模型变成 API）</span></div>
+
+<h3 id="ch8">为什么要 JSON Mode？</h3>
+<p>大模型默认输出自然语言，工程化场景需要稳定结构化数据。两条路：</p>
+
+<h4>路线一：response_format（最稳）</h4>
+<pre><code><span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel
+
+<span class="kw">class</span> <span class="fn">AuditResult</span>(BaseModel):
+    risk_level: <span class="fn">str</span>      <span class="cmt"># low / mid / high</span>
+    reason: <span class="fn">str</span>
+    tags: <span class="fn">list</span>[<span class="fn">str</span>]
+
+resp = client.beta.chat.completions.<span class="fn">parse</span>(
+    model=<span class="str">"qwen-plus"</span>,
+    messages=[
+        {<span class="str">"role"</span>:<span class="str">"system"</span>,<span class="str">"content"</span>:<span class="str">"你是审核助手，按 schema 输出"</span>},
+        {<span class="str">"role"</span>:<span class="str">"user"</span>,<span class="str">"content"</span>:<span class="str">"判定：今天天气真好"</span>},
+    ],
+    response_format=AuditResult,
+)
+result: AuditResult = resp.choices[<span class="num">0</span>].message.parsed
+<span class="fn">print</span>(result.risk_level, result.tags)</code></pre>
+
+<h4>路线二：JSON Mode + Prompt 约束</h4>
+<pre><code>resp = client.chat.completions.<span class="fn">create</span>(
+    model=<span class="str">"qwen-plus"</span>,
+    response_format={<span class="str">"type"</span>: <span class="str">"json_object"</span>},
+    messages=[
+        {<span class="str">"role"</span>:<span class="str">"system"</span>,<span class="str">"content"</span>:<span class="str">"你必须输出严格 JSON，包含字段：risk_level/reason/tags。"</span>},
+        {<span class="str">"role"</span>:<span class="str">"user"</span>,<span class="str">"content"</span>:<span class="str">"判定：今天天气真好"</span>},
+    ],
+)
+data = json.<span class="fn">loads</span>(resp.choices[<span class="num">0</span>].message.content)</code></pre>
+
+<div class="tip"><b>选择建议</b>：能用 Pydantic 的 parse 就用 parse，类型检查 + 自动反序列化，省心。</div>
+
+<!-- ============ 第9章 ============ -->
+<div class="chap"><span class="num">9</span><span class="ttl">Spring AI / LangChain4j（Java 选手专属）</span></div>
+
+<h3 id="ch9">9.1 Spring AI（首选，Spring 生态原生）</h3>
+<pre><code><span class="cmt">// pom.xml</span>
+&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.ai&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-ai-openai-spring-boot-starter&lt;/artifactId&gt;
+  &lt;version&gt;1.0.0&lt;/version&gt;
+&lt;/dependency&gt;
+
+<span class="cmt">// application.yml</span>
+spring:
+  ai:
+    openai:
+      api-key: ${DASHSCOPE_API_KEY}
+      base-url: https://dashscope.aliyuncs.com/compatible-mode
+      chat:
+        options:
+          model: qwen-plus
+          temperature: 0.3</code></pre>
+
+<pre><code><span class="cmt">// AuditController.java</span>
+<span class="fn">@RestController</span>
+<span class="kw">public class</span> AuditController {
+    <span class="kw">private final</span> ChatClient chatClient;
+
+    <span class="kw">public</span> <span class="fn">AuditController</span>(ChatClient.Builder b) {
+        <span class="kw">this</span>.chatClient = b.<span class="fn">build</span>();
+    }
+
+    <span class="fn">@GetMapping</span>(<span class="str">"/audit"</span>)
+    <span class="kw">public</span> String <span class="fn">audit</span>(<span class="fn">@RequestParam</span> String text) {
+        <span class="kw">return</span> chatClient
+            .<span class="fn">prompt</span>()
+            .<span class="fn">system</span>(<span class="str">"你是网文审核助手"</span>)
+            .<span class="fn">user</span>(text)
+            .<span class="fn">call</span>()
+            .<span class="fn">content</span>();
+    }
+}</code></pre>
+
+<div class="info"><b>Spring AI 已支持</b>：流式（Flux&lt;String&gt;）、Function Calling（@Tool 注解）、RAG（VectorStore 抽象）、Memory、Advisor。<b>是你的 Java 主栈最自然的延伸</b>，不丢老饭碗。</div>
+
+<h3>9.2 LangChain4j（更"AI 原生"）</h3>
+<pre><code><span class="cmt">// 一行调用</span>
+ChatLanguageModel model = OpenAiChatModel.<span class="fn">builder</span>()
+    .<span class="fn">apiKey</span>(System.<span class="fn">getenv</span>(<span class="str">"DASHSCOPE_API_KEY"</span>))
+    .<span class="fn">baseUrl</span>(<span class="str">"https://dashscope.aliyuncs.com/compatible-mode/v1"</span>)
+    .<span class="fn">modelName</span>(<span class="str">"qwen-plus"</span>)
+    .<span class="fn">build</span>();
+
+String answer = model.<span class="fn">generate</span>(<span class="str">"什么是 RAG？"</span>);</code></pre>
+
+<table>
+<tr><th>对比</th><th>Spring AI</th><th>LangChain4j</th></tr>
+<tr><td>定位</td><td>Spring 生态原生</td><td>Java 版 LangChain</td></tr>
+<tr><td>Spring 集成</td><td>无缝</td><td>需自己写</td></tr>
+<tr><td>抽象</td><td>较少，更贴 Spring</td><td>多（Chain、Memory、Tool）</td></tr>
+<tr><td>建议</td><td>已用 Spring Boot 项目首选</td><td>非 Spring 项目或想看 LangChain 风格</td></tr>
+</table>
+
+<!-- ============ 第10章 ============ -->
+<div class="chap"><span class="num">10</span><span class="ttl">第一个 mini-RAG（最重要的里程碑）</span></div>
+
+<h3 id="ch10">10.1 RAG 是什么（一段话原理）</h3>
+<p>RAG = Retrieval-Augmented Generation。当你的私有知识没在大模型训练数据里时，先把它切片+向量化存到向量库，提问时用语义检索找相关片段，把片段+问题一起喂给大模型生成回答。<b>核心：检索给大模型补充"上下文"</b>。</p>
+
+<h3>10.2 最小 RAG（70 行代码搞定）</h3>
+<pre><code><span class="kw">from</span> openai <span class="kw">import</span> OpenAI
+<span class="kw">from</span> sentence_transformers <span class="kw">import</span> SentenceTransformer
+<span class="kw">import</span> chromadb
+<span class="kw">from</span> dotenv <span class="kw">import</span> load_dotenv
+<span class="kw">import</span> os
+
+load_dotenv()
+
+<span class="cmt"># ① 你的私有知识（实际场景从文件读）</span>
+docs = [
+    <span class="str">"阅文集团是中国最大的网络文学平台。"</span>,
+    <span class="str">"网文审核需关注涉黄、涉政、暴力等敏感内容。"</span>,
+    <span class="str">"Qwen3Guard 是阿里推出的内容安全审核模型。"</span>,
+    <span class="str">"漫剧审核中台支持新剧首发审核与连载更新审核。"</span>,
+]
+
+<span class="cmt"># ② Embedding 模型（中文优先 BGE）</span>
+embedder = <span class="fn">SentenceTransformer</span>(<span class="str">"BAAI/bge-small-zh-v1.5"</span>)
+
+<span class="cmt"># ③ 向量库（Chroma 本地存）</span>
+chroma = chromadb.<span class="fn">Client</span>()
+col = chroma.<span class="fn">create_collection</span>(<span class="str">"kb"</span>)
+col.<span class="fn">add</span>(
+    documents=docs,
+    embeddings=embedder.<span class="fn">encode</span>(docs).<span class="fn">tolist</span>(),
+    ids=[<span class="str">f"doc</span>{i}<span class="str">"</span> <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(docs))],
+)
+
+<span class="cmt"># ④ 检索 Top-K</span>
+<span class="kw">def</span> <span class="fn">retrieve</span>(query, k=<span class="num">2</span>):
+    q_vec = embedder.<span class="fn">encode</span>([query]).<span class="fn">tolist</span>()
+    res = col.<span class="fn">query</span>(query_embeddings=q_vec, n_results=k)
+    <span class="kw">return</span> res[<span class="str">"documents"</span>][<span class="num">0</span>]
+
+<span class="cmt"># ⑤ 拼 Prompt 调大模型</span>
+client = <span class="fn">OpenAI</span>(
+    api_key=os.<span class="fn">getenv</span>(<span class="str">"DASHSCOPE_API_KEY"</span>),
+    base_url=<span class="str">"https://dashscope.aliyuncs.com/compatible-mode/v1"</span>,
+)
+
+<span class="kw">def</span> <span class="fn">rag</span>(query):
+    contexts = <span class="fn">retrieve</span>(query)
+    prompt = <span class="str">f"""</span>
+请基于以下资料回答问题，资料中没有则回答"未在资料中找到"。
+
+资料：
+<span class="str">{chr(10).<span class="fn">join</span>(<span class="str">f"- </span>{c}<span class="str">"</span> <span class="kw">for</span> c <span class="kw">in</span> contexts)}
+
+问题：</span>{query}<span class="str">"""</span>
+    resp = client.chat.completions.<span class="fn">create</span>(
+        model=<span class="str">"qwen-plus"</span>,
+        messages=[{<span class="str">"role"</span>:<span class="str">"user"</span>,<span class="str">"content"</span>:prompt}],
+        temperature=<span class="num">0.1</span>,
+    )
+    <span class="kw">return</span> resp.choices[<span class="num">0</span>].message.content
+
+<span class="fn">print</span>(<span class="fn">rag</span>(<span class="str">"漫剧审核中台支持哪些场景？"</span>))</code></pre>
+
+<h3>10.3 RAG 全流程图（5 步死记）</h3>
+<pre><code>用户提问 ─┐
+          ▼
+   [Embedding 编码] ──→ 查询向量
+                          │
+                          ▼
+   [向量库检索 TopK] ──→ 相关片段
+                          │
+                          ▼
+   [Prompt 组装]   ──→ 资料+问题
+                          │
+                          ▼
+        [LLM 生成]    ──→ 最终回答</code></pre>
+
+<div class="tip"><b>这就是面试官想听的"完整链路"</b>。下一阶段（Phase 2）会逐个深挖：切块策略、混合检索、Rerank、评估。Phase 0 你只要能跑通+讲清这 5 步即可。</div>
+
+<!-- ============ 面试题 ============ -->
+<h2 id="qa">🎯 Phase 0 高频面试题（25 道，含答案要点）</h2>
+
+<details><summary>1. Python 和 Java 主要差异？</summary>
+<div class="qa"><div class="a">动态 vs 静态类型；缩进 vs 大括号；GIL（全局解释器锁，多线程 CPU 不并行）；Python 函数是一等公民；没有真正的 private；解释执行；包管理通过 pip/uv 而非 maven。AI 生态主要在 Python，Java 通过 Spring AI/LangChain4j 集成。</div></div>
+</details>
+
+<details><summary>2. 什么是 GIL？对什么场景有影响？</summary>
+<div class="qa"><div class="a">Global Interpreter Lock，CPython 中保证同一时刻只有一个线程执行字节码。CPU 密集多线程无加速（用多进程或 numpy 等 C 扩展释放 GIL）；IO 密集（网络/磁盘）多线程仍有效。AI 调 API 是 IO 密集，asyncio 或线程池都行。</div></div>
+</details>
+
+<details><summary>3. 列表推导式和普通 for 哪个快？</summary>
+<div class="qa"><div class="a">推导式略快（C 层优化），但更主要是可读性。复杂逻辑还是用 for 更清晰。</div></div>
+</details>
+
+<details><summary>4. 什么是装饰器？举一个 AI 场景的用法</summary>
+<div class="qa"><div class="a">本质是接收函数返回函数的高阶函数，用 @ 语法糖。AI 场景：@retry(3) 重试 LLM 调用、@cache 缓存 embedding、@trace 记录 token 用量。</div></div>
+</details>
+
+<details><summary>5. yield 和 return 区别？流式输出怎么实现？</summary>
+<div class="qa"><div class="a">return 一次性返回；yield 暂停函数返回值，下次从这里继续，函数变成 generator。流式输出本质就是 generator + SSE 协议，每生成一段 yield/推送一段。</div></div>
+</details>
+
+<details><summary>6. NumPy 为什么比 Python list 快？</summary>
+<div class="qa"><div class="a">① 连续内存（cache 友好）② C 实现的向量化运算 ③ 类型统一无需逐元素类型检查 ④ 释放 GIL 可并行。差距通常 10–100 倍。</div></div>
+</details>
+
+<details><summary>7. NumPy 广播规则？</summary>
+<div class="qa"><div class="a">两个数组从右向左对齐维度，每一维要么相等要么其中一方为 1 或缺失才能广播。例：(3,4)+(4,) OK；(3,4)+(3,1) OK；(3,4)+(2,4) 报错。</div></div>
+</details>
+
+<details><summary>8. Pandas 的 apply / map / applymap 区别？</summary>
+<div class="qa"><div class="a">map 用于 Series 元素级；apply 用于 Series 或 DataFrame，可作用行/列；applymap（已弃用，改用 DataFrame.map）作用 DataFrame 每个元素。性能：向量化 &gt; apply &gt; iterrows。</div></div>
+</details>
+
+<details><summary>9. 怎么处理 Pandas 大文件？</summary>
+<div class="qa"><div class="a">① chunksize 分批读 ② 指定 dtype 节省内存 ③ 只读需要列 usecols ④ 用 Parquet 替代 CSV ⑤ 上 polars/duckdb 替代。</div></div>
+</details>
+
+<details><summary>10. 大模型 API 的 messages 数组是什么作用？</summary>
+<div class="qa"><div class="a">多轮对话上下文，按时间顺序拼接 system/user/assistant/tool 消息。每次调用都要把历史发回去（模型本身无状态）。多轮对话需自己管理上下文长度（超过窗口要裁剪/摘要）。</div></div>
+</details>
+
+<details><summary>11. system / user / assistant / tool 各自意义？</summary>
+<div class="qa"><div class="a">system 设定角色与规则；user 用户输入；assistant 模型上一轮输出（多轮回填）；tool 工具调用结果（Function Calling 第二阶段回填）。</div></div>
+</details>
+
+<details><summary>12. temperature 和 top_p 区别？</summary>
+<div class="qa"><div class="a">temperature 调采样分布的"陡峭度"，越高越随机；top_p 核采样，从累计概率达 p 的最小集合里采。两个一般二选一调，默认调 temperature 即可。分类用 0–0.3，创作 0.7+。</div></div>
+</details>
+
+<details><summary>13. 什么是 SSE？流式响应怎么实现？</summary>
+<div class="qa"><div class="a">Server-Sent Events，HTTP 长连接服务器单向推送，Content-Type: text/event-stream，每条 data: 开头 \n\n 结尾。OpenAI 流式就是 SSE，客户端循环解析每个 chunk 拿 delta.content 拼接。</div></div>
+</details>
+
+<details><summary>14. Function Calling 原理？模型真的执行函数吗？</summary>
+<div class="qa"><div class="a">不真执行。模型根据工具 schema 决定要调哪个工具+参数，输出 tool_calls；客户端代码实际执行后把结果以 tool 角色回填，模型再生成最终回答。本质是结构化输出+多轮对话。</div></div>
+</details>
+
+<details><summary>15. Function Calling 与 Agent 关系？</summary>
+<div class="qa"><div class="a">Function Calling 是 Agent 的基础能力。Agent 在此之上加了循环（多步执行）+ 自主决策（下一步做什么）+ 反馈（观察环境）。单次调工具不算 Agent，循环+决策才算。</div></div>
+</details>
+
+<details><summary>16. JSON Mode 和 Function Calling 区别？</summary>
+<div class="qa"><div class="a">JSON Mode 只保证输出是合法 JSON，结构靠 Prompt 约束；Function Calling 提供严格 schema，模型按 schema 输出 + 触发后续工具调用流程。要稳定结构化结果用 response_format/parse；要工具调用用 Function Calling。</div></div>
+</details>
+
+<details><summary>17. 什么是 Tokenizer？为什么要 Token？</summary>
+<div class="qa"><div class="a">Tokenizer 把文本切成 token（介于词和字符之间的子词单元，常用 BPE）。模型只懂 token 不懂字符。中文 1 个汉字 ≈ 1.5–2 token，英文 1 单词 ≈ 1.3 token。Token 决定上下文窗口和计费。</div></div>
+</details>
+
+<details><summary>18. 上下文窗口（Context Window）超了怎么办？</summary>
+<div class="qa"><div class="a">① 截断早期消息 ② 摘要旧轮次 ③ RAG 把长知识抽离到向量库按需检索 ④ 用更大窗口模型（Qwen 128K）⑤ 多轮拆任务。最优方案视场景。</div></div>
+</details>
+
+<details><summary>19. 什么是 RAG？最小流程？</summary>
+<div class="qa"><div class="a">Retrieval-Augmented Generation。流程：文档切块 → embedding → 向量库 → 查询时用问题向量召回 TopK → 把片段+问题拼 Prompt → LLM 生成。解决：私有知识不在训练集、知识更新快、可溯源。</div></div>
+</details>
+
+<details><summary>20. 什么时候用 RAG，什么时候用微调？</summary>
+<div class="qa"><div class="a">RAG：知识更新频繁、可溯源、量大；微调：风格/格式/领域语言固化、需要离线推理、私有部署。两者经常组合：RAG 注入知识 + 微调注入风格。</div></div>
+</details>
+
+<details><summary>21. Embedding 是什么？中文常用什么模型？</summary>
+<div class="qa"><div class="a">把文本映射到固定维度向量（如 1024 维），语义相近向量距离近。中文常用：BGE-M3（多语种）、BGE-large-zh-v1.5、M3E、text-embedding-v3（阿里）。审核场景考虑领域微调。</div></div>
+</details>
+
+<details><summary>22. 向量数据库存什么？怎么选？</summary>
+<div class="qa"><div class="a">存向量+原始文本+元数据。轻量 demo 用 Chroma；中型生产用 Qdrant/Milvus；已有 PG 用 pgvector；阿里云上用 DashVector。索引算法 HNSW 兼顾召回与延迟。</div></div>
+</details>
+
+<details><summary>23. Spring AI 和 LangChain4j 选哪个？</summary>
+<div class="qa"><div class="a">已用 Spring Boot 选 Spring AI（无缝集成 Bean/Profile/AOP/Actuator）；非 Spring 项目或喜欢 LangChain 风格选 LangChain4j（抽象更多，社区组件多）。两者都支持流式/Function/RAG/Memory。</div></div>
+</details>
+
+<details><summary>24. Java 调大模型注意什么？</summary>
+<div class="qa"><div class="a">① 超时设大（30s+，流式更长）② 重试+幂等 ③ 限流（用 Bucket4j 或 Redis）④ 流式用 Flux/SseEmitter ⑤ 监控 token 用量+成本 ⑥ 异步调用避免阻塞 web 线程。</div></div>
+</details>
+
+<details><summary>25. 怎么省 API 成本？</summary>
+<div class="qa"><div class="a">① 选合适模型（90% 场景 mini 级够用）② 缓存（同 Prompt 直接返回）③ Prompt 缓存（OpenAI/Anthropic 支持，长 system 大幅省钱）④ max_tokens 限制 ⑤ Batch API（半价但慢）⑥ 路由（简单问题走小模型）⑦ RAG 替代长上下文。</div></div>
+</details>
+
+<!-- ============ 速查 ============ -->
+<h2 id="cheat">📋 速查表汇总</h2>
+<div class="cmp">
+<div><h5>Python 关键字速查</h5>
+<pre><code>def     函数定义
+class   类定义
+import  导入
+return  返回
+yield   生成器返回
+lambda  匿名函数
+with    上下文管理
+try/except/finally
+async/await  协程
+None    空值（== Java null）
+True/False    布尔</code></pre>
+</div>
+<div><h5>OpenAI SDK 速查</h5>
+<pre><code>OpenAI(api_key, base_url)
+.chat.completions.create(...)
+  model, messages, temperature
+  stream=True / tools=...
+  response_format={...}
+.usage.prompt_tokens
+.usage.completion_tokens
+.choices[0].message.content
+.choices[0].message.tool_calls</code></pre>
+</div>
+</div>
+
+<h2 id="troubleshoot">🔧 常见报错速查</h2>
+<table>
+<tr><th>报错</th><th>原因</th><th>解决</th></tr>
+<tr><td><code>ModuleNotFoundError</code></td><td>包没装/没激活 venv</td><td><code>uv add 包名</code> 或确认 <code>uv run</code> 起的</td></tr>
+<tr><td><code>API key not found</code></td><td>.env 没加载</td><td>在脚本顶部 <code>load_dotenv()</code></td></tr>
+<tr><td><code>SSL: CERTIFICATE_VERIFY_FAILED</code></td><td>macOS 证书</td><td>装 Python 后跑 Install Certificates.command</td></tr>
+<tr><td><code>RateLimitError 429</code></td><td>触发限流</td><td>指数退避重试，或换 Key</td></tr>
+<tr><td><code>context_length_exceeded</code></td><td>上下文超窗</td><td>裁剪 messages 或换长窗模型</td></tr>
+<tr><td><code>JSONDecodeError</code></td><td>JSON Mode 输出非法 JSON</td><td>改用 .parse + Pydantic，或加重试</td></tr>
+<tr><td><code>tool_call_id 不匹配</code></td><td>回填工具结果时漏了 id</td><td>严格用模型给的 call.id</td></tr>
+<tr><td><code>UnicodeDecodeError</code></td><td>读文件没指定编码</td><td><code>open(path, encoding="utf-8")</code></td></tr>
+</table>
+
+<div class="footer">
+本教材是 Phase 0 的全部内容。学完按 W3 自查清单确认 ✓ 后即可进入 Phase 1（Transformer 原理）。<br>
+配套排期：<code>outputs/ai-2026-schedule-21weeks.html</code><br>
+WorkBuddy · 2026-06-13
+</div>
+
+</main>
+</div>
+</body>
+</html>

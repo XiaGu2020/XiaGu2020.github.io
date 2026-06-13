@@ -58,7 +58,8 @@ export default defineConfig({
         {
           text: '读书',
           items: [
-            { text: '分类首页', link: '/notes/' }
+            { text: '分类首页', link: '/notes/' },
+            { text: '2026 AI 工程转型学习路线', link: '/notes/ai-roadmap' }
           ]
         }
       ],

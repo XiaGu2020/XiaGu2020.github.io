@@ -1,0 +1,1209 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>Phase 4 · 推理优化与部署手册(W15-W18)</title>
+<style>
+:root{
+  --bg:#0e1117;--card:#161b22;--card2:#1c222b;--line:#272d36;--txt:#d0d7de;--muted:#8b949e;--hint:#6e7681;
+  --blue:#378ADD;--teal:#1D9E75;--amber:#EF9F27;--purple:#7F77DD;--coral:#D85A30;--red:#E24B4A;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font:14px/1.65 -apple-system,"PingFang SC","Helvetica Neue",sans-serif}
+.wrap{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.side{background:var(--card);border-right:1px solid var(--line);padding:18px 14px;position:sticky;top:0;height:100vh;overflow:auto}
+.side h1{font-size:14px;color:var(--blue);margin-bottom:14px}
+.side a{display:block;color:var(--muted);font-size:12px;padding:5px 8px;border-radius:5px;text-decoration:none;margin:1px 0}
+.side a:hover{background:var(--card2);color:var(--txt)}
+.side .grp{font-size:11px;color:var(--hint);margin:14px 0 4px;text-transform:uppercase;letter-spacing:1px}
+main{padding:30px 40px;max-width:920px}
+h1.t{font-size:24px;margin-bottom:6px}
+.lead{color:var(--muted);font-size:13px;margin:8px 0 18px;max-width:760px}
+h2{font-size:18px;margin:30px 0 12px;color:var(--blue);padding-bottom:6px;border-bottom:1px solid var(--line)}
+h2.week{display:flex;align-items:center;gap:10px;background:var(--card);border-left:3px solid var(--blue);padding:10px 14px;border-radius:0 6px 6px 0;border-bottom:none}
+h2.week .num{background:var(--blue);color:#fff;width:28px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+h2.week .ttl{font-weight:600;font-size:15px;color:var(--txt)}
+h3{font-size:15px;margin:18px 0 8px;color:var(--amber)}
+h4{font-size:14px;margin:10px 0 6px}
+p{margin:6px 0}
+ol,ul{margin:6px 0 6px 22px}
+li{margin:3px 0}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:500;font-size:12px;background:var(--card2)}
+td code,p code,li code{background:var(--card2);padding:1px 6px;border-radius:4px;font-size:12.5px;color:#f0d97a}
+pre{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:14px 16px;overflow:auto;margin:10px 0;font-size:13px;line-height:1.7;color:#e6edf3}
+pre code{color:#e6edf3;background:transparent;padding:0;font-size:13px}
+code{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+.cmt{color:#8b95b8;font-style:italic}
+.kw{color:#c099f0}
+.num{color:#ff9e64}
+.str{color:#9ece6a}
+.fn{color:#7aa2f7}
+.warn{background:rgba(226,75,74,.08);border-left:3px solid var(--red);padding:10px 14px;border-radius:0 6px 6px 0;margin:8px 0;font-size:13px}
+.tip{background:rgba(29,158,117,.08);border-left:3px solid var(--teal);padding:10px 14px;border-radius:0 6px 6px 0;margin:8px 0;font-size:13px}
+.info{background:rgba(55,138,221,.08);border-left:3px solid var(--blue);padding:10px 14px;border-radius:0 6px 6px 0;margin:8px 0;font-size:13px}
+.qa{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:0;margin:10px 0;overflow:hidden}
+.qa .q{background:var(--card2);padding:8px 14px;font-weight:600;font-size:13px;color:#fbbf24}
+.qa .a{padding:10px 14px;font-size:13px;color:var(--txt);line-height:1.75}
+.lvl{background:linear-gradient(90deg,rgba(127,119,221,.08),transparent);border:1px solid rgba(127,119,221,.3);border-radius:8px;padding:12px 16px;margin:14px 0}
+.lvl h4{color:#a39aef;margin-bottom:6px;font-size:13px}
+.lvl .row{display:flex;gap:10px;align-items:flex-start;margin:4px 0;font-size:12.5px}
+.tag{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600;flex-shrink:0;margin-top:2px}
+.tag.p7{background:rgba(110,118,129,.3);color:#aaa}
+.tag.p8{background:rgba(239,159,39,.18);color:#f0bf7e}
+.tag.p9{background:rgba(127,119,221,.22);color:#b5aef0}
+.ascii{background:#0d1117;border:1px solid #30363d;padding:14px 16px;border-radius:6px;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;line-height:1.7;white-space:pre;overflow:auto;margin:10px 0;color:#e6edf3}
+pre code.ascii{display:block;background:transparent;border:none;padding:0;margin:0}
+.formula{background:var(--card2);padding:10px 14px;border-radius:6px;font-family:ui-monospace,monospace;font-size:13px;text-align:center;margin:8px 0;color:#fbbf24}
+.footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--hint);font-size:12px;line-height:1.8}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="wrap">
+<aside class="side">
+  <h1>📘 Phase 4 · 推理优化</h1>
+  <div class="grp">第 15 周 · 推理基础</div>
+  <a href="#ch1">① Prefill vs Decode 两阶段</a>
+  <a href="#ch2">② TTFT/TPOT/吞吐三大指标</a>
+  <a href="#ch3">③ KV Cache 原理与显存</a>
+  <div class="grp">第 16 周 · 引擎核心</div>
+  <a href="#ch4">④ PagedAttention(vLLM 核心)</a>
+  <a href="#ch5">⑤ 连续批处理 Continuous Batching</a>
+  <a href="#ch6">⑥ FlashAttention 与算子优化</a>
+  <div class="grp">第 17 周 · 加速技术</div>
+  <a href="#ch7">⑦ 投机解码 Speculative Decoding</a>
+  <a href="#ch8">⑧ 量化(INT8/INT4/AWQ/GPTQ)</a>
+  <a href="#ch9">⑨ LoRA / QLoRA 微调与服务化</a>
+  <div class="grp">第 18 周 · 部署落地</div>
+  <a href="#ch10">⑩ vLLM 部署实战</a>
+  <a href="#ch11">⑪ 多卡 / 多节点 / TP·PP·EP</a>
+  <a href="#ch12">⑫ 推理成本优化全景</a>
+  <div class="grp">面试与速查</div>
+  <a href="#qa25">★ 25 题速查</a>
+  <a href="#cheatsheet">▣ 速查表</a>
+</aside>
+<main>
+<h1 class="t">Phase 4 · 推理优化与部署手册(W15-W18)</h1>
+<p class="lead">2026 大模型面试推理这一块从「会调 API」跃迁到「能讲清 Prefill/Decode 两阶段计算特征 + KV Cache 显存账 + PagedAttention 解决什么问题 + 投机解码经济账 + 量化精度损失边界」。这份手册按 P8/P9 口径,把 vLLM 系核心机制讲透,落到老李审核场景的本地化部署优化。</p>
+
+<div class="info">
+<b>Phase 4 核心承诺</b>:看完这份你能独立 Profile 一个推理服务、讲清每个优化的<b>带宽/算力账本</b>、设计一套从单卡到集群的演进路线——这是 P8 必备、P9 的护城河。
+</div>
+
+<!-- ============== W15 ============== -->
+<h2 id="w15" class="week"><span class="num">15</span><span class="ttl">第 15 周 · Prefill/Decode + 三大指标 + KV Cache</span></h2>
+
+<h3 id="ch1">第 1 章:Prefill vs Decode——LLM 推理的两阶段</h3>
+
+<h3>1.1 五句话原理</h3>
+<div class="info">
+<b>① LLM 推理分两阶段:Prefill(预填充) + Decode(解码)。</b>Prefill 一次性处理 prompt 所有 token 算出第一个 token + 全部 KV;Decode 逐 token 自回归生成。<br>
+<b>② Prefill 是<u>计算密集型</u>(compute-bound):</u></b> 一次性算 N 个 token 的全部 attention,GPU FLOPS 拉满,显存带宽不是瓶颈。<br>
+<b>③ Decode 是<u>显存带宽密集型</u>(memory-bound):</b>每步只生成 1 个 token,但要读全部权重 + KV Cache,FLOPS 利用率往往 <10%。<br>
+<b>④ 这两阶段计算特征完全不同,所以优化手段也不同:</b>Prefill 优化算子(FlashAttention),Decode 优化访存(KV Cache + Continuous Batching + 投机解码)。<br>
+<b>⑤ TTFT 由 Prefill 决定,TPOT 由 Decode 决定——分开优化才能拿满。</b>面试官最爱问「为什么 Decode 慢」,答「memory-bound,瓶颈在 HBM 带宽,不在算力」就稳。
+</div>
+
+<h3>1.2 两阶段对照表</h3>
+<table>
+<tr><th>维度</th><th>Prefill</th><th>Decode</th></tr>
+<tr><td>输入</td><td>整个 prompt(N tokens 一起)</td><td>上一步生成的 1 个 token</td></tr>
+<tr><td>计算</td><td>并行算 N 个 token 的 QKV/Attn</td><td>串行算 1 个 token</td></tr>
+<tr><td>瓶颈</td><td>FLOPS(算力)</td><td>HBM 带宽(显存)</td></tr>
+<tr><td>FLOPS 利用率</td><td>50-90%</td><td>5-15%</td></tr>
+<tr><td>对应指标</td><td>TTFT(首 token 延迟)</td><td>TPOT(每 token 延迟)</td></tr>
+<tr><td>优化方向</td><td>FlashAttention / Tensor Core</td><td>KV Cache / 批处理 / 投机解码</td></tr>
+</table>
+
+<h3>1.3 完整代码:Profile 两阶段耗时</h3>
+<pre><code class="ascii">import time, torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen3-4B",
+                  torch_dtype=torch.float16, device_map="cuda")
+tok = AutoTokenizer.from_pretrained("Qwen/Qwen3-4B")
+
+prompt = "审核以下章节内容是否合规:" + "..." * 500   # 长 prompt
+inputs = tok(prompt, return_tensors="pt").to("cuda")
+
+# ① Prefill:一次前向算所有 prompt token + 第一个新 token
+torch.cuda.synchronize(); t0 = time.time()
+with torch.no_grad():
+    out = model(**inputs, use_cache=True)
+    past_kv = out.past_key_values
+    next_tok = out.logits[:,-1,:].argmax(-1, keepdim=True)
+torch.cuda.synchronize()
+prefill_ms = (time.time()-t0)*1000
+print(f"Prefill {inputs.input_ids.shape[1]} tokens: {prefill_ms:.1f}ms")
+
+# ② Decode:逐 token 生成,每步只输入 1 token
+gen, t1 = [next_tok], time.time()
+for _ in range(99):
+    with torch.no_grad():
+        out = model(input_ids=gen[-1], past_key_values=past_kv, use_cache=True)
+        past_kv = out.past_key_values
+        gen.append(out.logits[:,-1,:].argmax(-1, keepdim=True))
+torch.cuda.synchronize()
+decode_ms = (time.time()-t1)*1000
+print(f"Decode 100 tokens: {decode_ms:.1f}ms, TPOT={decode_ms/100:.1f}ms/tok")</code></pre>
+
+<h3>1.4 易踩坑</h3>
+<div class="warn">
+<b>坑 1:用 Prefill 的延迟评估整体性能。</b>大量场景 Decode 才是大头(生成 500 token 时 Decode 占 90% 时间)——只看 TTFT 会误判。<br>
+<b>坑 2:把 Prefill 当成可以批的随便批。</b>Prefill 已经把算力占满了,叠太多请求反而互相挤算力。Decode 才是批处理收益最大的阶段。<br>
+<b>坑 3:不用 KV Cache 重算每步。</b>不传 past_key_values 每步都重算前面所有 token——TPOT 直接爆 10 倍。<br>
+<b>坑 4:误以为 Decode 慢是模型大。</b>Decode 慢的根本原因是<b>访存量大(权重 + KV)</b>不是算力,模型再小如果 KV 没压缩 Decode 还是慢。<br>
+<b>坑 5:Prefill 阶段不做 chunk。</b>32K 长 prompt 一次 Prefill 显存爆——vLLM 的 chunked prefill 把它切成小块串行算。
+</div>
+
+<h3>1.5 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q1:为什么 LLM Decode 阶段慢?GPU 利用率为什么这么低?</div>
+<div class="a"><b>P7 答</b>:模型大、显卡算力不够。<br>
+<b>P8 答</b>:「Decode 是 memory-bound 不是 compute-bound。每生成 1 个 token 要从 HBM 读全部权重(7B 模型 14GB FP16)+ KV Cache,但只算 1 个 token 的 FLOPS——访存:计算比远大于 GPU 设计的 roofline 拐点,所以 FLOPS 利用率才 5-15%。优化方向不在加算力,而在<b>减少访存</b>:KV Cache 复用、Batch 多个请求摊销权重读取、投机解码一次验证多 token。」<br>
+<b>P9 答</b>:「这是<b>架构选型问题</b>。我的判断框架:① 业务侧 prompt 长 + 输出短(审核场景)→ Prefill 是瓶颈,优化 FlashAttention + Chunked Prefill;② prompt 短 + 输出长(对话生成)→ Decode 是瓶颈,优化批处理 + 投机解码;③ 在线 + 离线混合负载 → 用 Disaggregated Inference 把 Prefill 和 Decode 放到不同硬件(Prefill 用 H100,Decode 用大显存的 A100)。这是 2026 推理架构的最新趋势(DistServe / Mooncake)。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:Prefill/Decode 分离是 2026 趋势</h4>
+  <div class="row"><span class="tag p7">P7</span><span>知道 LLM 是自回归生成。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>能讲清两阶段计算特征不同,memory-bound vs compute-bound。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>知道 DistServe / Mooncake 这种 Prefill/Decode 物理分离架构,能按业务负载选型。</span></div>
+</div>
+
+<h3 id="ch2">第 2 章:TTFT / TPOT / 吞吐——推理三大核心指标</h3>
+
+<h3>2.1 五句话原理</h3>
+<div class="info">
+<b>① 推理服务三个根指标:TTFT、TPOT、Throughput。</b>面试讲不清这三个直接挂掉。<br>
+<b>② TTFT(Time To First Token):</b>从请求到达起,到生成第一个 token 的延迟。<b>由 Prefill 决定</b>,影响用户感知的「响应快不快」。<br>
+<b>③ TPOT(Time Per Output Token):</b>生成相邻两个 token 的间隔。<b>由 Decode 决定</b>,影响「打字流畅度」。注意是 TPOT 不是 TBT(那是过时的叫法)。<br>
+<b>④ Throughput(吞吐):</b>单位时间整个服务处理的总 token 数(prefill_tokens + decode_tokens)/s。是<b>成本的反向指标</b>——吞吐越高单 token 成本越低。<br>
+<b>⑤ 三个指标互相 trade-off:</b>批越大吞吐越高但 TTFT/TPOT 越长;批越小延迟越好但吞吐越低。SLA 决定怎么权衡。
+</div>
+
+<h3>2.2 三指标对照 + 经验值</h3>
+<table>
+<tr><th>指标</th><th>定义</th><th>影响</th><th>典型 SLA</th></tr>
+<tr><td>TTFT</td><td>请求 → 第一个 token</td><td>用户感知响应快慢</td><td>对话 ≤500ms;批处理 ≤2s</td></tr>
+<tr><td>TPOT</td><td>token 间间隔</td><td>打字流畅度(应 ≥ 阅读速度)</td><td>≤50ms(20 tok/s) 流畅</td></tr>
+<tr><td>Throughput</td><td>总 tokens/s/服务</td><td>成本反向指标</td><td>越高越好,7B 单卡 ≥3K</td></tr>
+<tr><td>P99 端到端延迟</td><td>TTFT + TPOT × N</td><td>SLA 兜底</td><td>对话 ≤5s;长输出 ≤30s</td></tr>
+</table>
+
+<h3>2.3 成本公式</h3>
+<div class="formula">单 token 成本 = GPU 小时单价 / Throughput(tok/s) / 3600</div>
+<p>例:H100 单价 ¥30/h,服务跑出 5000 tok/s → ¥30/5000/3600 = ¥0.00000167 /tok ≈ ¥1.67 /M tok。这就是为什么吞吐是成本反向指标。</p>
+
+<h3>2.4 完整代码:压测 vLLM 服务</h3>
+<pre><code class="ascii"># benchmark_serving.py(简化版)
+import asyncio, time, aiohttp, json, statistics
+
+async def one_request(session, prompt, n_out=200):
+    t0 = time.time()
+    first_token_t = None
+    async with session.post("http://localhost:8000/v1/completions",
+        json={"model":"qwen3-4b","prompt":prompt,"max_tokens":n_out,"stream":True}) as resp:
+        n_tokens = 0
+        async for line in resp.content:
+            if line.startswith(b"data:") and line.strip()!=b"data: [DONE]":
+                if first_token_t is None:
+                    first_token_t = time.time()
+                n_tokens += 1
+        end_t = time.time()
+    ttft = (first_token_t - t0)*1000 if first_token_t else 0
+    tpot = (end_t - first_token_t)*1000 / max(n_tokens,1)
+    return ttft, tpot, n_tokens, end_t-t0
+
+async def main(concurrency=32, total=1000):
+    async with aiohttp.ClientSession() as session:
+        sem = asyncio.Semaphore(concurrency)
+        async def run(p):
+            async with sem:
+                return await one_request(session, p)
+        results = await asyncio.gather(*[run("审核以下内容...") for _ in range(total)])
+
+    ttfts = [r[0] for r in results]
+    tpots = [r[1] for r in results]
+    total_t = max(r[3] for r in results)
+    total_tok = sum(r[2] for r in results)
+    print(f"TTFT P50={statistics.median(ttfts):.0f}ms P99={sorted(ttfts)[int(0.99*len(ttfts))]:.0f}ms")
+    print(f"TPOT P50={statistics.median(tpots):.1f}ms P99={sorted(tpots)[int(0.99*len(tpots))]:.1f}ms")
+    print(f"Throughput: {total_tok/total_t:.0f} tok/s")
+
+asyncio.run(main())</code></pre>
+
+<h3>2.5 易踩坑</h3>
+<div class="warn">
+<b>坑 1:只看平均值不看 P99。</b>P50 漂亮但 P99 灾难是常态——SLA 看 P99,平均数会骗人。<br>
+<b>坑 2:不区分输入长度跑压测。</b>prompt 长度严重影响 TTFT,要按业务真实长度分布跑。<br>
+<b>坑 3:Throughput 只算 output token。</b>vLLM 计算应该是 (prefill+decode) 的总 token 数,只算 output 会低估。<br>
+<b>坑 4:忽视 Goodput。</b>新概念:不是所有完成的请求都满足 SLA,Goodput = 满足 SLA 的吞吐。这是 P9 视角。<br>
+<b>坑 5:TTFT 卡了归咎模型。</b>真正瓶颈往往是排队(Queue Time):并发太高 + 批太小 → 请求排队等空位。这是调度问题,不是模型问题。
+</div>
+
+<h3>2.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q2:你们的推理服务 SLA 怎么定?三个指标怎么权衡?</div>
+<div class="a"><b>P7 答</b>:延迟尽量低、吞吐尽量高。<br>
+<b>P8 答</b>:「分场景定 SLA。审核场景 prompt 长 800 tok、输出短 100 tok,SLA:TTFT P99 ≤1.5s、TPOT P99 ≤80ms、Throughput ≥4K tok/s。三个指标互斥:批大 → 吞吐高但 TTFT/TPOT 长。我们用 max-num-seqs=128 + chunked-prefill 平衡,达到了 P99 1.2s + 4.5K tok/s。」<br>
+<b>P9 答</b>:「指标本身不是 SLA,<b>Goodput</b> 才是。Goodput = 满足 SLA 的请求吞吐。我推动:① 把 SLA 写进 OKR,违约率纳入考核;② 不同业务定不同 SLA tier(对话/批处理/审核);③ 每周做<b>SLA-Cost Pareto 分析</b>,看在保 SLA 前提下成本能降多少;④ 引入 Disaggregated 架构后我们 P99 又降了 30%。指标驱动架构进化,不是反过来。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:Goodput 是 2026 新概念</h4>
+  <div class="row"><span class="tag p7">P7</span><span>能说出延迟和吞吐两个词。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>分清 TTFT/TPOT/Throughput,知道 trade-off,会用 P99 定 SLA。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>用 Goodput 取代 Throughput,做 SLA-Cost Pareto 优化,把 SLA 写进 OKR。</span></div>
+</div>
+
+<h3 id="ch3">第 3 章:KV Cache 原理与显存账</h3>
+
+<h3>3.1 五句话原理</h3>
+<div class="info">
+<b>① KV Cache 是 Decode 加速的根基:</b>注意力计算需要每个 token 的 K、V,前面的 token 不变,所以缓存起来下次复用,不重算。<br>
+<b>② 没 KV Cache:</b>每生成 1 个 token 都要重算前面 N 个 token 的 KV(O(N²) 复杂度爆炸)。<br>
+<b>③ 有 KV Cache:</b>每步只算新 token 的 K/V,追加到缓存,O(N) 复杂度。<br>
+<b>④ 代价:KV Cache 占显存非常大。</b>公式:<code>KV = 2 × layers × heads × head_dim × seq_len × bytes</code>。Llama-7B 一个 4K 序列 KV ≈ 2GB。<br>
+<b>⑤ KV 大小决定单卡能塞多少并发请求</b>——这是 PagedAttention 出现的根因。
+</div>
+
+<h3>3.2 KV Cache 显存计算公式</h3>
+<div class="formula">KV_size = 2 × n_layers × n_kv_heads × head_dim × seq_len × dtype_bytes × batch</div>
+<table>
+<tr><th>模型</th><th>layers</th><th>kv_heads</th><th>head_dim</th><th>4K seq FP16 单序列</th></tr>
+<tr><td>Llama2-7B</td><td>32</td><td>32(MHA)</td><td>128</td><td>2 × 32 × 32 × 128 × 4096 × 2 = 2.0 GB</td></tr>
+<tr><td>Llama2-70B</td><td>80</td><td>8(GQA)</td><td>128</td><td>2 × 80 × 8 × 128 × 4096 × 2 = 1.25 GB</td></tr>
+<tr><td>Qwen3-4B</td><td>36</td><td>8(GQA)</td><td>128</td><td>2 × 36 × 8 × 128 × 4096 × 2 = 0.56 GB</td></tr>
+<tr><td>DeepSeek-V3</td><td>61</td><td>1(MLA)</td><td>576</td><td>≈ 0.27 GB(MLA 大幅压缩)</td></tr>
+</table>
+
+<div class="tip">
+<b>三大节省 KV 的架构演进:</b><br>
+① <b>MHA</b>(Multi-Head Attention):每头独立 KV → 显存爆炸。<br>
+② <b>GQA</b>(Grouped Query):多个 Q 共享一组 KV → 节省 4-8 倍。Llama2-70B / Qwen3 都用。<br>
+③ <b>MLA</b>(Multi-Head Latent Attention):KV 压缩到低秩潜空间 → 节省 10x+。DeepSeek-V2/V3 独家。
+</div>
+
+<h3>3.3 完整代码:KV Cache 算账工具</h3>
+<pre><code class="ascii">def kv_size_gb(layers, kv_heads, head_dim, seq_len, batch=1, dtype_bytes=2):
+    """返回 KV Cache 占用 GB"""
+    bytes_total = 2 * layers * kv_heads * head_dim * seq_len * batch * dtype_bytes
+    return bytes_total / (1024**3)
+
+# Llama2-7B 4K 上下文,32 并发
+print(kv_size_gb(32, 32, 128, 4096, 32))   # 64.0 GB → A100 80G 也吃力!
+
+# Qwen3-4B 4K,32 并发
+print(kv_size_gb(36, 8, 128, 4096, 32))    # 18.0 GB → 友好
+
+# 单卡能跑多少并发?
+def max_batch(gpu_mem_gb, model_weight_gb, layers, kv_heads, head_dim, seq_len, dtype_bytes=2):
+    free = gpu_mem_gb - model_weight_gb - 2  # 留 2GB 给激活/buffer
+    per_seq_gb = kv_size_gb(layers, kv_heads, head_dim, seq_len, 1, dtype_bytes)
+    return int(free / per_seq_gb)
+
+# A100 80G + Llama2-7B(14GB FP16)+ 4K
+print(max_batch(80, 14, 32, 32, 128, 4096))  # 32 并发(理论上限)</code></pre>
+
+<h3>3.4 易踩坑</h3>
+<div class="warn">
+<b>坑 1:忽略 KV 占显存,塞模型不留余地。</b>「7B 模型才 14G,A100 80G 能塞 5 个」错!1 个模型 + 32 并发 KV = 64GB,根本塞不了 5 个。<br>
+<b>坑 2:把 MHA / GQA / MLA 当一回事。</b>同一参数量模型,MHA 和 MLA 单卡并发能差 10 倍,选模型必须看这个。<br>
+<b>坑 3:KV 不复用 prefix。</b>同一 system prompt 被复用 1000 次也每次重算 KV——开 prefix-caching 能省 30-70% Prefill。<br>
+<b>坑 4:KV dtype 没量化。</b>FP16 是默认,但 INT8 KV Cache 能再省一半显存(精度损失 <1%)。vLLM/SGLang 都支持。<br>
+<b>坑 5:不监控 KV 利用率。</b>vLLM 有 `gpu_cache_usage_perc` 指标,>90% 说明要扩容了,<30% 说明并发设太小浪费显存。
+</div>
+
+<h3>3.5 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q3:7B 模型 A100 80G 能跑多少并发?KV Cache 怎么算?</div>
+<div class="a"><b>P7 答</b>:7B 大概 14G,80G 减掉 14 还剩 60G,反正能跑挺多的。<br>
+<b>P8 答</b>:「公式 <code>KV = 2 × layers × kv_heads × head_dim × seq_len × dtype × batch</code>。Llama2-7B 是 MHA(kv_heads=32),4K 上下文单序列 KV = 2GB。A100 80G 减掉 14GB 模型 + 2GB 激活留 64GB → 32 并发是上限。但用 GQA 模型(如 Qwen3-8B,kv_heads=8)能跑 128 并发,差 4 倍。再用 MLA(DeepSeek-V3)同上下文又能再省 5x。所以选模型架构比堆显卡更划算。」<br>
+<b>P9 答</b>:「这是<b>架构成本账本</b>。我落地的优化:① <b>选 GQA/MLA 模型</b>是第一性优化,直接 4-10 倍并发提升;② <b>Prefix Caching</b> 把审核场景的 system prompt 缓存,Prefill 直接 7 倍提速;③ <b>KV INT8 量化</b>再省 50% 显存,等同于免费扩容;④ 监控 `gpu_cache_usage_perc` 做<b>动态批调度</b>——KV 占用高就主动驱逐低优先级请求,这就是 PagedAttention 在做的事。架构选型 + 缓存策略 + 量化 + 调度四件套配合,单卡有效并发能从 32 拉到 200+。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:KV Cache 是显存账本的钥匙</h4>
+  <div class="row"><span class="tag p7">P7</span><span>知道有 KV Cache,加速 Decode。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>会算 KV 显存,知道 GQA/MLA 节省机制,会调 prefix caching 和 INT8 KV。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>把架构选型 + 量化 + 调度做成显存账本系统,单卡有效并发拉 5-10 倍。</span></div>
+</div>
+
+<!-- ============== W16 ============== -->
+<h2 id="w16" class="week"><span class="num">16</span><span class="ttl">第 16 周 · PagedAttention + 连续批处理 + FlashAttention</span></h2>
+
+<h3 id="ch4">第 4 章:PagedAttention——vLLM 的核心创新</h3>
+
+<h3>4.1 五句话原理</h3>
+<div class="info">
+<b>① PagedAttention 是 vLLM 2023 论文的核心创新,灵感来自操作系统的虚拟内存分页。</b><br>
+<b>② 解决的问题:</b>朴素 KV Cache 给每个序列预分配 max_seq_len 大小的连续显存块——但实际平均长度可能只有 max 的 30%,显存浪费 70%。<br>
+<b>③ 核心思想:</b>把 KV Cache 切成固定大小的 Block(默认 16 个 token 一块),序列按需申请 Block,不连续——像 OS 把进程地址空间分页映射到物理内存。<br>
+<b>④ 收益:</b>显存利用率从 30% 提到 96%+,有效并发提 4-10 倍。是 vLLM 单卡吞吐碾压原生 PyTorch 推理的核心原因。<br>
+<b>⑤ 副产品:</b>不同序列可以共享相同的 prompt 前缀 Block(就是 prefix caching),进一步省显存 + 加速 Prefill。
+</div>
+
+<h3>4.2 朴素 KV vs PagedAttention 对照</h3>
+<table>
+<tr><th>维度</th><th>朴素 KV</th><th>PagedAttention</th></tr>
+<tr><td>显存分配</td><td>预留 max_seq_len 连续</td><td>按需分 Block(16 token/块)</td></tr>
+<tr><td>显存利用率</td><td>20-40%</td><td>90-96%</td></tr>
+<tr><td>外部碎片</td><td>严重</td><td>无(Block 大小一致)</td></tr>
+<tr><td>共享 prefix</td><td>无法共享</td><td>Block 引用计数,完全共享</td></tr>
+<tr><td>类比 OS</td><td>静态分区</td><td>分页虚拟内存</td></tr>
+</table>
+
+<h3>4.3 ASCII 示意:Block 映射表</h3>
+<pre><code class="ascii">逻辑 KV Cache(序列视角)        物理 Block 池(显存)
+┌──────────────────┐              ┌────────────────┐
+│ 序列 A            │   Block Map  │ Block 0 [16t] │
+│ ┌────┬────┬────┐ │   A→[3,7,2]  │ Block 1 [16t] │
+│ │ B0 │ B1 │ B2 │ │              │ Block 2 [16t] │ ← A 的 B2
+│ └────┴────┴────┘ │              │ Block 3 [16t] │ ← A 的 B0
+├──────────────────┤              │ Block 4 [16t] │
+│ 序列 B(共享前缀) │   B→[3,7,9]  │ Block 5 [16t] │
+│ ┌────┬────┬────┐ │              │ Block 6 [16t] │
+│ │ B0 │ B1 │ B2 │ │              │ Block 7 [16t] │ ← A 和 B 共享
+│ └────┴────┴────┘ │              │ Block 8 [16t] │
+└──────────────────┘              │ Block 9 [16t] │ ← B 的 B2
+                                  └────────────────┘
+A、B 共享 system prompt → Block 7 引用计数=2,只算一份显存</code></pre>
+
+<h3>4.4 vLLM 中开启关键参数</h3>
+<pre><code class="ascii"># vllm serve 启动时
+vllm serve Qwen/Qwen3-4B \
+    --gpu-memory-utilization 0.92 \   # 显存利用率拉满
+    --enable-prefix-caching \          # PagedAttention 副产品:共享前缀
+    --block-size 16 \                  # KV Block 大小
+    --max-num-seqs 256 \               # 最大并发批
+    --max-model-len 8192               # 最大上下文长度
+
+# 性能对比(Qwen3-4B / A100 / 真实压测)
+# 朴素 PyTorch:  120 tok/s,  KV 利用率 35%
+# vLLM PagedAttn: 4500 tok/s, KV 利用率 94%</code></pre>
+
+<h3>4.5 易踩坑</h3>
+<div class="warn">
+<b>坑 1:不开 prefix-caching。</b>审核场景 system prompt 几百 token 完全相同,不开等于浪费 50% Prefill 算力。一个开关搞定。<br>
+<b>坑 2:Block size 没调。</b>默认 16 适合通用场景。短输出场景调小到 8 减少内部碎片;长上下文场景调大到 32 减少 Block Map 开销。<br>
+<b>坑 3:gpu-memory-utilization 设太低。</b>默认 0.9 是为了留 buffer,但生产稳定后可以推到 0.95-0.98 多塞并发。<br>
+<b>坑 4:max-num-seqs 拍脑袋。</b>设太大显存爆,设太小吞吐低。要根据 KV 显存账本算:`(可用显存 - 模型) / 单序列 KV / max_model_len 比例`。<br>
+<b>坑 5:以为 PagedAttention = 万灵药。</b>对超长上下文(>32K)还是要配合 chunked-prefill,否则单次 Prefill 算力打满阻塞其他请求。
+</div>
+
+<h3>4.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q4:vLLM 为什么这么快?核心机制是什么?</div>
+<div class="a"><b>P7 答</b>:vLLM 用了 PagedAttention,加速很多。<br>
+<b>P8 答</b>:「PagedAttention 借鉴 OS 虚拟内存分页:把 KV Cache 切成固定 Block(16 token/块),按需分配。原生 PyTorch 给每个序列预留 max_seq_len 连续显存,平均利用率 35%;PagedAttention 把利用率拉到 94%+,等同于 3 倍并发。副产品:同 prompt 不同请求共享 Block(prefix caching),Prefill 提速 2-7 倍。我们审核场景从 120 tok/s 提到 4500 tok/s 主要靠这两点。」<br>
+<b>P9 答</b>:「PagedAttention 的更大意义是<b>把 KV 当资源做调度</b>。我推动:① 把 KV 显存做成<b>可观测资源池</b>(grafana 监控 gpu_cache_usage_perc + Block Map 命中率);② 设计<b>请求驱逐策略</b>——当 KV 满载时按优先级驱逐(批处理 < 在线对话 < VIP),驱逐后从 Block Map 释放并下次可重算 Prefill;③ 跨多卡时把 Block Map 设计成<b>分布式</b>(类似 vLLM v1 的 KV-aware scheduler)。从单机优化到集群级 KV 调度,是 P9 视角。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:PagedAttention 是 OS 思维的胜利</h4>
+  <div class="row"><span class="tag p7">P7</span><span>知道 vLLM 用了 PagedAttention。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>能讲清虚拟内存类比、Block Map、prefix caching、利用率提升数字。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>把 KV 当可观测可调度资源池,做请求驱逐策略和分布式 KV 调度。</span></div>
+</div>
+
+<h3 id="ch5">第 5 章:Continuous Batching——连续批处理</h3>
+
+<h3>5.1 五句话原理</h3>
+<div class="info">
+<b>① 朴素 Static Batching</b>(GPU 训练那套):一批请求一起进、一起算、一起出——慢的拖快的,GPU 利用率被「最长那个」拖累。<br>
+<b>② Continuous Batching(也叫 In-flight Batching):</b>每生成一个 token 就重组 batch——已结束的请求从批里踢出去,新请求立刻塞进来。<br>
+<b>③ 类比:</b>Static Batching 像「公交车」(必须等齐发车),Continuous 像「滚动地铁」(随时上下车)。<br>
+<b>④ 收益:</b>GPU 永远在算满批,吞吐 5-10 倍提升。是 vLLM/TGI/SGLang/TensorRT-LLM 的标配。<br>
+<b>⑤ 关键设计:</b>调度器(Scheduler)每个 step 决定哪些序列继续 Decode、哪些新序列进来 Prefill、显存够不够要不要驱逐。
+</div>
+
+<h3>5.2 Static vs Continuous 对照图</h3>
+<pre><code class="ascii">Static Batching(每批等齐):
+时间→  | step1 | step2 | step3 | step4 |
+ReqA   |  *  |  *  |  *  |  *  | (生成 4 个 token 完成)
+ReqB   |  *  |  *  | END | --- | (2 个 token 完成,空等)
+ReqC   |  *  | END | --- | --- | (1 个,空 3 步)
+ReqD   |  *  |  *  |  *  | END |
+GPU 利用率: 100% 75% 50% 25% ← 后期严重浪费
+
+Continuous Batching(滚动地铁):
+时间→  | step1   | step2   | step3   | step4   |
+ReqA   |   *     |   *     |   *     |   *(end)|
+ReqB   |   *     |   *(end)| ReqE *  | ReqE *  |  ← B 走 E 来
+ReqC   |   *(end)| ReqF *  | ReqF *  | ReqF *  |  ← C 走 F 来
+ReqD   |   *     |   *     |   *     |   *(end)|
+GPU 利用率: 100% 100% 100% 100% ← 满载</code></pre>
+
+<h3>5.3 Scheduler 伪代码</h3>
+<pre><code class="ascii">class ContinuousScheduler:
+    def __init__(self, max_seqs=256, max_kv_blocks=4096):
+        self.running = []          # 正在 Decode 的序列
+        self.waiting = deque()     # 等待 Prefill 的序列
+        self.max_seqs = max_seqs
+        self.kv_pool = BlockPool(max_kv_blocks)
+
+    def step(self):
+        # ① 已完成的序列从 running 踢出,释放 KV
+        finished = [s for s in self.running if s.done]
+        for s in finished:
+            self.running.remove(s)
+            self.kv_pool.free(s.blocks)
+
+        # ② 看 KV 池剩余,决定能否塞新请求(从 waiting 拉)
+        while self.waiting and len(self.running) < self.max_seqs:
+            seq = self.waiting[0]
+            need_blocks = ceil(seq.prompt_len / 16)
+            if self.kv_pool.can_alloc(need_blocks):
+                seq.blocks = self.kv_pool.alloc(need_blocks)
+                self.running.append(seq)
+                self.waiting.popleft()
+                seq.do_prefill()    # 第一次进来要算 Prefill
+            else:
+                # ③ KV 不足:启动驱逐(swap to CPU / preempt)
+                self.try_evict()
+                break
+
+        # ④ 所有 running 序列前进一步 Decode
+        forward_pass(self.running)
+
+        # ⑤ 检查需要追加 KV Block 的(序列变长)
+        for s in self.running:
+            if s.kv_full():
+                s.blocks.append(self.kv_pool.alloc(1))</code></pre>
+
+<h3>5.4 易踩坑</h3>
+<div class="warn">
+<b>坑 1:Prefill 阶段不 chunk 阻塞调度。</b>来一个 32K prompt 的请求,Prefill 一次 1 秒,期间所有 Decode 卡住——TPOT P99 飞升。开 chunked-prefill 把它切成 512 token 一块串行算。<br>
+<b>坑 2:max-num-seqs 与 KV 不匹配。</b>设 max-num-seqs=256 但 KV 池只够 64 序列 → 调度器频繁驱逐 swap → 抖动严重。要算账匹配。<br>
+<b>坑 3:Preemption 策略没监控。</b>vLLM 在 KV 紧张时会 preempt(把序列 swap 到 CPU 或重算),这是性能毒药。要监控 `num_preemption` 指标,大于 0 说明负载已到极限。<br>
+<b>坑 4:不知道 Prefill / Decode 互相干扰。</b>chunked-prefill + decode 同 step 跑,两者抢算力,TPOT 会被 Prefill 拖。SGLang/Mooncake 用 disaggregated 物理分离解决。<br>
+<b>坑 5:Streaming 输出不会聚。</b>Continuous Batching 下不同请求生成进度不同,客户端 streaming 必须按 request_id 分流,不能混在一起。
+</div>
+
+<h3>5.5 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q5:Continuous Batching 是什么?为什么比 Static Batching 快?</div>
+<div class="a"><b>P7 答</b>:连续批处理,边来边批,比静态批处理快。<br>
+<b>P8 答</b>:「Static Batching 等齐一批一起算,慢的拖累快的,GPU 利用率随生成进度递减。Continuous Batching 每个 step 重组 batch:已结束的踢出,新请求立刻塞 Prefill 进来——GPU 永远满批。配合 PagedAttention 的 KV Block 分配,实现真正的滚动调度。我们 vLLM 部署后吞吐从 600 tok/s 提到 4500 tok/s,核心就是 PagedAttention + Continuous Batching 这一对组合拳。」<br>
+<b>P9 答</b>:「Continuous Batching 是<b>调度问题</b>不是技术问题。我推动:① <b>分级队列</b>——VIP/在线/批处理三档,各有独立 max-num-seqs 配额;② <b>Prefill/Decode 解耦</b>(2026 趋势:DistServe / Mooncake 把 Prefill 和 Decode 分到不同 GPU,Prefill 完了把 KV 通过 NVLink 传给 Decode 节点),消除互相干扰;③ <b>SLA 感知调度</b>——用户 SLA 紧的优先级抬高,可被驱逐的批处理任务靠后。从单机调度升级到集群级别 + SLA 联动,是 P9 起步线。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:推理调度是 P9 战场</h4>
+  <div class="row"><span class="tag p7">P7</span><span>知道 vLLM 在做连续批处理。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>能讲清滚动地铁类比 + Scheduler 流程 + chunked-prefill 解决 P99。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>分级队列 + Prefill/Decode 物理解耦 + SLA 感知调度。</span></div>
+</div>
+
+<h3 id="ch6">第 6 章:FlashAttention 与算子优化</h3>
+
+<h3>6.1 五句话原理</h3>
+<div class="info">
+<b>① FlashAttention 是 2022 Tri Dao 的论文,把 Attention 算子从 O(N²) 显存压到 O(N),且更快。</b><br>
+<b>② 朴素 Attention 问题:</b>计算 <code>softmax(QK^T) × V</code> 需要 N × N 大小的中间矩阵 S 写到 HBM 又读回——<u>大量 HBM 读写,memory-bound</u>。<br>
+<b>③ FlashAttention 核心:</b>Tiling(分块)+ 在线 Softmax(online softmax),把 Q/K/V 切块到 SRAM 里算,中间结果不落盘 HBM。<br>
+<b>④ 收益:</b>速度 2-4x、显存 5-10x。FlashAttention-2 改进了并行度;FlashAttention-3 利用 H100 的 TMA + WGMMA。<br>
+<b>⑤ 关键认知:</b>2026 任何主流推理引擎都内置 FlashAttention,你<b>不用自己写</b>——但要能讲清原理,这是 P8 必考。
+</div>
+
+<h3>6.2 朴素 vs FlashAttention 数据流</h3>
+<pre><code class="ascii">朴素 Attention(naive):
+HBM ←→ SRAM
+1. 从 HBM 读 Q、K  → 算 S = QK^T → 写 HBM (N² 大小)
+2. 从 HBM 读 S    → 算 P = softmax(S) → 写 HBM (N²)
+3. 从 HBM 读 P、V → 算 O = PV  → 写 HBM
+                  ↑ 大量 HBM 读写,memory-bound
+
+FlashAttention:
+1. 把 Q 切成 Q_blocks,K/V 切成 K_blocks/V_blocks
+2. 每个 Q_block:
+     for K_block, V_block in zip(K_blocks, V_blocks):
+        加载到 SRAM
+        在 SRAM 算 S_ij = Q_i K_j^T
+        在 SRAM 用 online softmax 累加 → O_i
+   只把最终 O_i 写回 HBM
+                  ↑ S 和 P 永远不落盘 HBM,显存 O(N)、速度 2-4x</code></pre>
+
+<h3>6.3 在线 Softmax 关键技巧</h3>
+<div class="info">
+<b>问题:</b>Softmax 需要全局最大值减位防溢出,但 Tiling 时只能看到局部块。<br>
+<b>解决:</b>每块算完保存 (m_i, l_i)(局部最大值、局部分母和),下一块来时用<u>修正因子</u>合并:<br>
+<code>m_new = max(m_i, m_j); l_new = exp(m_i - m_new) × l_i + exp(m_j - m_new) × l_j</code><br>
+这样跨块也能正确算出全局 softmax,不用回头看,O(N) 完成。
+</div>
+
+<h3>6.4 在 vLLM/Transformers 里用 FlashAttention</h3>
+<pre><code class="ascii"># PyTorch / Transformers 自动用 FA2(2.0+)
+import torch
+from transformers import AutoModelForCausalLM
+model = AutoModelForCausalLM.from_pretrained(
+    "Qwen/Qwen3-4B",
+    torch_dtype=torch.float16,
+    attn_implementation="flash_attention_2",   # 显式开启
+    device_map="cuda"
+)
+
+# vLLM 默认就用 FA2/FA3,看启动日志确认:
+# INFO: Using FlashAttention-2 backend.
+# 或 H100 上:Using FlashAttention-3 backend.
+
+# 性能对比(Qwen3-4B / 4K 上下文 / A100):
+# attn_implementation="eager":     350 tok/s, KV 显存 18 GB
+# attn_implementation="sdpa":      720 tok/s, KV 显存 14 GB
+# attn_implementation="flash_attention_2": 1100 tok/s, KV 12 GB</code></pre>
+
+<h3>6.5 易踩坑</h3>
+<div class="warn">
+<b>坑 1:用 eager 跑生产服务。</b>Transformers 默认 attn_implementation=eager 慢 3-4 倍。生产必须显式指定 sdpa 或 flash_attention_2。<br>
+<b>坑 2:FA2 只支持 sm80+。</b>V100/T4 跑不了 FA2,只能用 sdpa。云上选卡时要看清。<br>
+<b>坑 3:FA 不支持 attention bias 自定义。</b>有些 ALiBi、自定义 mask 模型不能直接用 FA,要 fallback。<br>
+<b>坑 4:Prefill 长 prompt 不开 FA 慢爆炸。</b>10K prompt 的 Prefill 用 eager 要 5 秒,FA2 只要 1 秒——这是 TTFT 主要省点。<br>
+<b>坑 5:不知道 FA3 在 H100 上有额外收益。</b>FA3 利用 TMA + WGMMA,比 FA2 再快 1.5-2x,vLLM 0.6+ 自动启用,但要 PyTorch 2.4+ 配合。
+</div>
+
+<h3>6.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q6:FlashAttention 为什么快?核心思想是什么?</div>
+<div class="a"><b>P7 答</b>:FlashAttention 用了一些底层优化,attention 更快。<br>
+<b>P8 答</b>:「核心是<b>减少 HBM 访问</b>。朴素 attention 要把 N×N 的 S 矩阵写到 HBM 又读回,memory-bound。FlashAttention 用 Tiling 把 Q/K/V 切块到 SRAM 内算,配合 Online Softmax 跨块合并(用 m_i、l_i 修正因子),中间结果永远不落盘——速度 2-4x、显存 O(N²)→O(N)。FA2 改进了并行度,FA3 利用 H100 的 TMA/WGMMA 又快 1.5x。生产里只要 attn_implementation='flash_attention_2' 就开了。」<br>
+<b>P9 答</b>:「FA 给我的启示是<b>memory-bound 才是 LLM 推理的真瓶颈</b>。我推动团队:① 任何新算子优先看是不是 IO-aware 实现;② 关注后续算子论文(Linear Attention / RingAttention / FlashInfer)的访存模型;③ 长文场景上 RingAttention(分布式 FA,跨卡切 sequence dim);④ 在 H100 集群上推 FA3,实测 H100 上 prefill 提速 30-40%。算子优化不是堆 trick,是「以访存为中心」重新设计计算流——这是 P9 视角。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:Memory-bound 是 LLM 真瓶颈</h4>
+  <div class="row"><span class="tag p7">P7</span><span>知道 FlashAttention 是个加速优化。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>能讲清 Tiling + Online Softmax,会区分 FA1/FA2/FA3。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>建立 IO-aware 算子选型方法论,关注 RingAttention 等长文优化。</span></div>
+</div>
+
+<!-- ============== W17 ============== -->
+<h2 id="w17" class="week"><span class="num">17</span><span class="ttl">第 17 周 · 投机解码 + 量化 + LoRA</span></h2>
+
+<h3 id="ch7">第 7 章:投机解码 Speculative Decoding</h3>
+
+<h3>7.1 五句话原理</h3>
+<div class="info">
+<b>① 核心:用一个小模型(Draft)快速生成 N 个候选 token,大模型(Target)一次性验证——验证只要 1 次前向(Decode 是 memory-bound,N 个 token 一起验和验 1 个差不多)。</b><br>
+<b>② 验证逻辑:</b>把 Draft 生成的 N 个 token 拼到原序列,Target 一次前向算出每个位置的概率分布,逐位检查 Draft 选的 token 是否在 Target 的高概率区间——通过的接受,失败的截断重采。<br>
+<b>③ 收益:</b>1 次 Target 前向产出 K 个 token(K 取决于接受率),理论提速 ≈ 接受率 × Draft 模型速度差距。实际 1.5-3x。<br>
+<b>④ 关键:接受率 + 小模型与大模型分布相似度。</b>太相似但小模型慢→白做;太不相似接受率低→白做。<br>
+<b>⑤ 进阶变体:</b>Medusa(多 head 同时预测多 token)、EAGLE(用大模型 hidden state 训 draft,接受率高)、Lookahead(无需 draft 模型,基于 ngram 命中)。
+</div>
+
+<h3>7.2 主流投机解码方案对照</h3>
+<table>
+<tr><th>方案</th><th>Draft 来源</th><th>典型加速</th><th>实现成本</th></tr>
+<tr><td>Vanilla SpecDec</td><td>外部小模型(同家族)</td><td>1.5-2.5x</td><td>低</td></tr>
+<tr><td>Self-SpecDec</td><td>同模型早层退出</td><td>1.3-1.8x</td><td>中</td></tr>
+<tr><td>Medusa</td><td>大模型上加多 head</td><td>2-3x</td><td>需训练</td></tr>
+<tr><td>EAGLE / EAGLE-2</td><td>用 hidden state 训 draft</td><td>2.5-3.5x</td><td>需训练</td></tr>
+<tr><td>Lookahead</td><td>无 draft,ngram 命中</td><td>1.3-1.5x</td><td>零成本</td></tr>
+</table>
+
+<h3>7.3 在 vLLM 中开启投机解码</h3>
+<pre><code class="ascii"># vLLM 0.5+ 支持 Vanilla SpecDec
+vllm serve Qwen/Qwen3-14B \
+    --speculative-model Qwen/Qwen3-0.5B \   # Draft 模型
+    --num-speculative-tokens 5 \            # 一次提议 5 个 token
+    --use-v2-block-manager
+
+# 实测 Qwen3-14B + Qwen3-0.5B draft / A100:
+# 不开:65 tok/s
+# 开:152 tok/s(2.3x),接受率约 0.62</code></pre>
+
+<h3>7.4 接受率监控</h3>
+<pre><code class="ascii">vLLM 启动后 metrics 端点会暴露:
+- spec_decode_efficiency:总加速倍数
+- spec_decode_draft_acceptance_rate:接受率
+- spec_decode_emitted_tokens / draft_tokens:产出比
+
+健康值:接受率 > 0.5,加速 > 1.5x。
+否则改 num-speculative-tokens 或换 Draft 模型。</code></pre>
+
+<h3>7.5 易踩坑</h3>
+<div class="warn">
+<b>坑 1:Draft 太大不划算。</b>Draft 占用 Target 算力,Draft >10% Target 大小通常不值。Qwen3-14B 配 0.5B Draft 合理,配 4B 反而慢。<br>
+<b>坑 2:温度高接受率暴跌。</b>SpecDec 在 greedy / 低温(T<0.5)效果好;创意写作高温(T=1.0)接受率掉到 0.2 以下,反而拖慢。审核场景 T=0 完美适配。<br>
+<b>坑 3:Draft 和 Target 词表不一致。</b>必须同 tokenizer——不同家族不能混用。<br>
+<b>坑 4:批太大反而失效。</b>Continuous Batching 已经把 GPU 填满,SpecDec 验证多 token 的「免费午餐」就没了——有数据显示 batch>32 时 SpecDec 收益锐减。<br>
+<b>坑 5:不监控接受率盲开。</b>接受率 <0.4 时 SpecDec 反而比不开慢——必须监控,定期 A/B 决定开关。
+</div>
+
+<h3>7.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q7:投机解码为什么能加速?什么场景效果最好?</div>
+<div class="a"><b>P7 答</b>:小模型先猜,大模型验证一下,确认就用。<br>
+<b>P8 答</b>:「Decode 是 memory-bound,大模型一次前向无论生成 1 个还是 10 个 token,延迟差不多。所以让 Draft 小模型快速生成 N 个候选,Target 一次前向并行验证——通过率 60% 时就近似 1 次大模型 forward 出 6 个 token。最佳场景:① 低温采样(审核 T=0,接受率 0.7+);② 单 batch 或低并发(并发高时 Continuous Batching 已经吃满 GPU);③ Draft / Target 同家族同 tokenizer。我们审核服务接受率 0.65、加速 2.1x。」<br>
+<b>P9 答</b>:「投机解码是<b>典型的 memory-bound 套利</b>。P9 视角的几个升级:① 用 EAGLE-2 把接受率从 0.6 拉到 0.8+,加速 3x+;② 在线服务做<b>动态切换</b>——低并发开 SpecDec,高并发关掉(Continuous Batching 已经是更优解),用 QPS 阈值自动切;③ Lookahead Decoding 零成本部署在小机器上(没 Draft 模型预算的场景)。投机解码不是万灵药,是<b>负载相关的优化</b>,要根据业务侧 QPS / 温度 / batch 动态决策。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:投机解码 = memory-bound 套利</h4>
+  <div class="row"><span class="tag p7">P7</span><span>知道有投机解码这个概念。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>能讲清原理 + 接受率 + 适用场景,会监控指标。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>会用 EAGLE-2 高级方案,会按负载动态切换 SpecDec 开关。</span></div>
+</div>
+
+<h3 id="ch8">第 8 章:量化(INT8 / INT4 / AWQ / GPTQ)</h3>
+
+<h3>8.1 五句话原理</h3>
+<div class="info">
+<b>① 量化 = 用更少 bit 表示权重(和激活):</b>FP16 → INT8 一半显存,FP16 → INT4 四分之一,直接降本。<br>
+<b>② 推理量化 ≠ 训练量化。</b>推理只动权重(和 KV)就能省显存 + 加速,且大多数模型 INT8 损失 <1%、INT4 损失 1-3%。<br>
+<b>③ 主流方案:</b>GPTQ(精度高、需 calibration)、AWQ(激活感知、对中文友好)、SmoothQuant(平衡 W 和 A 的分布)、GGUF(llama.cpp 系,CPU/Mac)、FP8(H100 原生)。<br>
+<b>④ 关键认知:</b>量化加速主要来自<b>显存带宽</b>(memory-bound),Decode 阶段提速明显;Prefill 阶段算力是瓶颈,INT4 反而可能更慢(反量化开销)。<br>
+<b>⑤ 选型原则:</b>显存紧张选 INT4(AWQ),精度敏感选 INT8;H100 优先 FP8(原生算子,无精度损失)。
+</div>
+
+<h3>8.2 主流量化方案对照</h3>
+<table>
+<tr><th>方案</th><th>位宽</th><th>精度损失</th><th>典型加速</th><th>适用</th></tr>
+<tr><td>GPTQ</td><td>INT4</td><td>1-2%</td><td>1.5-2x</td><td>通用 / 英文场景</td></tr>
+<tr><td>AWQ</td><td>INT4</td><td>0.5-1.5%</td><td>1.7-2.3x</td><td>中文 / 推理优先</td></tr>
+<tr><td>SmoothQuant</td><td>W8A8</td><td>0.5-1%</td><td>1.3-1.6x</td><td>激活也想量化</td></tr>
+<tr><td>GGUF Q4_K_M</td><td>INT4</td><td>1-2%</td><td>2-3x</td><td>CPU / Mac llama.cpp</td></tr>
+<tr><td>FP8(E4M3)</td><td>FP8</td><td>~0%</td><td>1.5-2x(H100)</td><td>H100/H200 首选</td></tr>
+<tr><td>KV Cache INT8</td><td>INT8</td><td><1%</td><td>显存省 50%</td><td>长上下文场景</td></tr>
+</table>
+
+<h3>8.3 用 AWQ 量化 Qwen3-4B</h3>
+<pre><code class="ascii">pip install autoawq
+
+# quantize_awq.py
+from awq import AutoAWQForCausalLM
+from transformers import AutoTokenizer
+
+model_path = "Qwen/Qwen3-4B"
+quant_path = "Qwen3-4B-AWQ"
+quant_config = {
+    "zero_point": True,
+    "q_group_size": 128,
+    "w_bit": 4,
+    "version": "GEMM"
+}
+
+# 准备 calibration 数据(几百条审核样本)
+calib_data = [...]   # list of strings,审核场景文本
+
+model = AutoAWQForCausalLM.from_pretrained(model_path, safetensors=True)
+tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+model.quantize(tokenizer, quant_config=quant_config, calib_data=calib_data)
+model.save_quantized(quant_path)
+tokenizer.save_pretrained(quant_path)
+
+# vLLM 加载
+# vllm serve Qwen3-4B-AWQ --quantization awq</code></pre>
+
+<h3>8.4 易踩坑</h3>
+<div class="warn">
+<b>坑 1:用通用 calibration 集量化中文模型。</b>Wikitext 量化中文模型,中文任务掉 5%。一定要用<b>业务真实数据</b>(审核场景就用脱敏后的章节)做 calibration。<br>
+<b>坑 2:Prefill bound 场景上 INT4 反而慢。</b>长 prompt(>4K)的 Prefill 是算力瓶颈,INT4 需要反量化回 FP16 算 GEMM,反而慢。INT4 的优势在 Decode。<br>
+<b>坑 3:KV Cache 没量化。</b>权重量化了但 KV 还 FP16——长上下文场景 KV 占大头,显存还是爆。开 `--kv-cache-dtype fp8` 或 `int8`。<br>
+<b>坑 4:把 INT4 当无损。</b>逻辑推理任务、数学任务、Agent 工具调用对量化敏感(JSON 格式可能崩)。一定要做<b>业务侧评估</b>,不能只看 perplexity。<br>
+<b>坑 5:H100 上还在用 INT4 不上 FP8。</b>H100 / H200 原生支持 FP8(Tensor Core),精度近 FP16,加速近 INT4——为什么不用?
+</div>
+
+<h3>8.5 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q8:你们怎么选量化方案?为什么?</div>
+<div class="a"><b>P7 答</b>:用 INT4 GPTQ 量化,显存够小、速度够快。<br>
+<b>P8 答</b>:「分场景。在 A100 上我们用 AWQ INT4(中文友好,calibration 用了 3K 条审核样本),显存从 14G 降到 4.5G,decode 速度 1.8x。在 H100 集群上直接上 FP8(无精度损失,加速 1.5x,vLLM 原生支持)。KV Cache 也开 INT8,长上下文场景显存再省一半。关键评估:不只看 perplexity,要在<b>业务任务</b>(审核分类准确率、JSON 格式合规率)上对比量化前后。我们 INT4 后准确率掉 0.6%,可接受。」<br>
+<b>P9 答</b>:「量化是<b>精度-成本-延迟三角权衡</b>,我推动:① 建立<b>量化评估流水线</b>——业务任务套件 + perplexity + 推理速度三件套自动跑;② 不同场景用不同量化(在线对话用 INT8,批处理用 INT4,Agent 调用关键步骤回退 FP16);③ 推 FP8 + KV INT8 组合,这是 2026 H100 集群的标配;④ 关注 1-bit / 2-bit(BitNet)等极限量化的研究进展,虽然现在不成熟但 2-3 年可能改变格局。量化不是单点优化,是<b>分级降本体系</b>。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:量化是分级降本体系</h4>
+  <div class="row"><span class="tag p7">P7</span><span>知道 INT4 量化能省显存。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>会选 AWQ/GPTQ/FP8,会做业务任务评估,会量化 KV Cache。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>建评估流水线,按场景分级量化,关注 BitNet 等前沿。</span></div>
+</div>
+
+<h3 id="ch9">第 9 章:LoRA / QLoRA 微调与服务化</h3>
+
+<h3>9.1 五句话原理</h3>
+<div class="info">
+<b>① LoRA(Low-Rank Adaptation):</b>不动原模型,只在每个 Linear 旁加两个低秩矩阵 A(d×r)、B(r×d)(r 通常 8-64),训练时只更新 A、B。<br>
+<b>② 优势:</b>① 训练参数减少 100-1000 倍;② 多任务可叠加(不同 LoRA 切换);③ 不破坏原模型能力。<br>
+<b>③ QLoRA:</b>把 base 模型量化到 INT4(NF4)冻结,LoRA 部分仍 FP16 训练——24G 显存训 70B 模型,平民化大模型微调的关键创新。<br>
+<b>④ 服务化关键:</b>vLLM/SGLang 都支持<b>多 LoRA 同时挂载</b>(LoRAX、Punica),一个 Base 模型挂 N 个 LoRA,不同请求路由到不同 LoRA——降本利器。<br>
+<b>⑤ 关键认知:</b>LoRA 不是万能。指令跟随、风格调整、领域知识对齐很合适;但学新世界知识、改基础推理能力效果差,要 SFT/CPT。
+</div>
+
+<h3>9.2 LoRA 数学(必背)</h3>
+<div class="formula">h = W₀x + ΔWx,ΔW = BA(rank=r,d×r × r×d → d×d)</div>
+<table>
+<tr><th>关键超参</th><th>典型值</th><th>说明</th></tr>
+<tr><td>r(rank)</td><td>8 / 16 / 32 / 64</td><td>越大表达力越强,显存越多</td></tr>
+<tr><td>alpha</td><td>2r 起步</td><td>缩放因子,实际 ΔW = (α/r) × BA</td></tr>
+<tr><td>target_modules</td><td>q_proj, v_proj(经济)<br>所有 linear(强力)</td><td>挂哪些层</td></tr>
+<tr><td>dropout</td><td>0.05-0.1</td><td>LoRA 内的 dropout</td></tr>
+</table>
+
+<h3>9.3 完整代码:用 PEFT + QLoRA 微调审核模型</h3>
+<pre><code class="ascii">from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+from trl import SFTTrainer
+
+# ① 4bit 量化加载 base
+bnb = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4",
+                         bnb_4bit_compute_dtype="float16")
+base = AutoModelForCausalLM.from_pretrained("Qwen/Qwen3-4B", quantization_config=bnb)
+base = prepare_model_for_kbit_training(base)
+
+# ② LoRA 配置
+lora_cfg = LoraConfig(
+    r=16, lora_alpha=32, lora_dropout=0.05,
+    target_modules=["q_proj","k_proj","v_proj","o_proj"],
+    bias="none", task_type="CAUSAL_LM",
+)
+model = get_peft_model(base, lora_cfg)
+model.print_trainable_parameters()
+# trainable: 4.2M / 4.0B = 0.1%
+
+# ③ 训练
+trainer = SFTTrainer(
+    model=model, tokenizer=tokenizer,
+    train_dataset=audit_dataset,    # 审核样本
+    args=TrainingArguments(
+        output_dir="./lora-audit",
+        per_device_train_batch_size=4,
+        gradient_accumulation_steps=4,
+        learning_rate=2e-4,
+        num_train_epochs=3,
+        bf16=True,
+    ),
+)
+trainer.train()
+model.save_pretrained("./lora-audit")    # 只保存 LoRA(几十 MB)</code></pre>
+
+<h3>9.4 vLLM 多 LoRA 服务化</h3>
+<pre><code class="ascii"># 启动支持多 LoRA
+vllm serve Qwen/Qwen3-4B \
+    --enable-lora \
+    --max-loras 4 \                  # 同时挂 4 个 LoRA
+    --max-lora-rank 32 \
+    --lora-modules \
+        audit-text=./lora-audit \    # 文本审核
+        audit-image=./lora-image \   # 图片描述审核
+        rule-extract=./lora-rule     # 规则抽取
+
+# 调用时指定 LoRA(请求路由到对应 adapter)
+curl http://localhost:8000/v1/completions \
+    -d '{"model":"audit-text", "prompt":"..."}'</code></pre>
+
+<h3>9.5 易踩坑</h3>
+<div class="warn">
+<b>坑 1:LoRA rank 拍脑袋。</b>r=8 学不会复杂任务,r=128 过拟合。审核风格调整 r=16 够;领域问答 r=32-64;新任务先 r=16 跑基线。<br>
+<b>坑 2:target_modules 漏关键层。</b>只挂 q_proj/v_proj 是经济选择,但效果差。重要任务挂全 linear(q/k/v/o + gate/up/down)效果显著好。<br>
+<b>坑 3:学习率没单独调。</b>LoRA 学习率比全量 SFT 高 10-100 倍(2e-4 起步),用全量 SFT 的 1e-5 等于没训。<br>
+<b>坑 4:训完不评估直接上线。</b>LoRA 微调容易出现「灾难性遗忘」——审核任务好了但通用能力崩了。要跑通用基准 + 业务基准两套评估。<br>
+<b>坑 5:LoRA 服务化 Base 不复用。</b>每个 LoRA 起一个 Base 实例 = 浪费——必须用 vLLM/LoRAX 的 multi-LoRA 模式,一份 Base 挂 N 个 LoRA。
+</div>
+
+<h3>9.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q9:LoRA / QLoRA 适用场景?和全量微调怎么选?</div>
+<div class="a"><b>P7 答</b>:LoRA 训得快,显存小,所以用 LoRA。<br>
+<b>P8 答</b>:「LoRA 适合<b>风格 / 指令跟随 / 领域对齐</b>三类任务,新世界知识效果差(还得 SFT 或 CPT)。我们审核场景 LoRA 微调 Qwen3-4B,r=16、target=q/k/v/o,3 epoch 后采纳率从 35% 提到 52%,只占 8M 参数。生产用 vLLM `--enable-lora --max-loras 4` 挂载多个 adapter 共享 Base,文本/图片/规则三个任务一份显存解决。QLoRA 平民化训练:24G 显存训 70B,我们做过实验有效。」<br>
+<b>P9 答</b>:「LoRA 是<b>多任务架构革命</b>。我推动:① <b>统一 Base + N 个业务 LoRA</b> 的产品化形态,业务方上传 LoRA 即可服务化;② <b>LoRA 评估自动化</b>——通用基准 + 业务基准 + 灾难性遗忘检测三件套;③ 关注<b>新一代 PEFT 方案</b>(DoRA、PiSSA、ReLoRA)效果普遍更好;④ 推动 <b>LoRA 库治理</b>——版本化、权限化、A/B 化。LoRA 时代核心不是训练技术,是<b>多任务服务架构</b>——一个 Base + N 个 LoRA = 一个智能平台。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:LoRA = 多任务服务架构革命</h4>
+  <div class="row"><span class="tag p7">P7</span><span>知道 LoRA 是 PEFT 一种,训得快。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>会调 r/alpha/target_modules,会 vLLM 多 LoRA 服务化。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>把 Base+LoRA 库做成多任务服务平台,带 A/B 治理评估。</span></div>
+</div>
+
+<!-- ============== W18 ============== -->
+<h2 id="w18" class="week"><span class="num">18</span><span class="ttl">第 18 周 · vLLM 部署 + 多卡并行 + 成本优化</span></h2>
+
+<h3 id="ch10">第 10 章:vLLM 生产部署最佳实践</h3>
+
+<h3>10.1 五句话原理</h3>
+<div class="info">
+<b>① vLLM 是 2026 推理服务事实标准</b>(对手:SGLang / TensorRT-LLM / TGI / LMDeploy),核心优势:PagedAttention + Continuous Batching + 生态成熟。<br>
+<b>② 启动参数三大组:模型层(model/dtype/quantization)、调度层(max-num-seqs/max-model-len/gpu-memory-utilization)、并行层(tp/pp/dp)。</b><br>
+<b>③ 生产部署关键:</b>一定要做 warmup、要开 prefix-caching、要打开 metrics 端口监控、要配 health check + graceful shutdown。<br>
+<b>④ vLLM v1(2025 末)架构重写:</b>异步引擎、更好的 KV 复用、更稳的多 LoRA、更快的 cold start——升级到 v1 是必须的。<br>
+<b>⑤ 常见竞品差异:</b>SGLang 在结构化输出 + RadixAttention 上更强;TensorRT-LLM 在单卡极致吞吐上领先;LMDeploy 国内生态友好;TGI 已被 vLLM 反超。
+</div>
+
+<h3>10.2 生产 vLLM 启动模板(Qwen3-4B AWQ)</h3>
+<pre><code class="ascii">vllm serve /models/Qwen3-4B-AWQ \
+    # ① 模型层
+    --quantization awq \
+    --dtype float16 \
+    --max-model-len 8192 \
+    # ② 调度层
+    --gpu-memory-utilization 0.92 \
+    --enable-prefix-caching \
+    --enable-chunked-prefill \
+    --max-num-seqs 256 \
+    --max-num-batched-tokens 8192 \
+    # ③ 并行层(单卡)
+    --tensor-parallel-size 1 \
+    # ④ 服务层
+    --host 0.0.0.0 --port 8000 \
+    --served-model-name qwen3-4b-audit \
+    --disable-log-requests \
+    --enable-metrics \
+    # ⑤ KV 量化(可选,长上下文场景)
+    --kv-cache-dtype fp8 \
+    # ⑥ LoRA 多挂载
+    --enable-lora --max-loras 4 \
+    --lora-modules audit-text=/lora/audit-text rule-extract=/lora/rule</code></pre>
+
+<h3>10.3 关键监控指标</h3>
+<table>
+<tr><th>指标</th><th>来源</th><th>健康阈值</th></tr>
+<tr><td>vllm:num_requests_running</td><td>/metrics</td><td>≤ max-num-seqs</td></tr>
+<tr><td>vllm:num_requests_waiting</td><td>/metrics</td><td>持续>0 说明排队</td></tr>
+<tr><td>vllm:gpu_cache_usage_perc</td><td>/metrics</td><td>0.7-0.9 健康</td></tr>
+<tr><td>vllm:cpu_cache_usage_perc</td><td>/metrics</td><td>>0 说明在 swap</td></tr>
+<tr><td>vllm:num_preemptions_total</td><td>/metrics</td><td>持续增长 = 显存压力</td></tr>
+<tr><td>vllm:time_to_first_token_seconds</td><td>histogram</td><td>看 P95/P99</td></tr>
+<tr><td>vllm:time_per_output_token_seconds</td><td>histogram</td><td>看 P95</td></tr>
+</table>
+
+<h3>10.4 易踩坑</h3>
+<div class="warn">
+<b>坑 1:不开 prefix-caching。</b>系统 prompt 重复率高的场景(审核、客服)开了直接省 50% Prefill 算力。<br>
+<b>坑 2:max-num-seqs 与 max-num-batched-tokens 不匹配。</b>前者管并发数,后者管单 step 总 token——后者太小批不起来,太大爆 KV。经验值:batched-tokens ≈ max-num-seqs × 平均 prompt 长度。<br>
+<b>坑 3:不开 chunked-prefill。</b>长 prompt 进来阻塞所有 Decode,TPOT P99 飙升——chunked-prefill 把 Prefill 切成 512 token 串行,与 Decode 混编。<br>
+<b>坑 4:健康检查只 ping HTTP。</b>vLLM HTTP 起来了但 GPU OOM 工作不了——健康检查要打 /v1/completions 真实推理一句话。<br>
+<b>坑 5:升级 v1 没读 release note。</b>v1 默认参数和 v0 差很多(scheduling_policy 改了、KV 管理方式变了),不读 release note 直接跑可能性能反退。
+</div>
+
+<h3>10.5 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q10:你怎么部署一个生产级 vLLM 服务?</div>
+<div class="a"><b>P7 答</b>:`vllm serve` 启动,挂个 nginx 就行。<br>
+<b>P8 答</b>:「三层参数 + 五件监控。模型层选 AWQ INT4,调度层 prefix-caching + chunked-prefill + max-num-seqs 256,并行层 TP=1(7B 单卡够),KV Cache 上 fp8。监控 num_requests_waiting / gpu_cache_usage_perc / num_preemptions / TTFT/TPOT histogram。健康检查必须打真实推理。我们部署后单卡 4500 tok/s,P99 TTFT 1.2s、TPOT 60ms,稳定跑了 8 个月。」<br>
+<b>P9 答</b>:「生产部署是<b>SLA + Cost + 可演进性</b>三角。我推动:① 把 vLLM 配置做成<b>声明式配置</b>(YAML),不允许改命令行(改了不可追);② 引入<b>影子流量</b>新版本先跑 1% 真实流量做 A/B(token 一致性 + SLA 对比),通过率 99%+ 才放量;③ <b>Disaggregated 架构</b>试点(Prefill 用 H100、Decode 用 A100 大显存),综合成本降 30%。部署不是启动命令,是『声明 + 影子 + 解耦』三件事。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:vLLM 部署最佳实践</h4>
+  <div class="row"><span class="tag p7">P7</span><span>能用 vllm serve 启动一个服务。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>三层参数调优 + 监控 + 健康检查 + 升级 v1。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>声明式配置 + 影子流量 A/B + Disaggregated 架构试点。</span></div>
+</div>
+
+<h3 id="ch11">第 11 章:多卡并行(TP / PP / EP / DP)</h3>
+
+<h3>11.1 五句话原理</h3>
+<div class="info">
+<b>① 单卡装不下 → 多卡。</b>四种并行:Tensor Parallel(TP)、Pipeline Parallel(PP)、Expert Parallel(EP,MoE 专用)、Data Parallel(DP,多副本)。<br>
+<b>② TP(张量并行):</b>把每个 Linear/Attention 切到多卡上算,卡间同步(all-reduce)——延迟低,适合<b>同节点高速 NVLink</b>。<br>
+<b>③ PP(流水线并行):</b>把模型切成几段,每段一张卡——卡间通信少,但有 bubble(空闲气泡),适合<b>跨节点 InfiniBand</b>。<br>
+<b>④ EP(专家并行):</b>MoE 模型把不同专家放不同卡,只激活路由命中的专家——DeepSeek-V3、Mixtral 必备。<br>
+<b>⑤ DP(数据并行):</b>多个副本各自服务一部分流量,卡间不通信——是<b>横向扩容</b>的根基,但单实例延迟不变。
+</div>
+
+<h3>11.2 四种并行对照</h3>
+<table>
+<tr><th>并行</th><th>切什么</th><th>通信</th><th>适用</th></tr>
+<tr><td>TP</td><td>每个 Linear 切 N 份</td><td>每层一次 all-reduce</td><td>同节点高速互联,7B-70B 单实例</td></tr>
+<tr><td>PP</td><td>模型分 N 段</td><td>段间一次 P2P</td><td>跨节点,超大模型</td></tr>
+<tr><td>EP</td><td>MoE 专家分卡</td><td>路由 + all-to-all</td><td>MoE 模型(DeepSeek/Mixtral)</td></tr>
+<tr><td>DP</td><td>多副本</td><td>无</td><td>横向扩吞吐</td></tr>
+</table>
+
+<h3>11.3 部署示例</h3>
+<pre><code class="ascii"># 70B 模型 4 卡 TP(同节点 NVLink)
+vllm serve meta-llama/Llama-3-70B-Instruct \
+    --tensor-parallel-size 4 \
+    --gpu-memory-utilization 0.92
+
+# 跨节点 8 卡:TP=4 + PP=2(2 节点 × 4 卡)
+vllm serve meta-llama/Llama-3-405B \
+    --tensor-parallel-size 4 \
+    --pipeline-parallel-size 2
+
+# MoE(DeepSeek-V3 671B)EP+TP 混合(SGLang 更成熟)
+python -m sglang.launch_server \
+    --model-path deepseek-ai/DeepSeek-V3 \
+    --tp 8 --ep 8 --enable-dp-attention</code></pre>
+
+<h3>11.4 选型决策矩阵</h3>
+<table>
+<tr><th>场景</th><th>推荐</th><th>原因</th></tr>
+<tr><td>7B-13B 模型</td><td>TP=1(单卡)+ DP 横扩</td><td>单卡装得下,DP 最简单</td></tr>
+<tr><td>30B-70B 模型 / 单节点</td><td>TP=2 或 4(NVLink)</td><td>同节点 NVLink 低延迟</td></tr>
+<tr><td>>100B 模型 / 多节点</td><td>TP=8 + PP=2</td><td>TP 跨节点会被 IB 限制</td></tr>
+<tr><td>MoE(>200B)</td><td>TP + EP 混合</td><td>EP 让专家分布</td></tr>
+<tr><td>极致吞吐</td><td>多 DP 副本</td><td>横向扩容线性</td></tr>
+</table>
+
+<h3>11.5 易踩坑</h3>
+<div class="warn">
+<b>坑 1:跨节点用 TP。</b>TP 每层 all-reduce,跨 IB 延迟翻倍——跨节点必须用 PP。<br>
+<b>坑 2:TP 大于 head 数。</b>TP=8 但 attention head 只有 4 → 切不动。Llama-3-8B head=32 最大 TP=32 (但实际 NVLink 8 卡为上限)。<br>
+<b>坑 3:PP 不调 microbatch。</b>PP 默认 microbatch=1 会有大量 bubble,要调 micro_batches=8/16。<br>
+<b>坑 4:DP 没做 LoadBalancer 一致哈希。</b>同 user 的请求路由到不同副本就丢了 prefix cache——LoadBalancer 按 session 哈希。<br>
+<b>坑 5:不监控通信占比。</b>TP/PP 通信能占 30%+,要看 nccl tracing 决定切多大才划算。
+</div>
+
+<h3>11.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q11:大模型怎么部署到多卡?TP/PP 怎么选?</div>
+<div class="a"><b>P7 答</b>:用 TP 多卡跑就行。<br>
+<b>P8 答</b>:「四种并行:TP/PP/EP/DP。决策:① 7-13B 单卡 + DP 横扩;② 30-70B 单节点 TP=2/4(NVLink 低延迟);③ >100B 跨节点必须 TP+PP(纯 TP 跨 IB 延迟翻倍);④ MoE 必加 EP;⑤ 极致吞吐用 DP。注意 TP 不能大于 attention head 数,PP 必调 microbatch 减少 bubble,DP 前必须有 session 哈希 LoadBalancer 保住 prefix cache。」<br>
+<b>P9 答</b>:「多卡并行选型是<b>硬件拓扑 × 模型架构 × SLA</b> 的联立方程。我推动:① 建<b>容量规划模型</b>——给定 SLA 反推 TP/PP/DP 配比和卡数;② <b>异构卡组合</b>——Prefill 用 H100,Decode 用 A100 大显存,跨卡走 NVLink switch(2026 趋势);③ MoE 部署<b>EP + 动态负载均衡</b>(避免热点专家所在卡过载);④ 把多卡部署做成<b>声明式 IaC</b>(类似 K8s CRD),业务方填模型 + SLA,平台自动出方案。从手动调参到自动化容量规划,是 P9 视角。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:多卡并行 = 拓扑 × 架构 × SLA 联立</h4>
+  <div class="row"><span class="tag p7">P7</span><span>知道有 TP 多卡。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>会按场景选 TP/PP/EP/DP,知道通信开销和坑。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>建容量规划模型 + 异构卡组合 + 声明式 IaC。</span></div>
+</div>
+
+<h3 id="ch12">第 12 章:成本优化全景 + 推理演进路线</h3>
+
+<h3>12.1 五句话原理</h3>
+<div class="info">
+<b>① 推理成本三大要素:</b>GPU 单价、Throughput(tok/s/卡)、负载利用率(峰谷比)。<br>
+<b>② 单 token 成本</b> = (GPU/h 单价) / Throughput / 3600。从 ¥30/M 降到 ¥3/M 的优化路径:模型选型 → 量化 → 并行 → 投机解码 → 缓存。<br>
+<b>③ 缓存层是降本利器:</b>Prefix Cache(KV 复用)、Semantic Cache(语义命中)、Result Cache(完全命中)三层。审核场景重复率高,缓存命中能降 60%+ 成本。<br>
+<b>④ 模型路由(Model Gateway)是降本中枢:</b>简单请求走小模型(0.5B),复杂请求走大模型(72B),按 difficulty 评分动态路由——平均成本下降 5-10x。<br>
+<b>⑤ 演进三阶段:</b>① 单卡 vLLM(MVP)→ ② 多卡 + 缓存 + 量化(成熟)→ ③ Disaggregated + Model Gateway + 弹性调度(规模化)。
+</div>
+
+<h3>12.2 推理成本优化金字塔</h3>
+<pre><code class="ascii">                ┌──────────────────────────┐
+   边际收益最大  │  ① 模型选型              │  GQA/MLA 4-10x
+                │     (架构对了一半 done)   │
+                ├──────────────────────────┤
+                │  ② 量化(INT4/FP8)        │  显存 4x / 速度 2x
+                ├──────────────────────────┤
+                │  ③ KV 缓存(prefix/INT8)   │  Prefill 7x
+                ├──────────────────────────┤
+                │  ④ 调度优化(Continuous +  │  吞吐 5-10x
+                │     PagedAttn + Chunked)  │
+                ├──────────────────────────┤
+                │  ⑤ 投机解码(SpecDec)      │  Decode 1.5-3x
+                ├──────────────────────────┤
+                │  ⑥ Model Gateway(路由)    │  平均成本 5-10x↓
+                ├──────────────────────────┤
+                │  ⑦ Semantic / Result Cache│  命中率 30-60%
+                ├──────────────────────────┤
+   工程难度最高 │  ⑧ Disaggregated 架构      │  P99 ↓30% / 成本 ↓30%
+                └──────────────────────────┘</code></pre>
+
+<h3>12.3 Model Gateway 路由示例</h3>
+<pre><code class="ascii">class ModelGateway:
+    \"\"\"按难度路由到不同模型,降本核心组件\"\"\"
+    ROUTERS = [
+        # (条件函数, 模型, 优先级)
+        (lambda r: len(r.prompt) < 200 and not r.has_image, "qwen3-0.6b"),
+        (lambda r: r.is_simple_classification, "qwen3-1.7b"),
+        (lambda r: r.is_chinese_long, "qwen3-4b-awq"),
+        (lambda r: r.is_complex_reasoning, "qwen3-32b"),
+        (lambda r: r.has_image, "qwen3-vl-7b"),
+    ]
+    DEFAULT = "qwen3-4b"
+
+    def route(self, request):
+        # ① 缓存层:先查 result cache
+        if hit := self.result_cache.get(hash(request)):
+            return hit
+        # ② 语义缓存(向量近似 0.95+ 命中)
+        if hit := self.semantic_cache.search(request, threshold=0.95):
+            return hit
+        # ③ 难度路由
+        model = self.DEFAULT
+        for cond, m in self.ROUTERS:
+            if cond(request):
+                model = m
+                break
+        # ④ 调用 + 回写缓存
+        result = call_vllm(model, request)
+        self.result_cache.set(hash(request), result, ttl=3600)
+        return result</code></pre>
+
+<h3>12.4 推理服务全景架构</h3>
+<pre><code class="ascii">┌────────────────────────────────────────────────────────┐
+│                  业务侧 / Agent / RAG                  │
+└────────────────────────────────────────────────────────┘
+                          ▼
+┌────────────────────────────────────────────────────────┐
+│            Model Gateway(路由 + 缓存 + 限流)          │
+│  ┌──Result Cache──┐ ┌──Semantic Cache──┐ ┌──Router──┐ │
+└────────────────────────────────────────────────────────┘
+       ▼              ▼               ▼              ▼
+   ┌────────┐    ┌────────┐    ┌────────┐    ┌────────┐
+   │ vLLM   │    │ vLLM   │    │ SGLang │    │ vLLM   │
+   │0.6B 池 │    │4B 池   │    │32B 池  │    │ VL 池  │
+   │(DP×4)  │    │(TP=1×8)│    │(TP=4)  │    │(TP=2)  │
+   └────────┘    └────────┘    └────────┘    └────────┘
+                          ▼
+┌────────────────────────────────────────────────────────┐
+│  可观测层:Prometheus + Langfuse + Grafana             │
+│  · Per-Model SLA / Cost / Cache Hit                    │
+│  · GPU 利用率 / KV 利用率 / Preemption                 │
+└────────────────────────────────────────────────────────┘</code></pre>
+
+<h3>12.5 易踩坑</h3>
+<div class="warn">
+<b>坑 1:不算账盲优化。</b>砸钱上 H100 但缓存没开 = 浪费。先把命中率拉到 50% 再考虑硬件升级。<br>
+<b>坑 2:Cache 不分层。</b>只做 Result Cache 命中率 5%,加 Semantic Cache 能拉到 40%。<br>
+<b>坑 3:Gateway 没做路由可观测。</b>不知道每个 Tier 命中多少,无法优化路由阈值。<br>
+<b>坑 4:成本算法忽略 Cold Start。</b>弹性扩缩容时 Cold Start 时间长,频繁起停反而贵——要算<b>稳定保留</b>+<b>弹性溢出</b>分层。<br>
+<b>坑 5:把 SLA 当唯一指标。</b>SLA 满足不等于最优,要做 <b>Cost-SLA Pareto 曲线</b>,看在保 SLA 前提下成本压到哪里是边际拐点。
+</div>
+
+<h3>12.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q12:你们怎么把推理成本从 ¥30/M 压到 ¥3/M?</div>
+<div class="a"><b>P7 答</b>:换更便宜的卡 + 用小模型。<br>
+<b>P8 答</b>:「按金字塔逐层优化:① 模型选 GQA Qwen3-4B 而非 MHA Llama2-7B(KV 省 4x);② AWQ INT4 量化(显存 1/4、速度 2x);③ KV 上 fp8、prefix-caching 开了(prefill 7x);④ vLLM Continuous Batching + Chunked Prefill(吞吐 8x);⑤ Speculative Decoding(decode 2x);⑥ Model Gateway 按难度路由(80% 请求走 0.6B,20% 走 4B);⑦ Result + Semantic Cache 命中率 45%。叠加下来从 ¥30/M 降到 ¥2.8/M,SLA 还更好了。」<br>
+<b>P9 答</b>:「成本优化是<b>系统工程</b>,不是单点。我推动的方法论:① <b>建立 Cost-SLA Pareto</b>——每月跑一次,识别边际拐点不再硬压;② <b>分级保留 + 弹性溢出</b>——日常 60% 算力保留稳定运行,峰值 40% 用 Spot/弹性调度;③ <b>Model Gateway 做成产品</b>——业务方上传场景描述,平台自动选模型 + 量化 + 缓存策略;④ <b>每月 FinOps Review</b>——把 GPU 成本按 user/team/scene 切片,异常打标找冗余。Phase 4 真正的护城河是『推理成本治理体系』,不是某个单点 trick。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:推理成本治理体系</h4>
+  <div class="row"><span class="tag p7">P7</span><span>知道用小模型 + 量化降本。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>能按金字塔七层叠加优化,讲清成本账。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>Cost-SLA Pareto + 分级弹性 + Model Gateway 产品化 + FinOps Review。</span></div>
+</div>
+
+<!-- ============== 25 题集中速查 ============== -->
+<h2 id="qa25" class="week"><span class="num">★</span><span class="ttl">25 题集中面试速查</span></h2>
+
+<div class="info">
+精选 25 题覆盖推理优化全部高频考点,按 P8 准备,临场升维到 P9。
+</div>
+
+<h3>一、Prefill / Decode + 三大指标(Q1-Q6)</h3>
+<table>
+<tr><th>#</th><th>题目</th><th>P8 关键词</th></tr>
+<tr><td>Q1</td><td>Prefill 和 Decode 计算特征区别?</td><td>compute-bound vs memory-bound</td></tr>
+<tr><td>Q2</td><td>为什么 Decode GPU 利用率低?</td><td>访存:计算比远高于 roofline 拐点</td></tr>
+<tr><td>Q3</td><td>TTFT/TPOT/Throughput 分别怎么定义?</td><td>P99 / 流畅度 / 成本反向指标</td></tr>
+<tr><td>Q4</td><td>三个指标怎么 trade-off?</td><td>批大→吞吐高但延迟长</td></tr>
+<tr><td>Q5</td><td>Goodput 是什么?</td><td>满足 SLA 的吞吐</td></tr>
+<tr><td>Q6</td><td>Disaggregated Inference 解决什么?</td><td>Prefill/Decode 物理分离消除互扰</td></tr>
+</table>
+
+<h3>二、KV Cache + PagedAttention(Q7-Q11)</h3>
+<table>
+<tr><th>#</th><th>题目</th><th>P8 关键词</th></tr>
+<tr><td>Q7</td><td>KV Cache 显存怎么算?</td><td>2 × layers × kv_heads × head_dim × seq × dtype</td></tr>
+<tr><td>Q8</td><td>MHA / GQA / MLA 区别?</td><td>kv_heads 共享 / 低秩压缩</td></tr>
+<tr><td>Q9</td><td>PagedAttention 核心思想?</td><td>OS 虚拟内存分页类比</td></tr>
+<tr><td>Q10</td><td>Continuous Batching 为什么快?</td><td>每 step 重组 batch / 滚动地铁</td></tr>
+<tr><td>Q11</td><td>Chunked Prefill 解决什么?</td><td>长 prompt 阻塞 Decode</td></tr>
+</table>
+
+<h3>三、算子优化(Q12-Q15)</h3>
+<table>
+<tr><th>#</th><th>题目</th><th>P8 关键词</th></tr>
+<tr><td>Q12</td><td>FlashAttention 为什么快?</td><td>Tiling + Online Softmax,减 HBM 访问</td></tr>
+<tr><td>Q13</td><td>FA1/FA2/FA3 区别?</td><td>FA2 改并行度 / FA3 用 H100 TMA</td></tr>
+<tr><td>Q14</td><td>RingAttention 解决什么?</td><td>跨卡切 sequence dim,长上下文</td></tr>
+<tr><td>Q15</td><td>什么场景 FA 失效?</td><td>自定义 attention bias / 老 GPU</td></tr>
+</table>
+
+<h3>四、投机解码 + 量化 + LoRA(Q16-Q21)</h3>
+<table>
+<tr><th>#</th><th>题目</th><th>P8 关键词</th></tr>
+<tr><td>Q16</td><td>投机解码原理?</td><td>memory-bound 套利 / Draft+Target</td></tr>
+<tr><td>Q17</td><td>什么场景投机解码失效?</td><td>高温 / 高并发 / Draft 太大</td></tr>
+<tr><td>Q18</td><td>AWQ vs GPTQ vs FP8 怎么选?</td><td>中文 AWQ / 通用 GPTQ / H100 FP8</td></tr>
+<tr><td>Q19</td><td>量化怎么评估?</td><td>业务任务 + perplexity + 推理速度</td></tr>
+<tr><td>Q20</td><td>LoRA 适用场景?</td><td>风格 / 指令 / 领域对齐</td></tr>
+<tr><td>Q21</td><td>多 LoRA 服务化怎么做?</td><td>vLLM --enable-lora / max-loras</td></tr>
+</table>
+
+<h3>五、部署 + 多卡 + 成本(Q22-Q25)</h3>
+<table>
+<tr><th>#</th><th>题目</th><th>P8 关键词</th></tr>
+<tr><td>Q22</td><td>vLLM 生产部署关键参数?</td><td>三层参数 + prefix-cache + chunked-prefill</td></tr>
+<tr><td>Q23</td><td>TP/PP/DP 怎么选?</td><td>同节点 TP / 跨节点 PP / 横扩 DP</td></tr>
+<tr><td>Q24</td><td>怎么把推理成本降一个数量级?</td><td>金字塔七层叠加 + Gateway + Cache</td></tr>
+<tr><td>Q25</td><td>推理服务怎么演进?</td><td>单卡 → 多卡+缓存 → Disaggregated+Gateway</td></tr>
+</table>
+
+<!-- ============== 速查表 ============== -->
+<h2 id="cheatsheet" class="week"><span class="num">▣</span><span class="ttl">Phase 4 速查表</span></h2>
+
+<h3>★ 三大指标速查</h3>
+<table>
+<tr><th>指标</th><th>定义</th><th>对应阶段</th><th>典型 SLA</th></tr>
+<tr><td>TTFT</td><td>请求 → 首 token</td><td>Prefill</td><td>≤500ms(对话)</td></tr>
+<tr><td>TPOT</td><td>token 间间隔</td><td>Decode</td><td>≤50ms(20 tok/s)</td></tr>
+<tr><td>Throughput</td><td>tok/s/服务</td><td>整体</td><td>越高越好</td></tr>
+<tr><td>Goodput</td><td>满足 SLA 的吞吐</td><td>整体(P9)</td><td>越接近 Throughput 越好</td></tr>
+</table>
+
+<h3>★ KV Cache 显存公式</h3>
+<div class="formula">KV = 2 × n_layers × n_kv_heads × head_dim × seq_len × dtype × batch</div>
+<table>
+<tr><th>架构</th><th>kv_heads</th><th>典型节省</th></tr>
+<tr><td>MHA</td><td>=q_heads</td><td>基线</td></tr>
+<tr><td>GQA</td><td>q_heads/4 或 8</td><td>4-8x</td></tr>
+<tr><td>MLA</td><td>≈1(低秩压缩)</td><td>10x+</td></tr>
+</table>
+
+<h3>★ 优化金字塔(顺序叠加)</h3>
+<table>
+<tr><th>层</th><th>手段</th><th>典型收益</th></tr>
+<tr><td>1</td><td>选 GQA/MLA 模型</td><td>KV 4-10x</td></tr>
+<tr><td>2</td><td>AWQ INT4 / FP8 量化</td><td>显存 4x、速度 2x</td></tr>
+<tr><td>3</td><td>KV INT8 / FP8</td><td>显存再省 50%</td></tr>
+<tr><td>4</td><td>prefix-cache + chunked-prefill</td><td>Prefill 7x</td></tr>
+<tr><td>5</td><td>Continuous Batching + PagedAttn</td><td>吞吐 5-10x</td></tr>
+<tr><td>6</td><td>SpecDec / EAGLE-2</td><td>Decode 1.5-3x</td></tr>
+<tr><td>7</td><td>Model Gateway 路由</td><td>平均成本 5-10x↓</td></tr>
+<tr><td>8</td><td>Semantic / Result Cache</td><td>命中 30-60%</td></tr>
+<tr><td>9</td><td>Disaggregated 架构</td><td>P99 ↓30%</td></tr>
+</table>
+
+<h3>★ vLLM 关键启动参数</h3>
+<table>
+<tr><th>参数</th><th>作用</th><th>典型值</th></tr>
+<tr><td>--enable-prefix-caching</td><td>共享前缀复用</td><td>必开</td></tr>
+<tr><td>--enable-chunked-prefill</td><td>切 Prefill 长度</td><td>必开</td></tr>
+<tr><td>--max-num-seqs</td><td>最大并发</td><td>128-256</td></tr>
+<tr><td>--gpu-memory-utilization</td><td>显存利用率</td><td>0.92</td></tr>
+<tr><td>--quantization</td><td>量化方案</td><td>awq / fp8</td></tr>
+<tr><td>--kv-cache-dtype</td><td>KV 量化</td><td>fp8 / int8</td></tr>
+<tr><td>--tensor-parallel-size</td><td>TP 切分</td><td>1/2/4/8</td></tr>
+<tr><td>--enable-lora</td><td>多 LoRA</td><td>开启</td></tr>
+<tr><td>--speculative-model</td><td>投机解码 Draft</td><td>同家族小模型</td></tr>
+</table>
+
+<h3>★ Phase 4 一句话总结</h3>
+<div class="tip">
+<b>推理优化 = 模型架构(GQA/MLA) × 量化(INT4/FP8) × KV 复用(prefix/PagedAttn) × 调度(Continuous+Chunked) × 投机解码 × Gateway 路由 × 多级缓存 × Disaggregated 架构</b>
+<br><br>
+P8 心法:能算账 + 能讲调度 + 能讲 trade-off。<br>
+P9 心法:把成本治理升到组织级 FinOps Review,把架构升到 Pareto 优化和 Model Gateway 产品化。
+</div>
+
+<div class="footer">
+Phase 4 推理优化教材 完结 · 共 12 章 + 25 题 + 速查表 · 老李 AI 工程转型路径
+</div>
+
+</main>
+</div>
+</body>
+</html>

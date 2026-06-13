@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>老李 · 2026 AI 转型 21 周排期看板</title>
+<style>
+  :root{
+    --bg:#0f1115;--card:#181b22;--card2:#1f232c;--line:#2a2f3a;
+    --txt:#e6e8ec;--muted:#9aa3b2;--hint:#6b7280;
+    --blue:#378ADD;--teal:#1D9E75;--coral:#D85A30;--amber:#EF9F27;
+    --red:#E24B4A;--purple:#7F77DD;--pink:#D4537E;--green:#639922;--gray:#5F5E5A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,"PingFang SC",sans-serif;line-height:1.6;padding:28px 18px;font-size:14px}
+  .wrap{max-width:1280px;margin:0 auto}
+  h1{font-size:24px;font-weight:600;margin-bottom:6px}
+  h2{font-size:17px;font-weight:600;margin:30px 0 12px;padding-left:10px;border-left:3px solid var(--blue)}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:6px}
+  .lead{color:var(--muted);font-size:13px;margin:8px 0 0;max-width:900px}
+  .badge{display:inline-block;background:var(--card2);border:1px solid var(--line);border-radius:6px;padding:3px 9px;font-size:12px;margin-right:6px;color:var(--muted)}
+  .legend{display:flex;gap:14px;margin:14px 0;flex-wrap:wrap}
+  .legend span{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+  .legend i{width:14px;height:14px;border-radius:3px;display:inline-block}
+  table.gantt{width:100%;border-collapse:collapse;font-size:12px}
+  table.gantt th{background:var(--card2);color:var(--muted);font-weight:500;padding:6px 4px;border:1px solid var(--line);text-align:center}
+  table.gantt td{border:1px solid var(--line);padding:0;height:30px;text-align:center;color:var(--txt);font-size:11px;background:var(--card)}
+  td.lab{text-align:left;padding:6px 10px;background:var(--card2);font-weight:500;width:200px}
+  td.bar-blue{background:var(--blue)}
+  td.bar-green{background:var(--green)}
+  td.bar-teal{background:var(--teal)}
+  td.bar-purple{background:var(--purple)}
+  td.bar-amber{background:var(--amber)}
+  td.bar-coral{background:var(--coral)}
+  .grid{display:grid;gap:12px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:1fr 1fr}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+  .card h3{font-size:14px;font-weight:600;margin-bottom:8px}
+  .week-card{border-left:3px solid var(--blue);padding:12px 14px;background:var(--card);border-radius:0 10px 10px 0;border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:10px}
+  .week-card.p1{border-left-color:var(--blue)}
+  .week-card.p2{border-left-color:var(--teal)}
+  .week-card.p3{border-left-color:var(--purple)}
+  .week-card.p4{border-left-color:var(--amber)}
+  .week-card.p5{border-left-color:var(--coral)}
+  .week-card.p0{border-left-color:var(--gray)}
+  .week-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .week-num{font-weight:600;font-size:14px}
+  .week-tag{font-size:11px;color:var(--muted);background:var(--card2);padding:2px 8px;border-radius:10px}
+  .week-body{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;font-size:12px}
+  .week-body div{}
+  .week-body b{display:block;color:var(--muted);font-size:11px;font-weight:500;margin-bottom:3px}
+  .week-body p{color:var(--txt);font-size:12px;line-height:1.55}
+  ul{margin:4px 0 0 16px}
+  li{font-size:12px;color:var(--muted);margin:2px 0}
+  li b{color:var(--txt);font-weight:500}
+  .footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);color:var(--hint);font-size:12px}
+  .key{color:var(--amber);font-weight:500}
+  .ok{color:var(--teal)}
+  .warn{color:var(--red)}
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center}
+  .stat .n{font-size:22px;font-weight:600;color:var(--blue)}
+  .stat .l{color:var(--muted);font-size:11px;margin-top:3px}
+  .checklist{background:var(--card2);border-radius:6px;padding:8px 12px;margin-top:6px;font-size:11.5px;color:var(--muted)}
+  .checklist b{color:var(--txt);font-weight:500;display:block;margin-bottom:3px;font-size:11px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>老李 · 2026 AI 转型 21 周排期看板</h1>
+<p class="sub">7 年 Java 网文审核后端 → AI 应用工程师 / 多模态审核 · 在职学习每周 10–15h</p>
+<div>
+  <span class="badge">起始日期：2026-06-15（周一）</span>
+  <span class="badge">结束日期：2026-11-08</span>
+  <span class="badge">总投入：~270 小时</span>
+  <span class="badge">交付：6 阶段 + 3 个简历项目 + 60+ 面试题</span>
+</div>
+
+<h2>① 关键统计</h2>
+<div class="stat-grid">
+  <div class="stat"><div class="n">21</div><div class="l">总周数</div></div>
+  <div class="stat"><div class="n">6</div><div class="l">学习阶段</div></div>
+  <div class="stat"><div class="n">12</div><div class="l">里程碑产出</div></div>
+  <div class="stat"><div class="n">3</div><div class="l">简历级项目</div></div>
+</div>
+
+<h2>② 21 周甘特图</h2>
+<div class="legend">
+  <span><i style="background:var(--gray)"></i>P0 地基期</span>
+  <span><i style="background:var(--blue)"></i>P1 原理期</span>
+  <span><i style="background:var(--teal)"></i>P2 RAG ★</span>
+  <span><i style="background:var(--purple)"></i>P3 Agent ★</span>
+  <span><i style="background:var(--amber)"></i>P4 微调+推理 ★</span>
+  <span><i style="background:var(--coral)"></i>P5 系统设计+面试</span>
+</div>
+<table class="gantt">
+  <tr><th class="lab">周</th>
+    <th>W1</th><th>W2</th><th>W3</th><th>W4</th><th>W5</th><th>W6</th><th>W7</th>
+    <th>W8</th><th>W9</th><th>W10</th><th>W11</th><th>W12</th><th>W13</th><th>W14</th>
+    <th>W15</th><th>W16</th><th>W17</th><th>W18</th><th>W19</th><th>W20</th><th>W21</th></tr>
+  <tr><td class="lab">P0 地基期 · Python+LLM</td>
+    <td style="background:var(--gray)">▓</td><td style="background:var(--gray)">▓</td><td style="background:var(--gray)">▓</td>
+    <td colspan="18"></td></tr>
+  <tr><td class="lab">P1 原理期 · Transformer</td>
+    <td colspan="3"></td>
+    <td style="background:var(--blue)">▓</td><td style="background:var(--blue)">▓</td><td style="background:var(--blue)">▓</td>
+    <td colspan="15"></td></tr>
+  <tr><td class="lab">P2 RAG ★</td>
+    <td colspan="6"></td>
+    <td style="background:var(--teal)">▓</td><td style="background:var(--teal)">▓</td><td style="background:var(--teal)">▓</td><td style="background:var(--teal)">▓</td>
+    <td colspan="11"></td></tr>
+  <tr><td class="lab">P3 Agent ★</td>
+    <td colspan="10"></td>
+    <td style="background:var(--purple)">▓</td><td style="background:var(--purple)">▓</td><td style="background:var(--purple)">▓</td><td style="background:var(--purple)">▓</td>
+    <td colspan="7"></td></tr>
+  <tr><td class="lab">P4 微调+推理 ★</td>
+    <td colspan="14"></td>
+    <td style="background:var(--amber)">▓</td><td style="background:var(--amber)">▓</td><td style="background:var(--amber)">▓</td><td style="background:var(--amber)">▓</td>
+    <td colspan="3"></td></tr>
+  <tr><td class="lab">P5 系统设计+项目+面试 ★</td>
+    <td colspan="18"></td>
+    <td style="background:var(--coral)">▓</td><td style="background:var(--coral)">▓</td><td style="background:var(--coral)">▓</td></tr>
+</table>
+
+<h2>③ 周明细排期（21 周打卡）</h2>
+
+<!-- ============ Phase 0 ============ -->
+<div class="week-card p0">
+  <div class="week-head"><span class="week-num">W1 · 06/15-06/21</span><span class="week-tag">P0 地基期</span></div>
+  <div class="week-body">
+    <div><b>主题</b><p>Python 速通（Java 视角）</p></div>
+    <div><b>本周内容</b><p>语法对照、虚拟环境、面向对象、迭代器、装饰器、列表/字典推导式、错误处理</p></div>
+    <div><b>产出</b><p>能用 Python 重写 1-2 个 Java 小工具（如读写 JSON / 调 HTTP）</p></div>
+    <div><b>面试连接</b><p>Python vs Java 差异、GIL 是什么</p></div>
+  </div>
+  <div class="checklist"><b>本周自查</b>□ pyenv/uv/conda 至少一种装好  □ 写过3个脚本  □ 能 import requests 跑通  □ 能解释列表 vs 元组</div>
+</div>
+
+<div class="week-card p0">
+  <div class="week-head"><span class="week-num">W2 · 06/22-06/28</span><span class="week-tag">P0 地基期</span></div>
+  <div class="week-body">
+    <div><b>主题</b><p>NumPy / Pandas / 数据处理</p></div>
+    <div><b>本周内容</b><p>ndarray vs Tensor 直觉、广播、Pandas DataFrame、CSV/JSONL 读写、向量化运算</p></div>
+    <div><b>产出</b><p>用 Pandas 处理 1 份审核日志 csv（聚合/过滤/导出）</p></div>
+    <div><b>面试连接</b><p>NumPy 为什么比 list 快、什么是向量化</p></div>
+  </div>
+  <div class="checklist"><b>本周自查</b>□ 会 reshape/广播  □ 能用 groupby 聚合  □ 能 apply 自定义函数</div>
+</div>
+
+<div class="week-card p0">
+  <div class="week-head"><span class="week-num">W3 · 06/29-07/05</span><span class="week-tag">P0 · 里程碑 ⓜ</span></div>
+  <div class="week-body">
+    <div><b>主题</b><p>大模型 API 调用 + 第一个 RAG 雏形</p></div>
+    <div><b>本周内容</b><p>OpenAI/Qwen/DeepSeek 调用、流式输出、Function Calling、JSON Mode、Spring AI / LangChain4j 入门</p></div>
+    <div><b>产出</b><p class="key">里程碑1 ✓ 跑通第一个 LLM 应用 + 一个 mini-RAG</p></div>
+    <div><b>面试连接</b><p>LLM 调用三种姿势、Function Calling 原理</p></div>
+  </div>
+  <div class="checklist"><b>本周自查</b>□ Python+Java 各调通一次大模型  □ Function Calling 工具调用成功  □ 简单文档问答跑通</div>
+</div>
+
+<!-- ============ Phase 1 ============ -->
+<div class="week-card p1">
+  <div class="week-head"><span class="week-num">W4 · 07/06-07/12</span><span class="week-tag">P1 原理期</span></div>
+  <div class="week-body">
+    <div><b>主题</b><p>Tokenizer + Embedding + 注意力直觉</p></div>
+    <div><b>本周内容</b><p>BPE/WordPiece、词向量、Self-Attention 公式、QKV 直觉、多头注意力</p></div>
+    <div><b>产出</b><p>手写 Self-Attention（10 行 PyTorch）+ 笔记</p></div>
+    <div><b>面试连接</b><p>为什么用 QKV、缩放因子、多头作用</p></div>
+  </div>
+  <div class="checklist"><b>本周自查</b>□ 能画 Attention 计算流程图  □ 能解释为何除根号 d_k</div>
+</div>
+
+<div class="week-card p1">
+  <div class="week-head"><span class="week-num">W5 · 07/13-07/19</span><span class="week-tag">P1 原理期</span></div>
+  <div class="week-body">
+    <div><b>主题</b><p>Transformer 全貌 + 预训练 vs 微调</p></div>
+    <div><b>本周内容</b><p>Encoder-Decoder/Decoder-only、Layer Norm、残差、位置编码、预训练任务、微调范式</p></div>
+    <div><b>产出</b><p>1 篇笔记《用 Java 工程师视角理解 Transformer》</p></div>
+    <div><b>面试连接</b><p>BERT vs GPT、绝对 vs 相对位置编码、上下文窗口怎么扩</p></div>
+  </div>
+  <div class="checklist"><b>本周自查</b>□ 能画 Transformer 架构图  □ 能解释幻觉成因</div>
+</div>
+
+<div class="week-card p1">
+  <div class="week-head"><span class="week-num">W6 · 07/20-07/26</span><span class="week-tag">P1 · 里程碑 ⓜ</span></div>
+  <div class="week-body">
+    <div><b>主题</b><p>2026 推理模型 + Test-Time Compute</p></div>
+    <div><b>本周内容</b><p>o1/o3/R1/QwQ 区别、CoT、Self-Consistency、Best-of-N、ToT</p></div>
+    <div><b>产出</b><p class="key">里程碑2 ✓ 大模型原理八股完整自答（≥15 题）</p></div>
+    <div><b>面试连接</b><p>推理模型为什么强、什么任务该用、成本怎么控</p></div>
+  </div>
+  <div class="checklist"><b>本周自查</b>□ Phase1 八股自答  □ 能讲清 R1 训练范式</div>
+</div>
+
+<!-- ============ Phase 2 ============ -->
+<div class="week-card p2">
+  <div class="week-head"><span class="week-num">W7 · 07/27-08/02</span><span class="week-tag">P2 RAG ★</span></div>
+  <div class="week-body">
+    <div><b>主题</b><p>RAG 全链路+文档解析+切块</p></div>
+    <div><b>本周内容</b><p>文档解析（pdf/docx/md/web）、固定切块 vs 语义切块、Chunk Size trade-off、Overlap</p></div>
+    <div><b>产出</b><p>跑通完整 RAG demo（LangChain + Chroma）</p></div>
+    <div><b>面试连接</b><p>切块大小怎么选、为什么要重叠</p></div>
+  </div>
+  <div class="checklist"><b>本周自查</b>□ 切块策略对比实验做过</div>
+</div>
+
+<div class="week-card p2">
+  <div class="week-head"><span class="week-num">W8 · 08/03-08/09</span><span class="week-tag">P2 RAG ★</span></div>
+  <div class="week-body">
+    <div><b>主题</b><p>Embedding + 向量库选型</p></div>
+    <div><b>本周内容</b><p>BGE/M3E/text-embedding-3、向量库（Chroma/Milvus/Qdrant/PGVector）、HNSW/IVF</p></div>
+    <div><b>产出</b><p>4 种向量库性能 mini 对比表</p></div>
+    <div><b>面试连接</b><p>HNSW 原理、ef_search trade-off、何时上 Milvus</p></div>
+  </div>
+  <div class="checklist"><b>本周自查</b>□ 至少 3 种 embedding 跑过 recall@k</div>
+</div>
+
+<div class="week-card p2">
+  <div class="week-head"><span class="week-num">W9 · 08/10-08/16</span><span class="week-tag">P2 RAG ★</span></div>
+  <div class="week-body">
+    <div><b>主题</b><p>混合检索 + Rerank + Query Rewrite</p></div>
+    <div><b>本周内容</b><p>BM25+向量+RRF、bge-reranker、HyDE、Query 多路改写</p></div>
+    <div><b>产出</b><p>recall@10 提升对照实验</p></div>
+    <div><b>面试连接</b><p>混合检索什么时候赢、Rerank 为何不可少</p></div>
+  </div>
+  <div class="checklist"><b>本周自查</b>□ 跑过 RRF  □ Rerank 提升 ≥10%</div>
+</div>
+
+<div class="week-card p2">
+  <div class="week-head"><span class="week-num">W10 · 08/17-08/23</span><span class="week-tag">P2 · 里程碑 ⓜ 项目1</span></div>
+  <div class="week-body">
+    <div><b>主题</b><p>RAG 评估 + Lost in the Middle + 高级范式</p></div>
+    <div><b>本周内容</b><p>Ragas（faithfulness/answer relevance）、上下文裁剪、Self-RAG/GraphRAG 速览</p></div>
+    <div><b>产出</b><p class="key">里程碑3 ✓ 简历项目①「审核知识库 RAG」上线</p></div>
+    <div><b>面试连接</b><p>检索质量 vs 答案质量怎么评、LITM 怎么缓解</p></div>
+  </div>
+  <div class="checklist"><b>本周自查</b>□ Ragas 报告完整  □ 项目 readme 写好</div>
+</div>
+
+<!-- ============ Phase 3 ============ -->
+<div class="week-card p3">
+  <div class="week-head"><span class="week-num">W11 · 08/24-08/30</span><span class="week-tag">P3 Agent ★</span></div>
+  <div class="week-body">
+    <div><b>主题</b><p>Agent 基础 + ReAct + Function Calling 深入</p></div>
+    <div><b>本周内容</b><p>Agent 定义、ReAct vs Plan-and-Execute、Tool Schema 设计、错误兜底</p></div>
+    <div><b>产出</b><p>ReAct Agent 调 3 个外部工具</p></div>
+    <div><b>面试连接</b><p>用自己话定义 Agent、Agent vs Prompt Chain 本质</p></div>
+  </div>
+  <div class="checklist"><b>本周自查</b>□ 工具调用失败可重试  □ 能讲清 ReAct 循环</div>
+</div>
+
+<div class="week-card p3">
+  <div class="week-head"><span class="week-num">W12 · 08/31-09/06</span><span class="week-tag">P3 Agent ★</span></div>
+  <div class="week-body">
+    <div><b>主题</b><p>Agent 记忆三层架构</p></div>
+    <div><b>本周内容</b><p>工作记忆/会话记忆（摘要滚动）/长期记忆（向量+结构化）、记忆冲突</p></div>
+    <div><b>产出</b><p>支持长会话的 Agent</p></div>
+    <div><b>面试连接</b><p>记忆三层怎么设计、token 爆炸怎么解</p></div>
+  </div>
+  <div class="checklist"><b>本周自查</b>□ 100 轮对话不爆炸  □ 长期记忆能跨会话召回</div>
+</div>
+
+<div class="week-card p3">
+  <div class="week-head"><span class="week-num">W13 · 09/07-09/13</span><span class="week-tag">P3 Agent ★</span></div>
+  <div class="week-body">
+    <div><b>主题</b><p>多智能体 + LangGraph + MCP</p></div>
+    <div><b>本周内容</b><p>Multi-Agent 协作模式、LangGraph 状态机、MCP 协议、A2A 框架速览</p></div>
+    <div><b>产出</b><p>3 个角色协作的多 Agent demo</p></div>
+    <div><b>面试连接</b><p>Multi-Agent 优势与新复杂性、MCP 解决什么</p></div>
+  </div>
+  <div class="checklist"><b>本周自查</b>□ LangGraph 状态机能画出来</div>
+</div>
+
+<div class="week-card p3">
+  <div class="week-head"><span class="week-num">W14 · 09/14-09/20</span><span class="week-tag">P3 · 里程碑 ⓜ 项目2</span></div>
+  <div class="week-body">
+    <div><b>主题</b><p>Agent 评估 + 失败模式 + 工程化</p></div>
+    <div><b>本周内容</b><p>Agent 评估指标、典型失败模式、可控性、Trajectory 评估</p></div>
+    <div><b>产出</b><p class="key">里程碑4 ✓ 简历项目②「审核智能助理 Agent」</p></div>
+    <div><b>面试连接</b><p>Agent 怎么评、典型失败、如何让其可控</p></div>
+  </div>
+  <div class="checklist"><b>本周自查</b>□ 失败案例库整理  □ 项目能演示</div>
+</div>
+
+<!-- ============ Phase 4 ============ -->
+<div class="week-card p4">
+  <div class="week-head"><span class="week-num">W15 · 09/21-09/27</span><span class="week-tag">P4 微调+推理 ★</span></div>
+  <div class="week-body">
+    <div><b>主题</b><p>SFT/DPO/GRPO 范式</p></div>
+    <div><b>本周内容</b><p>四种对齐范式区别、loss 公式直觉、何时用哪个、数据格式</p></div>
+    <div><b>产出</b><p>对照表 + 选型决策树</p></div>
+    <div><b>面试连接</b><p>SFT vs RLHF vs DPO vs GRPO、DPO 为何不要 reward model</p></div>
+  </div>
+  <div class="checklist"><b>本周自查</b>□ 能复现 DPO loss 公式</div>
+</div>
+
+<div class="week-card p4">
+  <div class="week-head"><span class="week-num">W16 · 09/28-10/04</span><span class="week-tag">P4 微调+推理 ★</span></div>
+  <div class="week-body">
+    <div><b>主题</b><p>LoRA / QLoRA 实操</p></div>
+    <div><b>本周内容</b><p>LoRA rank/alpha、QLoRA 4bit、PEFT 库、何时不该微调</p></div>
+    <div><b>产出</b><p>用 LoRA 微调 Qwen3-1.7B 审核数据</p></div>
+    <div><b>面试连接</b><p>LoRA 为何省参数、rank 怎么选、QLoRA 低显存原理</p></div>
+  </div>
+  <div class="checklist"><b>本周自查</b>□ LoRA 收敛  □ 能讲清原理</div>
+</div>
+
+<div class="week-card p4">
+  <div class="week-head"><span class="week-num">W17 · 10/05-10/11</span><span class="week-tag">P4 推理优化 ★</span></div>
+  <div class="week-body">
+    <div><b>主题</b><p>KV Cache + Attention 变体</p></div>
+    <div><b>本周内容</b><p>Prefill vs Decode、KV Cache 内存计算、MQA/GQA、PagedAttention、FlashAttention</p></div>
+    <div><b>产出</b><p>KV Cache 内存计算 Excel</p></div>
+    <div><b>面试连接</b><p>大模型为什么慢、KV Cache 怎么优化、PagedAttention 解决什么</p></div>
+  </div>
+  <div class="checklist"><b>本周自查</b>□ 能算给定模型/seq 的 KV 占用</div>
+</div>
+
+<div class="week-card p4">
+  <div class="week-head"><span class="week-num">W18 · 10/12-10/18</span><span class="week-tag">P4 · 里程碑 ⓜ</span></div>
+  <div class="week-body">
+    <div><b>主题</b><p>vLLM 部署 + 量化 + 投机解码</p></div>
+    <div><b>本周内容</b><p>vLLM 连续批处理、量化（GPTQ/AWQ/INT4/FP8）、投机解码原理、TTFT/TBT/吞吐</p></div>
+    <div><b>产出</b><p class="key">里程碑5 ✓ vLLM 跑起来 + 性能对比报告</p></div>
+    <div><b>面试连接</b><p>推理优化五层、量化精度损失</p></div>
+  </div>
+  <div class="checklist"><b>本周自查</b>□ TTFT/TBT 实测  □ 量化前后对比</div>
+</div>
+
+<!-- ============ Phase 5 ============ -->
+<div class="week-card p5">
+  <div class="week-head"><span class="week-num">W19 · 10/19-10/25</span><span class="week-tag">P5 系统设计 ★</span></div>
+  <div class="week-body">
+    <div><b>主题</b><p>LLM 系统设计模板</p></div>
+    <div><b>本周内容</b><p>百万文档 RAG、智能客服、500+并发后端、限流降级、成本控制、监控指标</p></div>
+    <div><b>产出</b><p>3 套系统设计答题模板</p></div>
+    <div><b>面试连接</b><p>百万文档 RAG / 智能客服 / 高并发 LLM 后端</p></div>
+  </div>
+  <div class="checklist"><b>本周自查</b>□ 三大设计题白板能画</div>
+</div>
+
+<div class="week-card p5">
+  <div class="week-head"><span class="week-num">W20 · 10/26-11/01</span><span class="week-tag">P5 项目 ★ 项目3</span></div>
+  <div class="week-body">
+    <div><b>主题</b><p>多模态审核 Pipeline + 简历包装</p></div>
+    <div><b>本周内容</b><p>视频帧抽取/ASR/OCR/视觉模型、漫剧审核业务整合、STAR 法包装、亮点提炼</p></div>
+    <div><b>产出</b><p class="key">里程碑6 ✓ 简历项目③「漫剧多模态审核 Pipeline」+ 简历定稿</p></div>
+    <div><b>面试连接</b><p>多模态审核架构、误伤/漏过怎么平衡</p></div>
+  </div>
+  <div class="checklist"><b>本周自查</b>□ 三个项目都能口述 5min  □ 简历投递准备</div>
+</div>
+
+<div class="week-card p5">
+  <div class="week-head"><span class="week-num">W21 · 11/02-11/08</span><span class="week-tag">P5 · 终点 🏁</span></div>
+  <div class="week-body">
+    <div><b>主题</b><p>真题刷题 + 模拟面试</p></div>
+    <div><b>本周内容</b><p>60 道高频真题口述演练、面试鸭模拟面试、薪资谈判、offer 评估</p></div>
+    <div><b>产出</b><p class="key">里程碑7 ✓ 准备就绪，开始投递</p></div>
+    <div><b>面试连接</b><p>八股全过、项目口述顺畅</p></div>
+  </div>
+  <div class="checklist"><b>本周自查</b>□ 60 道真题答案能背  □ 至少 3 场模拟面试</div>
+</div>
+
+<h2>④ 12 个里程碑产出清单</h2>
+<div class="grid g3">
+  <div class="card"><h3>① W3 · 第一个 LLM 应用</h3><p style="color:var(--muted);font-size:12px">Python + Java 各调通大模型，含 Function Calling 和 mini-RAG</p></div>
+  <div class="card"><h3>② W6 · 大模型原理八股</h3><p style="color:var(--muted);font-size:12px">15+ 道一面高频题完整自答</p></div>
+  <div class="card"><h3>③ W10 · 项目1：审核知识库 RAG</h3><p style="color:var(--muted);font-size:12px">混合检索 + Rerank + Ragas 评估，简历可写</p></div>
+  <div class="card"><h3>④ W14 · 项目2：审核智能 Agent</h3><p style="color:var(--muted);font-size:12px">三层记忆 + 多智能体 + 失败模式分析</p></div>
+  <div class="card"><h3>⑤ W18 · vLLM 推理优化报告</h3><p style="color:var(--muted);font-size:12px">部署 + 量化 + KV Cache 实测对比</p></div>
+  <div class="card"><h3>⑥ W20 · 项目3：多模态审核 Pipeline</h3><p style="color:var(--muted);font-size:12px">结合漫剧业务，差异化最强</p></div>
+  <div class="card"><h3>⑦ W21 · 简历定稿</h3><p style="color:var(--muted);font-size:12px">3 个 AI 项目 + STAR 法包装</p></div>
+  <div class="card"><h3>⑧ 持续 · 60+ 真题答案库</h3><p style="color:var(--muted);font-size:12px">RAG/Agent/推理/微调/系统设计</p></div>
+  <div class="card"><h3>⑨ W19 · 系统设计模板</h3><p style="color:var(--muted);font-size:12px">百万文档 RAG / 客服 / 高并发后端</p></div>
+  <div class="card"><h3>⑩ 持续 · 学习笔记 wiki</h3><p style="color:var(--muted);font-size:12px">沉淀到 aikb 知识库</p></div>
+  <div class="card"><h3>⑪ W21 · 模拟面试回放</h3><p style="color:var(--muted);font-size:12px">至少 3 场，针对薄弱点补</p></div>
+  <div class="card"><h3>⑫ W21 · 投递清单</h3><p style="color:var(--muted);font-size:12px">目标公司+岗位+联系人+时间窗</p></div>
+</div>
+
+<h2>⑤ 三大纪律</h2>
+<div class="grid g3">
+  <div class="card"><h3 class="ok">① 代码 &gt; 公式</h3><p style="color:var(--muted);font-size:12.5px">先跑通再补理论。遇到数学公式不卡死，先记结论，每周末统一回补。</p></div>
+  <div class="card"><h3 class="ok">② 边学边产出</h3><p style="color:var(--muted);font-size:12.5px">每周必须有可见产物（代码/笔记/对照表）。3 个里程碑项目必须真上线，不止是 demo。</p></div>
+  <div class="card"><h3 class="ok">③ 双线并行</h3><p style="color:var(--muted);font-size:12.5px">Java 八股别丢（一面仍占 70% 权重），AI 是增量。每周抽 1-2h 复习 Java 高频题。</p></div>
+</div>
+
+<h2>⑥ 风险预案</h2>
+<div class="grid g2">
+  <div class="card"><h3 class="warn">⚠️ 风险1：进度滞后</h3>
+    <ul>
+      <li><b>触发条件</b>：连续 2 周未完成自查清单</li>
+      <li><b>应对</b>：暂停新主题，先把欠账补完；必要时砍 Phase 1 时间（最多压缩到 2 周）</li>
+    </ul>
+  </div>
+  <div class="card"><h3 class="warn">⚠️ 风险2：工作冲突</h3>
+    <ul>
+      <li><b>触发条件</b>：单周投入 &lt; 6h</li>
+      <li><b>应对</b>：把当周重点缩到 1 个核心主题；周末集中 4h 补</li>
+    </ul>
+  </div>
+  <div class="card"><h3 class="warn">⚠️ 风险3：孩子出生（预产 2026）</h3>
+    <ul>
+      <li><b>触发条件</b>：宝宝出生</li>
+      <li><b>应对</b>：预留 2 周机动 buffer；P5 阶段可压缩到 2 周；项目 3 用工作里现成业务最省时</li>
+    </ul>
+  </div>
+  <div class="card"><h3 class="warn">⚠️ 风险4：内容过深陷入</h3>
+    <ul>
+      <li><b>触发条件</b>：单一主题超 1 周还没产出</li>
+      <li><b>应对</b>：跳过细节，先建立全局；高级数学/底层 CUDA 标记 [深水区] 留到面试后</li>
+    </ul>
+  </div>
+</div>
+
+<div class="footer">
+  本排期与《Phase 0 Python+LLM 完整教材》配套使用，Phase 0 教材已自洽（不用上网搜资料）。<br>
+  生成于 WorkBuddy · 2026-06-13 · 起跑日 06-15（周一）<br>
+  配套：<code>outputs/phase0-python-llm-handbook.html</code>（Phase 0 完整教材）
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1201 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>Phase 3 · Agent 稳定性手册(W11-W14)</title>
+<style>
+:root{
+  --bg:#0e1117;--card:#161b22;--card2:#1c222b;--line:#272d36;--txt:#d0d7de;--muted:#8b949e;--hint:#6e7681;
+  --blue:#378ADD;--teal:#1D9E75;--amber:#EF9F27;--purple:#7F77DD;--coral:#D85A30;--red:#E24B4A;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font:14px/1.65 -apple-system,"PingFang SC","Helvetica Neue",sans-serif}
+.wrap{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.side{background:var(--card);border-right:1px solid var(--line);padding:18px 14px;position:sticky;top:0;height:100vh;overflow:auto}
+.side h1{font-size:14px;color:var(--blue);margin-bottom:14px}
+.side a{display:block;color:var(--muted);font-size:12px;padding:5px 8px;border-radius:5px;text-decoration:none;margin:1px 0}
+.side a:hover{background:var(--card2);color:var(--txt)}
+.side .grp{font-size:11px;color:var(--hint);margin:14px 0 4px;text-transform:uppercase;letter-spacing:1px}
+main{padding:30px 40px;max-width:920px}
+h1.t{font-size:24px;margin-bottom:6px}
+.lead{color:var(--muted);font-size:13px;margin:8px 0 18px;max-width:760px}
+h2{font-size:18px;margin:30px 0 12px;color:var(--blue);padding-bottom:6px;border-bottom:1px solid var(--line)}
+h3{font-size:15px;margin:18px 0 8px;color:var(--amber)}
+h4{font-size:14px;margin:10px 0 6px}
+p{margin:6px 0}
+ol,ul{margin:6px 0 6px 22px}
+li{margin:3px 0}
+.chap{display:flex;align-items:center;gap:10px;background:var(--card);border-left:3px solid var(--blue);padding:10px 14px;margin:24px 0 10px;border-radius:0 6px 6px 0}
+.chap .num{background:var(--blue);color:#fff;width:24px;height:24px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600}
+.chap .ttl{font-weight:600;font-size:15px}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:500;font-size:12px;background:var(--card2)}
+td code,p code,li code{background:var(--card2);padding:1px 6px;border-radius:4px;font-size:12.5px;color:#f0d97a}
+pre{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:14px 16px;overflow:auto;margin:10px 0;font-size:13px;line-height:1.7;color:#e6edf3}
+pre code{color:#e6edf3;background:transparent;padding:0;font-size:13px}
+code{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+.cmt{color:#8b95b8;font-style:italic}
+.kw{color:#c099f0}
+.num{color:#ff9e64}
+.str{color:#9ece6a}
+.fn{color:#7aa2f7}
+.kw{color:#c084fc}.str{color:#fbbf24}.cmt{color:#6e7681;font-style:italic}.num{color:#7dd3fc}.fn{color:#86efac}
+.warn{background:rgba(226,75,74,.08);border-left:3px solid var(--red);padding:10px 14px;border-radius:0 6px 6px 0;margin:8px 0;font-size:13px}
+.tip{background:rgba(29,158,117,.08);border-left:3px solid var(--teal);padding:10px 14px;border-radius:0 6px 6px 0;margin:8px 0;font-size:13px}
+.info{background:rgba(55,138,221,.08);border-left:3px solid var(--blue);padding:10px 14px;border-radius:0 6px 6px 0;margin:8px 0;font-size:13px}
+.qa{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:0;margin:10px 0;overflow:hidden}
+.qa .q{background:var(--card2);padding:8px 14px;font-weight:600;font-size:13px;color:#fbbf24}
+.qa .a{padding:10px 14px;font-size:13px;color:var(--txt);line-height:1.75}
+.lvl{background:linear-gradient(90deg,rgba(127,119,221,.08),transparent);border:1px solid rgba(127,119,221,.3);border-radius:8px;padding:12px 16px;margin:14px 0}
+.lvl h4{color:#a39aef;margin-bottom:6px;font-size:13px}
+.lvl .row{display:flex;gap:10px;align-items:flex-start;margin:4px 0;font-size:12.5px}
+.tag{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600;flex-shrink:0;margin-top:2px}
+.tag.p7{background:rgba(110,118,129,.3);color:#aaa}
+.tag.p8{background:rgba(239,159,39,.18);color:#f0bf7e}
+.tag.p9{background:rgba(127,119,221,.22);color:#b5aef0}
+details{background:var(--card);border:1px solid var(--line);border-radius:6px;margin:6px 0;overflow:hidden}
+details summary{padding:10px 14px;cursor:pointer;font-size:13px;list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:"▸ ";color:var(--blue)}
+details[open] summary::before{content:"▾ "}
+details .body{padding:0 14px 12px;color:var(--muted);font-size:13px;line-height:1.7;border-top:1px solid var(--line)}
+.formula{background:var(--card2);padding:10px 14px;border-radius:6px;font-family:ui-monospace,monospace;font-size:13px;text-align:center;margin:8px 0;color:#fbbf24}
+.ascii{background:#0d1117;border:1px solid #30363d;padding:14px 16px;border-radius:6px;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;line-height:1.7;white-space:pre;overflow:auto;margin:10px 0;color:#e6edf3}
+pre code.ascii{display:block;background:transparent;border:none;padding:0;margin:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px;margin:10px 0}
+.footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--hint);font-size:12px;line-height:1.8}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="wrap">
+<aside class="side">
+  <h1>📘 Phase 3 · Agent 稳定性</h1>
+  <div class="grp">第 11 周 · 基础范式</div>
+  <a href="#ch1">① Agent 全景图(从 LLM 到 Agent)</a>
+  <a href="#ch2">② ReAct vs Plan-Execute</a>
+  <a href="#ch3">③ Function Calling 工程化</a>
+  <div class="grp">第 12 周 · 工程稳定性</div>
+  <a href="#ch4">④ 死循环防控 6 招</a>
+  <a href="#ch5">⑤ 工具失败降级 + Schema 校验</a>
+  <a href="#ch6">⑥ 记忆三层架构</a>
+  <div class="grp">第 13 周 · 高阶范式</div>
+  <a href="#ch7">⑦ Context Engineering</a>
+  <a href="#ch8">⑧ Workflow 约束 Agent · Orchestrator-Worker</a>
+  <a href="#ch9">⑨ Reflection 自纠 + Multi-Agent</a>
+  <div class="grp">第 14 周 · 治理与演进</div>
+  <a href="#ch10">⑩ MCP 协议与生态</a>
+  <a href="#ch11">⑪ 权限治理 + 可观测</a>
+  <a href="#ch12">⑫ Agent 全景架构 + 演进路线</a>
+  <div class="grp">面试与速查</div>
+  <a href="#qa-all">📚 25 道高频题</a>
+  <a href="#cheat">🧷 速查表</a>
+</aside>
+<main>
+<h1 class="t">Phase 3 · Agent 稳定性手册(W11-W14)</h1>
+<p class="lead">2026 Agent 面试已经从「会用 LangChain」转向「踩过坑没」。这份手册按 P8/P9 口径,从 ReAct 范式一路打到 Workflow 约束 + Context Engineering + 可观测治理。每章四段式:5 句话原理 → 完整代码 → 易踩坑 → 面试连接 + P8/P9 升维专栏。结合老李审核多步决策场景。</p>
+
+<div class="info">
+<b>Phase 3 核心承诺</b>:看完这一份,你能独立设计一套带降级 + 记忆 + 观测的 Agent 系统,且能在面试里把<b>每个失败模式都讲出工程闭环</b>——这是 P8 门槛、也是 P9 的起点。
+</div>
+
+<div class="chap"><span class="num">1</span><span class="ttl">Agent 全景图:从 LLM 调用到 Agent 系统</span></div>
+<h3 id="ch1">1.1 五句话原理</h3>
+<ol>
+<li><b>Agent</b> = LLM 作为决策核心 + 一组工具(Tools)+ 一套循环(Loop)→ 让模型可以「看观察、做判断、调工具、再看结果、再判断」直到任务完成。</li>
+<li>LLM 单次调用是<b>静态映射</b>(input→output),Agent 是<b>动态决策图</b>(每一步基于上一步结果决定下一步)。</li>
+<li>面试官最爱用一句话区分:「Chatbot 是回答问题,Agent 是<b>完成任务</b>」——任务往往需要多步、多工具、状态保持。</li>
+<li>Agent 五件套:<b>LLM(脑) + Prompt(规则)+ Tools(手)+ Memory(记忆) + Observability(可观测)</b>,缺一不可。</li>
+<li>2026 行业共识:<b>Agent 不是越自由越好</b>——越是关键业务,越要用 Workflow 约束 Agent,只在确定决策点放它自由。</li>
+</ol>
+
+<h3>1.2 LLM 调用 vs Agent 三种范式</h3>
+<table>
+<tr><th>形态</th><th>核心</th><th>典型场景</th><th>稳定性</th></tr>
+<tr><td>单次 LLM</td><td>无状态、无工具</td><td>翻译、改写、分类</td><td>★★★★★</td></tr>
+<tr><td>RAG</td><td>固定一次「检索→生成」</td><td>知识问答、规则查询</td><td>★★★★</td></tr>
+<tr><td><b>Workflow</b></td><td>预定义 DAG,LLM 只在节点内决策</td><td>审核流水线、订单处理</td><td>★★★★</td></tr>
+<tr><td><b>Agent(ReAct)</b></td><td>LLM 自主选择下一步</td><td>研究助手、复杂诊断</td><td>★★ ~ ★★★</td></tr>
+<tr><td>Multi-Agent</td><td>多 Agent 协作 + 主管</td><td>软件开发、深度研究</td><td>★ ~ ★★</td></tr>
+</table>
+
+<div class="tip"><b>P8/P9 视角</b>:「Agent」不是技术决定,是<b>业务约束</b>决定。能用 Workflow 解决的场景就别上 Agent——Workflow 可预测、可观测、可回滚;Agent 自由意味着不可预测。审核场景核心链路 99% 都该是 Workflow,只在「难例分诊、新规则起草」这种探索性环节用 Agent。</div>
+
+<h3>1.3 易踩坑</h3>
+<div class="warn">
+<ol>
+<li><b>无脑用 Agent 替代 Workflow</b>——业务关键流强行 Agent 化,线上不稳、Bad Case 排查难。</li>
+<li><b>把 Agent 当 Demo 写</b>——LangChain 教程级别的 Agent 上线,3 天爆 100 个工单。</li>
+<li><b>不画状态机</b>——Agent 跑哪一步、状态怎么变,讲不清就不能上线。</li>
+<li><b>不留人工兜底</b>——Agent 最大风险不是出错,是<b>错得有自信</b>。关键决策点必须有人工介入路径。</li>
+</ol>
+</div>
+
+<h3>1.4 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q1:你怎么决定一个场景该用 Workflow 还是 Agent?</div>
+<div class="a"><b>P7 答</b>:复杂任务用 Agent。<br>
+<b>P8 答</b>:「看三个维度:① <b>路径可预测吗</b>——可预测就 Workflow;② <b>错误代价多大</b>——代价高用 Workflow + LLM 节点;③ <b>需要探索吗</b>——需要才上 Agent。审核主链路是 Workflow,只在『新型违规分类、Bad Case 复盘』这种探索任务用 Agent。」<br>
+<b>P9 答</b>:「我会画一张<b>决策矩阵</b>:横轴『路径确定性』,纵轴『错误成本』。左上(确定+低成本)= 单 LLM;左下(确定+高成本)= Workflow;右上(不确定+低成本)= Agent;右下(不确定+高成本)= Workflow + 人工兜底。每个产品需求按这个矩阵分类,这样团队不会乱用 Agent。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:Agent 不是「比 RAG 更先进」,是「不同问题域」</h4>
+  <div class="row"><span class="tag p7">P7</span><span>知道 Agent 概念,能跑通 LangChain 例子。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>能讲清 Workflow vs Agent 的取舍,知道大多业务用 Workflow + LLM 节点更稳。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>能给团队定<b>选型规范</b>:什么场景用 Workflow、什么场景用 Agent、什么场景拒绝上线,且能写成 ADR(架构决策记录)。</span></div>
+</div>
+
+<div class="chap"><span class="num">2</span><span class="ttl">ReAct vs Plan-Execute · 两大范式根因对比</span></div>
+<h3 id="ch2">2.1 五句话原理</h3>
+<ol>
+<li><b>ReAct(Reasoning + Acting)</b>:每一步循环 = Thought → Action → Observation → Thought...,<b>边想边做</b>,LLM 每步都有最新信息。</li>
+<li><b>Plan-Execute</b>:先一次性生成完整 Plan(N 步),再按计划逐步 Execute,<b>想完再做</b>。失败可触发 Re-plan。</li>
+<li>ReAct 优势:<b>灵活、可应对意外</b>;劣势:容易死循环、token 消耗大、轨迹不可预测。</li>
+<li>Plan-Execute 优势:<b>可预测、可中断、可回放</b>;劣势:Plan 错了一步全错、面对环境变化不灵活。</li>
+<li>2026 工业实践:<b>关键链路用 Plan-Execute(可控)+ 在子任务节点用 ReAct(灵活)</b>,这是混合范式。</li>
+</ol>
+
+<h3>2.2 范式对比图</h3>
+<div class="ascii">
+ReAct 循环:                  Plan-Execute:
+
+  Thought 1                    ┌────────────┐
+     ↓                         │ ① Plan     │  LLM 一次性出 N 步
+  Action 1 ─→ Tool             │  step1...  │
+     ↓                         │  step2...  │
+  Observation 1                │  step3...  │
+     ↓                         └─────┬──────┘
+  Thought 2                          ↓
+     ↓                         ② Execute step1 → tool
+  Action 2 ─→ Tool                  ↓
+     ↓                         ③ Execute step2 → tool
+  Observation 2                     ↓
+     ↓                         ④ 失败? → Re-plan
+  ... 直到 Final Answer             ↓
+                              ⑤ Final Answer
+
+  灵活但易抖动                可预测但需要 Re-plan
+</div>
+
+<h3>2.3 决策表</h3>
+<table>
+<tr><th>维度</th><th>ReAct</th><th>Plan-Execute</th></tr>
+<tr><td>响应延迟</td><td>累积式增长</td><td>Plan 阶段慢 + Execute 快</td></tr>
+<tr><td>token 消耗</td><td>高(每步都带历史)</td><td>中(Plan 一次,Execute 短)</td></tr>
+<tr><td>失败处理</td><td>下一轮自动调整</td><td>需 Re-plan,可能整批废</td></tr>
+<tr><td>可观测性</td><td>差(轨迹动态)</td><td>好(Plan 是可见 DAG)</td></tr>
+<tr><td>适用</td><td>探索型、对话型</td><td>固定流程、批处理</td></tr>
+</table>
+
+<h3>2.4 代码:LangGraph 双范式骨架</h3>
+<pre><code><span class="cmt"># pip install langgraph langchain-openai</span>
+<span class="kw">from</span> langgraph.graph <span class="kw">import</span> StateGraph, END
+<span class="kw">from</span> typing <span class="kw">import</span> TypedDict, Annotated
+<span class="kw">import</span> operator
+
+<span class="kw">class</span> <span class="fn">AgentState</span>(TypedDict):
+    messages: Annotated[<span class="kw">list</span>, operator.add]
+    plan: <span class="kw">list</span>[<span class="kw">str</span>]
+    step: <span class="kw">int</span>
+
+<span class="kw">def</span> <span class="fn">react_node</span>(state):
+    <span class="cmt"># LLM 看完整对话历史,决定下一步动作</span>
+    resp = llm.invoke(state[<span class="str">"messages"</span>])
+    <span class="kw">return</span> {<span class="str">"messages"</span>: [resp]}
+
+<span class="kw">def</span> <span class="fn">plan_node</span>(state):
+    <span class="cmt"># 一次性生成完整 N 步计划</span>
+    plan = llm.invoke([planning_prompt, state[<span class="str">"messages"</span>][-<span class="num">1</span>]])
+    <span class="kw">return</span> {<span class="str">"plan"</span>: plan, <span class="str">"step"</span>: <span class="num">0</span>}
+
+<span class="kw">def</span> <span class="fn">execute_node</span>(state):
+    <span class="cmt"># 按 Plan 顺序执行,失败触发 Re-plan</span>
+    s = state[<span class="str">"plan"</span>][state[<span class="str">"step"</span>]]
+    result = run_tool(s)
+    <span class="kw">return</span> {<span class="str">"messages"</span>: [result], <span class="str">"step"</span>: state[<span class="str">"step"</span>] + <span class="num">1</span>}</code></pre>
+
+<h3>2.5 易踩坑</h3>
+<div class="warn">
+<ol>
+<li><b>ReAct 跑 30 步还没收敛</b>——LLM 抖动 Thought 来回反复。要加<b>最大步数</b>(典型 10)、<b>同 Action 重复检测</b>(连续两次相同 tool+args 就强制结束)。</li>
+<li><b>Plan-Execute 失败一步整批废</b>——要支持<b>局部 Re-plan</b>:仅重新规划失败步及后续,前面成功步保留。</li>
+<li><b>Plan 出来 20 步</b>——LLM 喜欢列长 Plan 显得详细。要在 prompt 限制 max_steps=5,简单任务必要时强制 1 步。</li>
+<li><b>把 Plan 当字面意思执行</b>——Plan 里的「检查用户余额」其实是「调 get_balance 工具」。Plan 步骤要带 tool 和 args 的结构化字段,不能裸文字。</li>
+</ol>
+</div>
+
+<h3>2.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q2:ReAct 在你的项目怎么落地?</div>
+<div class="a"><b>P7 答</b>:用 LangChain 的 create_react_agent。<br>
+<b>P8 答</b>:「我们审核场景<b>不裸用 ReAct</b>——主链路是 Workflow,在『复杂违规判定』节点内才放一个小 ReAct 循环,最多 3 步,带 Action 重复检测和强制超时。这样保留灵活性又不失可控性。」<br>
+<b>P9 答</b>:「ReAct 不是范式,是<b>子模块</b>。我会把它封装成有 SLA 的服务:输入(任务+工具集)、输出(轨迹+结论+置信度),内部带步数限制、防抖动、Trace 上报、失败兜底。这样上层 Workflow 调用 ReAct 就跟调一个普通服务一样,可预测。这是把 Agent『工程化』的关键。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:范式选择不是「学技术」,是「定边界」</h4>
+  <div class="row"><span class="tag p7">P7</span><span>能跑通 ReAct demo。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>能根据任务特性选 ReAct/Plan-Execute/混合,知道每种的失败模式。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>把 ReAct/Plan-Execute 封装成有 SLA 的子模块,Workflow 编排器调用它们,整个 Agent 系统就有了「关注点分离」。</span></div>
+</div>
+
+<div class="chap"><span class="num">3</span><span class="ttl">Function Calling 工程化:从 demo 到生产</span></div>
+<h3 id="ch3">3.1 五句话原理</h3>
+<ol>
+<li>Function Calling = LLM 输出<b>结构化的工具调用意图</b>(JSON: {name, arguments}),由你的运行时去真正执行,再把结果回灌给 LLM。</li>
+<li>Demo 级 Function Calling:1-2 个工具、参数简单、不考虑失败 → 上线 3 天必爆。</li>
+<li>生产级要解决五件事:① <b>Tool Schema 规范</b>(JSON Schema 严格校验);② <b>参数注入安全</b>(防止 SQL 注入、命令注入);③ <b>幂等与重试</b>(同一调用不能扣两次款);④ <b>超时与熔断</b>(单工具不能拖垮整链路);⑤ <b>结果回灌格式</b>(给 LLM 看的不是裸输出)。</li>
+<li>2026 主流模型(GPT-5、Qwen3、Claude 4.5、DeepSeek-V3)都原生支持 Function Calling,但<b>跨模型协议有细微差异</b>(OpenAI tools 数组 vs Anthropic tools+tool_use 块,参数名 strict mode 不同)——这是模型网关存在的理由。</li>
+<li>审核场景里 Function Calling 最常见的工具:查规则、查历史、查用户画像、上报系统、给运营发通知——每个都要做「权限+审计+重试」三件套。</li>
+</ol>
+
+<h3>3.2 工具描述的「三个等级」</h3>
+<table>
+<tr><th>等级</th><th>描述质量</th><th>调用准确率</th></tr>
+<tr><td>★(差)</td><td>「query: 查询」</td><td>~50%</td></tr>
+<tr><td>★★★(普通)</td><td>「query 字符串,搜索关键词」</td><td>~80%</td></tr>
+<tr><td>★★★★★(生产)</td><td>「query 字符串,长度 1-100,使用<b>业务名词</b>而非 SQL,例:'用户余额'而非 'SELECT balance'。日期用 ISO 格式」+ 一两个 example</td><td>>95%</td></tr>
+</table>
+
+<div class="tip"><b>P8 经验</b>:<b>Tool 的 description 比 LLM 的 Prompt 更重要</b>。一个 Tool 描述写好,准确率从 70% 飙到 95%。每个工具都要写「干什么/参数边界/坑/示例」。这是<b>Tool Engineering</b>,2026 新名词。</div>
+
+<h3>3.3 代码:生产级 Tool 定义</h3>
+<pre><code><span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel, Field
+<span class="kw">from</span> typing <span class="kw">import</span> Literal
+
+<span class="kw">class</span> <span class="fn">CheckRuleArgs</span>(BaseModel):
+    rule_keyword: <span class="kw">str</span> = Field(..., description=<span class="str">"审核规则关键词,使用业务名词,如'自伤''擦边',不要用 SQL。长度 2-30。"</span>, min_length=<span class="num">2</span>, max_length=<span class="num">30</span>)
+    rule_version: Literal[<span class="str">"V2.5"</span>, <span class="str">"V2.6"</span>] = Field(default=<span class="str">"V2.6"</span>, description=<span class="str">"规则版本号,默认 V2.6"</span>)
+
+<span class="kw">def</span> <span class="fn">check_rule</span>(args: CheckRuleArgs) -&gt; <span class="kw">dict</span>:
+    <span class="cmt"># 1. 权限校验</span>
+    <span class="kw">if</span> <span class="kw">not</span> ctx.user.has_permission(<span class="str">"check_rule"</span>): <span class="kw">raise</span> PermissionError
+    <span class="cmt"># 2. 参数清洗(已被 pydantic 校验过类型/长度)</span>
+    <span class="cmt"># 3. 调用真实业务</span>
+    <span class="kw">try</span>:
+        result = rule_service.search(args.rule_keyword, args.rule_version, timeout=<span class="num">3</span>)
+    <span class="kw">except</span> TimeoutError:
+        <span class="kw">return</span> {<span class="str">"error"</span>: <span class="str">"timeout"</span>, <span class="str">"hint"</span>: <span class="str">"规则服务超时,请稍后重试或缩小关键词"</span>}
+    <span class="cmt"># 4. 审计日志</span>
+    audit_log(args, result, ctx.trace_id)
+    <span class="cmt"># 5. 返回 LLM 友好格式(精简,不裸 SQL/不内部字段)</span>
+    <span class="kw">return</span> {<span class="str">"matched_rules"</span>: [{<span class="str">"id"</span>: r.id, <span class="str">"text"</span>: r.summary} <span class="kw">for</span> r <span class="kw">in</span> result[:<span class="num">5</span>]]}</code></pre>
+
+<h3>3.4 易踩坑</h3>
+<div class="warn">
+<ol>
+<li><b>把 SQL 拼接交给 LLM</b> → SQL 注入。Tool 永远只接<b>领域名词</b>,内部翻译成 SQL。</li>
+<li><b>工具结果裸返回</b>——返回 5MB JSON,把 context 撑爆。要在 Tool 内部做 summarize/topK 截断。</li>
+<li><b>不写 timeout</b>——单个工具卡 30s,LLM 看不到结果一直等。所有 Tool 强制 timeout(默认 5s,可配置)。</li>
+<li><b>不做幂等</b>——重试机制让「下单」工具调用两次。<b>写操作工具必须带 idempotency_key</b>。</li>
+<li><b>工具数量超过 20 个</b>——LLM 选错工具概率飙升。要做<b>工具路由</b>(先选工具集,再在子集里精选)。</li>
+</ol>
+</div>
+
+<h3>3.5 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q3:LLM 调错工具或参数怎么办?</div>
+<div class="a"><b>P7 答</b>:让它重试。<br>
+<b>P8 答</b>:「先看错在哪——选错工具(描述不清)、参数错(schema 不严)、还是工具本身报错。① 选错工具:加 description 例子+负向描述(『不要用此工具查 X』);② 参数错:Pydantic 校验,失败把错误信息回灌给 LLM 让它修;③ 工具报错:友好错误回灌(不要裸异常),让 LLM 决定降级或换工具。我们审核 Agent 实测把工具描述加上 2 个反例,选错率从 12% 降到 2%。」<br>
+<b>P9 答</b>:「这是<b>工具治理</b>问题:① <b>每个工具有质量指标</b>(被调用次数 / 成功率 / 平均耗时 / LLM 调错率),工具也要有 SLA;② <b>工具版本化</b>,描述更新和 LLM 版本一起灰度;③ <b>工具市场</b>,跨业务线共享工具,通过 MCP 协议解耦;④ <b>定期复盘 Bad Case 反推工具描述优化</b>。Tool Engineering 是和 Prompt Engineering 平级的工程学科。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:Tool Engineering 是 2026 新工程学科</h4>
+  <div class="row"><span class="tag p7">P7</span><span>能定义 Tool,跑通调用。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>能写出生产级 Tool(权限+超时+幂等+审计+友好返回),知道描述对调用准确率的影响。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>把 Tool 当一等公民管理:Tool 质量指标、版本化、共享市场(MCP)、Bad Case 反推优化。Tool 是 Agent 的「能力外延」,工程化程度决定 Agent 上限。</span></div>
+</div>
+
+<!-- =================== W12 =================== -->
+<h2 id="w12">📅 第 12 周 · 工程稳定性(W12:08/10-08/16)</h2>
+<p class="lead">这一周直击 Agent 上线后最常见的三大事故:死循环、工具失败、记忆错乱。每个失败模式都给工程闭环。</p>
+
+<div class="chap"><span class="num">4</span><span class="ttl">死循环防控 6 招</span></div>
+<h3 id="ch4">4.1 五句话原理</h3>
+<ol>
+<li>Agent 死循环是<b>头号生产事故</b>:同一 Action 反复调、Thought 自我说服、永远到不了 Final Answer。</li>
+<li>根因三类:① <b>工具结果不变</b>(LLM 看到一样的 obs 做一样的判断);② <b>Prompt 没明示终止条件</b>;③ <b>LLM 抖动</b>(同样输入不同步骤间答案飘)。</li>
+<li>核心防御:<b>步数上限 + 重复检测 + 强制收敛</b>三件套。</li>
+<li>高级:<b>Self-Critique</b>(每 N 步让 LLM 自评进度,无进展就收敛)+ <b>外部监督员</b>(独立 LLM 看轨迹,认定卡住就强制停)。</li>
+<li>2026 行业事实:<b>没有任何 Agent 能 100% 不卡</b>,关键是<b>检测 + 优雅降级 + 人工兜底</b>三层网。</li>
+</ol>
+
+<h3>4.2 6 招防御机制</h3>
+<table>
+<tr><th>招式</th><th>原理</th><th>触发条件</th><th>动作</th></tr>
+<tr><td>① 硬步数上限</td><td>循环计数</td><td>step >= 10</td><td>强制结束,返回当前轨迹</td></tr>
+<tr><td>② 重复 Action 检测</td><td>记录 (tool, args) hash</td><td>同 hash 连续 2 次</td><td>提示 LLM「不要重复」或强制结束</td></tr>
+<tr><td>③ 进度自评</td><td>每 3 步问 LLM「有进展吗」</td><td>连续 2 次「无进展」</td><td>触发 Re-plan 或人工</td></tr>
+<tr><td>④ 时间预算</td><td>累计 elapsed 时间</td><td>>30s</td><td>强制结束,返回部分结果</td></tr>
+<tr><td>⑤ token 预算</td><td>累计 prompt+completion token</td><td>>50k</td><td>强制结束</td></tr>
+<tr><td>⑥ 监督员模型</td><td>另一个 LLM 看轨迹</td><td>判定「卡住」</td><td>外部中断当前 Agent</td></tr>
+</table>
+
+<h3>4.3 代码:重复检测 + 步数上限</h3>
+<pre><code><span class="kw">import</span> hashlib
+
+<span class="kw">class</span> <span class="fn">AgentGuard</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, max_steps=<span class="num">10</span>, max_token=<span class="num">50000</span>, max_time=<span class="num">30</span>):
+        self.max_steps = max_steps
+        self.action_history = []     <span class="cmt"># 最近 N 个 (tool, args_hash)</span>
+        self.start = time.time()
+        self.token_used = <span class="num">0</span>
+
+    <span class="kw">def</span> <span class="fn">should_stop</span>(self, step, last_action) -&gt; <span class="kw">tuple</span>[<span class="kw">bool</span>, <span class="kw">str</span>]:
+        <span class="kw">if</span> step &gt;= self.max_steps:
+            <span class="kw">return</span> <span class="kw">True</span>, <span class="str">"超过最大步数"</span>
+        <span class="kw">if</span> time.time() - self.start &gt; <span class="num">30</span>:
+            <span class="kw">return</span> <span class="kw">True</span>, <span class="str">"超时"</span>
+        <span class="kw">if</span> self.token_used &gt; <span class="num">50000</span>:
+            <span class="kw">return</span> <span class="kw">True</span>, <span class="str">"超出 token 预算"</span>
+        <span class="cmt"># 重复检测:连续 2 次相同 (tool, args)</span>
+        h = hashlib.md5(<span class="kw">str</span>(last_action).encode()).hexdigest()
+        self.action_history.append(h)
+        <span class="kw">if</span> <span class="kw">len</span>(self.action_history) &gt;= <span class="num">2</span> <span class="kw">and</span> self.action_history[-<span class="num">1</span>] == self.action_history[-<span class="num">2</span>]:
+            <span class="kw">return</span> <span class="kw">True</span>, <span class="str">"重复 Action,疑似死循环"</span>
+        <span class="kw">return</span> <span class="kw">False</span>, <span class="str">""</span></code></pre>
+
+<h3>4.4 易踩坑</h3>
+<div class="warn">
+<ol>
+<li><b>只设步数不设时间</b> → 单步 30s 卡满 10 步 = 5 分钟,客户端早超时。要<b>步数 + 时间双兜底</b>。</li>
+<li><b>重复检测只看 tool 名</b> → 「search('猫')」和「search('狗')」算重复。要<b>(tool, args) 整体 hash</b>。</li>
+<li><b>触发上限直接抛异常</b> → 用户体验差。要返回<b>部分结果 + 兜底文案</b>(「我已尝试多次但未能完成,以下是已收集到的信息...」)。</li>
+<li><b>不上报死循环事件</b> → 看不到趋势。每次触发要<b>Trace 上报</b>,日报统计哪类任务最容易卡,反推 Agent 设计优化。</li>
+</ol>
+</div>
+
+<h3>4.5 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q4:Agent 死循环你怎么解?</div>
+<div class="a"><b>P7 答</b>:加 max_iterations=5。<br>
+<b>P8 答</b>:「五层防御:步数 + 时间 + token + 重复检测 + 进度自评。任何一层触发都收敛,返回部分结果而非异常。同时把死循环事件 Trace 上报,周报看哪类任务最容易卡,反向优化 Prompt 和工具。」<br>
+<b>P9 答</b>:「死循环不是技术问题,是<b>系统脆弱性</b>问题。我会建一个<b>Agent SLA 看板</b>:总成功率、平均步数分布、超时率、死循环触发率,每个指标都有阈值和告警。突破阈值就启动『质量周会』,从 Bad Case 反推根因——可能是工具结果不稳定、Prompt 表述模糊、LLM 升级导致的回归。死循环防御是质量飞轮的入口指标。」
+</div>
+</div>
+
+<div class="chap"><span class="num">5</span><span class="ttl">工具失败降级 + Schema 校验</span></div>
+<h3 id="ch5">5.1 五句话原理</h3>
+<ol>
+<li>线上工具失败<b>是常态不是异常</b>:超时、限流、第三方挂、参数错、权限不足——必须把每种失败的处理路径写明。</li>
+<li>降级层级:① <b>本工具重试 1-2 次</b>(瞬时故障);② <b>换备用工具</b>(同功能不同后端);③ <b>降级返回</b>(返回缓存或简化结果);④ <b>告知 LLM 工具不可用,让它选别的</b>;⑤ <b>升级到人工</b>。</li>
+<li><b>Schema 校验</b>:LLM 输出的工具参数必须先校验(Pydantic / JSON Schema),通过才执行,失败<b>把错误信息回灌给 LLM 让它修</b>(称为 Self-Correction)。</li>
+<li>错误回灌格式很关键:不要回 stack trace,要回<b>结构化、人话化错误描述</b>+ 修复建议。</li>
+<li>2026 主流模型对错误回灌的修复成功率(实测内部审核场景):GPT-5 / Claude 4.5 Sonnet ~92%、Qwen3-Max ~88%、DeepSeek-V3 ~85%——<b>错误回灌是 Agent 自愈的核心机制</b>。</li>
+</ol>
+
+<h3>5.2 错误回灌的「五句话原则」</h3>
+<table>
+<tr><th>差(stack trace)</th><th>好(结构化人话)</th></tr>
+<tr><td>「TypeError: Cannot read property 'id' of undefined at line 42...」</td><td>「<code>{"error":"参数错误","field":"user_id","reason":"必填,但你传了 null","fix":"请提供合法的用户ID,如 'u_12345'"}</code>」</td></tr>
+</table>
+
+<h3>5.3 代码:Schema 校验 + 错误回灌</h3>
+<pre><code><span class="kw">from</span> pydantic <span class="kw">import</span> ValidationError
+
+<span class="kw">def</span> <span class="fn">execute_with_correction</span>(llm, tool, llm_output, max_retry=<span class="num">2</span>):
+    <span class="str">"""LLM 调用工具,失败把错回灌让它修"""</span>
+    <span class="kw">for</span> attempt <span class="kw">in</span> <span class="kw">range</span>(max_retry):
+        <span class="kw">try</span>:
+            args = tool.args_schema(**llm_output[<span class="str">"arguments"</span>])
+            <span class="kw">return</span> tool.run(args)
+        <span class="kw">except</span> ValidationError <span class="kw">as</span> e:
+            <span class="cmt"># 把人话错误回灌给 LLM</span>
+            error_msg = {<span class="str">"error"</span>: <span class="str">"参数校验失败"</span>, <span class="str">"details"</span>: e.errors(), <span class="str">"fix_hint"</span>: <span class="str">"请按 schema 修正参数后重试"</span>}
+            llm_output = llm.invoke([
+                {<span class="str">"role"</span>: <span class="str">"system"</span>, <span class="str">"content"</span>: <span class="str">"上次调用失败,请修正:"</span>},
+                {<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="kw">str</span>(error_msg)}
+            ])
+        <span class="kw">except</span> TimeoutError:
+            <span class="kw">return</span> {<span class="str">"error"</span>: <span class="str">"工具超时"</span>, <span class="str">"hint"</span>: <span class="str">"请简化请求或换工具"</span>}
+    <span class="kw">return</span> {<span class="str">"error"</span>: <span class="str">"重试用尽"</span>, <span class="str">"hint"</span>: <span class="str">"请改变策略或上报人工"</span>}</code></pre>
+
+<h3>5.4 易踩坑</h3>
+<div class="warn">
+<ol>
+<li><b>无脑重试</b>——参数错误重试 100 次还是错,只浪费 token。<b>区分「瞬时故障重试」和「逻辑错误回灌让 LLM 修」</b>。</li>
+<li><b>错误信息泄露内部</b>——回灌「数据库 `user_orders` 表不存在」给 LLM,可能被 Prompt 注入利用。要做<b>错误信息脱敏</b>。</li>
+<li><b>Self-Correction 死循环</b>——LLM 修了但还错,无限纠正。<b>限制纠正次数(2-3 次)</b>。</li>
+<li><b>降级路径未演练</b>——线上突然第三方挂了才发现降级根本没走通。要做<b>故障注入演练</b>(Chaos Engineering)。</li>
+</ol>
+</div>
+
+<h3>5.5 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q5:第三方接口挂了,你的 Agent 怎么办?</div>
+<div class="a"><b>P7 答</b>:重试几次。<br>
+<b>P8 答</b>:「五层降级:重试(瞬时故障)→ 备用工具(同功能不同后端,如腾讯云挂换阿里云)→ 缓存兜底(返回最近一次成功结果+时间戳)→ 告知 LLM 工具不可用让它选别的策略 → 升级人工。每层都有 SLO,定期 Chaos 演练。」<br>
+<b>P9 答</b>:「这是<b>韧性架构(Resilience)</b>问题:① <b>故障域隔离</b>(单工具挂不影响其他);② <b>断路器(Circuit Breaker)</b>(连续失败自动熔断,半小时后试探);③ <b>多供应商策略</b>(关键工具至少两家供应商);④ <b>降级响应可观测</b>(看降级触发频率和影响业务的指标)。我会画一张『工具×故障模式』矩阵,每个格子都有应对预案。」
+</div>
+</div>
+
+<div class="chap"><span class="num">6</span><span class="ttl">记忆三层架构 · Short / Long / Episodic</span></div>
+<h3 id="ch6">6.1 五句话原理</h3>
+<ol>
+<li>Agent 没记忆 = 金鱼,每次对话都从头开始。生产 Agent 必须有<b>三层记忆</b>。</li>
+<li><b>Short-term(短期)</b>:当前会话/任务内的对话历史,放在 messages 里,有 trim 策略防止 context 爆炸。</li>
+<li><b>Long-term(长期)</b>:跨会话的用户偏好/事实/历史决策,通常存数据库或向量库,需要时检索注入。</li>
+<li><b>Episodic(情景)</b>:过去的成功/失败案例(query+轨迹+结果),用于 Few-shot 启发或避免重蹈覆辙——本质是 Agent 自己的「经验库」。</li>
+<li>2026 趋势:Memory 不再是「拼接进 Prompt」,而是<b>独立的 Memory Service</b>(LangGraph Store、mem0、letta),有 CRUD、检索、TTL、隐私边界。</li>
+</ol>
+
+<h3>6.2 三层对比</h3>
+<table>
+<tr><th>层级</th><th>存什么</th><th>存哪里</th><th>有效期</th><th>典型大小</th></tr>
+<tr><td>Short-term</td><td>当前对话/任务消息</td><td>messages 数组</td><td>会话期</td><td>0-50 条</td></tr>
+<tr><td>Long-term</td><td>用户事实/偏好/Profile</td><td>SQL + 向量库</td><td>永久或长期</td><td>100-10000 条</td></tr>
+<tr><td>Episodic</td><td>过往案例(query+轨迹+评分)</td><td>向量库 + 元数据</td><td>滚动 N 月</td><td>1k-1M 条</td></tr>
+</table>
+
+<h3>6.3 代码:三层记忆最小骨架</h3>
+<pre><code><span class="cmt"># 短期:trim by token,保留 system + 最近 N 轮</span>
+<span class="kw">def</span> <span class="fn">trim_short_term</span>(messages, max_token=<span class="num">8000</span>):
+    system = messages[<span class="num">0</span>]
+    recent = messages[-<span class="num">1</span>:]   <span class="cmt"># 最新一条必留</span>
+    middle = messages[<span class="num">1</span>:-<span class="num">1</span>]
+    <span class="cmt"># 倒序累加,超 max_token 就停</span>
+    used, kept = count_token([system] + recent), []
+    <span class="kw">for</span> m <span class="kw">in</span> <span class="kw">reversed</span>(middle):
+        t = count_token([m])
+        <span class="kw">if</span> used + t &gt; max_token: <span class="kw">break</span>
+        kept.insert(<span class="num">0</span>, m); used += t
+    <span class="kw">return</span> [system] + kept + recent
+
+<span class="cmt"># 长期:SQL 存事实,需要时按 user_id 取</span>
+<span class="kw">def</span> <span class="fn">load_long_term</span>(user_id):
+    <span class="kw">return</span> db.query(<span class="str">"SELECT key, value FROM user_facts WHERE user_id=?"</span>, user_id)
+
+<span class="cmt"># 情景:向量库存(query, trajectory, success),按当前 query 检索</span>
+<span class="kw">def</span> <span class="fn">load_episodic</span>(query, k=<span class="num">3</span>, only_success=<span class="kw">True</span>):
+    filter_ = {<span class="str">"success"</span>: <span class="kw">True</span>} <span class="kw">if</span> only_success <span class="kw">else</span> {}
+    <span class="kw">return</span> vec_store.search(query, k=k, filter=filter_)</code></pre>
+
+<h3>6.4 易踩坑</h3>
+<div class="warn">
+<ol>
+<li><b>无脑全塞短期</b>——历史 50 轮全堆 Prompt,LITM 严重 + 成本飙。要 trim 或 summarize 旧轮。</li>
+<li><b>长期记忆不分类</b>——所有事实混一锅,检索噪声大。要按<b>类别(profile/preference/history)</b>分桶。</li>
+<li><b>Episodic 不区分成败</b>——LLM 也会学失败案例。检索时<b>默认 only_success=True</b>,失败案例放另一个库做反例学习。</li>
+<li><b>Memory 没有 TTL</b>——用户三年前说「我喜欢咖啡」一直影响今天决策。<b>关键事实必须带 timestamp 和 confidence</b>。</li>
+<li><b>隐私边界缺失</b>——A 用户的记忆被 B 用户检索到。<b>Memory 必须按 user_id 严格隔离</b>。</li>
+</ol>
+</div>
+
+<h3>6.5 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q6:Agent 怎么记住用户偏好?</div>
+<div class="a"><b>P7 答</b>:把对话历史塞进 Prompt。<br>
+<b>P8 答</b>:「三层架构:① 短期 trim 最近 N 轮;② 长期事实从 SQL 按 user_id 加载关键字段(profile/preference);③ 情景从向量库按当前 query 检索 Top3 成功案例做 few-shot。每层都有边界(隐私、TTL、容量),Memory 是独立服务不和 Agent 耦合。」<br>
+<b>P9 答</b>:「Memory 是<b>独立子系统</b>,有自己的 CRUD API、SLA、隐私合规层(GDPR 删除权)、版本化(Schema 升级要支持 migration)。我还会做<b>记忆质量评估</b>:抽样看长期记忆里多少是噪声、多少是矛盾、多少是过期——定期清洗。Memory 是 Agent 长期竞争力,代码很短但工程极深。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:Memory 不是技术,是产品</h4>
+  <div class="row"><span class="tag p7">P7</span><span>能在 Prompt 拼对话历史。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>能落地三层记忆,知道每层边界和坑。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>把 Memory 做成有 SLA、有合规、有质量评估、有清洗机制的产品级服务。</span></div>
+</div>
+
+<!-- ============== W13 ============== -->
+<h2 id="w13" class="week"><span class="num">13</span><span class="ttl">第 13 周 · Context Engineering + Workflow 约束 + Reflection 自纠</span></h2>
+
+<h3 id="ch7">第 7 章:Context Engineering——2026 最新工程范式</h3>
+
+<h3>7.1 五句话原理</h3>
+<div class="info">
+<b>① Context Engineering ≠ Prompt Engineering。</b>Prompt 是「写一句好指令」,Context 是「设计 Agent 每一步看到的整个上下文窗口」——包括 System、历史、工具结果、记忆、外部知识。<br>
+<b>② 核心命题:Token 是有限资源。</b>32K/128K 看似很大,塞 10 轮工具调用 + RAG 50 段就爆了。Context Engineering 就是<b>在每一步动态决定:留什么、删什么、怎么排</b>。<br>
+<b>③ 五大组件:</b>System Prompt(身份+边界)、Working Memory(最近 N 轮)、Retrieved Knowledge(RAG 结果)、Tool Results(工具返回)、Long-term Memory(事实/偏好)。<br>
+<b>④ 三大动作:</b>Select(从所有来源选什么)、Compress(摘要/裁剪)、Order(顺序按重要性排,关键的放最后防 LITM)。<br>
+<b>⑤ 为什么 2026 突然火?</b>Agent 多步执行后,中间产物爆炸增长。「写好 prompt」的红利吃完了,下一波是「写好 context 调度器」。
+</div>
+
+<h3>7.2 Context 五要素表</h3>
+<table>
+<tr><th>组件</th><th>来源</th><th>典型大小</th><th>策略</th></tr>
+<tr><td>System Prompt</td><td>固定模板</td><td>500-2000 token</td><td>从不裁剪,放最前</td></tr>
+<tr><td>Working Memory</td><td>最近对话</td><td>动态 4-16K</td><td>Trim:留首轮 + 最近 N 轮</td></tr>
+<tr><td>Retrieved Knowledge</td><td>RAG / KB</td><td>2-8K</td><td>Top-K 重排序后只留 3-5 段</td></tr>
+<tr><td>Tool Results</td><td>Function Call 返回</td><td>易爆炸</td><td>结构化压缩,只留关键字段</td></tr>
+<tr><td>Long-term Memory</td><td>用户偏好/历史</td><td>≤500 token</td><td>命中相关性才注入</td></tr>
+</table>
+
+<h3>7.3 完整代码:Context 调度器</h3>
+<pre><code class="ascii">class ContextEngine:
+    """统一管理一次 LLM 调用前的上下文组装"""
+    def __init__(self, max_token=12000):
+        self.max_token = max_token
+        self.system = ""
+        self.working = []       # [{"role","content"}, ...]
+        self.retrieved = []     # [{"text","score","source"}, ...]
+        self.tool_results = []  # [{"tool","output","ts"}, ...]
+        self.long_term = []     # 已检索的相关记忆
+
+    def select(self, user_query):
+        """① Select:决定每个来源选哪些"""
+        # RAG 只留 Top3,Tool 结果只留最近 5 次
+        self.retrieved = sorted(self.retrieved, key=lambda x: -x["score"])[:3]
+        self.tool_results = self.tool_results[-5:]
+        # 长期记忆按 query 相关性过滤
+        self.long_term = [m for m in self.long_term if related(m, user_query)]
+
+    def compress(self):
+        """② Compress:超长内容压缩"""
+        for r in self.tool_results:
+            if count_token(r["output"]) > 800:
+                r["output"] = summarize(r["output"], max_token=300)
+        # Working Memory 滑窗+摘要
+        if count_token(self.working) > 6000:
+            old = self.working[1:-4]   # 保留 system + 最近 4 轮
+            summary = summarize_messages(old)
+            self.working = [self.working[0],
+                            {"role":"system","content":f"[历史摘要] {summary}"}
+                            ] + self.working[-4:]
+
+    def order(self):
+        """③ Order:按 LITM 原则排,关键的放最后"""
+        return [
+            {"role":"system","content": self.system},
+            *self.long_term_to_msgs(),       # 弱相关放中间
+            *self.retrieved_to_msgs(),
+            *self.working,                   # 最重要放最后
+            *self.tool_results_to_msgs(),
+        ]
+
+    def build(self, user_query):
+        self.select(user_query)
+        self.compress()
+        msgs = self.order()
+        # 兜底:总长度仍超限就再裁
+        while count_token(msgs) > self.max_token:
+            msgs.pop(2)   # 弹出 retrieved 中最弱的
+        return msgs</code></pre>
+
+<h3>7.4 易踩坑</h3>
+<div class="warn">
+<b>坑 1:工具结果不压缩。</b>调一次搜索 API 返回 5KB JSON,5 轮就 25KB——Context 直接爆。必须有 summarize 兜底。<br>
+<b>坑 2:System Prompt 里塞太多。</b>System 应该是「身份 + 边界 + 工具列表」,不要把 RAG 知识塞进去——那是 Retrieved 的活。<br>
+<b>坑 3:历史摘要太频繁。</b>每轮都 summarize 会导致信息丢失累积。设阈值(超过 6K 才压),不要无脑压。<br>
+<b>坑 4:不区分 Working 和 Long-term。</b>对话里的「我叫张三」是 Working,用户偏好「不喜欢长回复」是 Long-term。混在一起 trim 时会丢关键信息。<br>
+<b>坑 5:LITM 摆放错。</b>关键信息(用户最新问题、最近工具结果)必须放最后,不要放在历史摘要后面。
+</div>
+
+<h3>7.5 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q7:Agent 跑了 10 轮 Context 爆了,你怎么解?</div>
+<div class="a"><b>P7 答</b>:换更大窗口的模型(从 32K 到 128K)。<br>
+<b>P8 答</b>:「这是 Context Engineering 问题,不是窗口问题。三招:① <b>Select</b> 工具结果只留最近 5 次、RAG 只留 Top3;② <b>Compress</b> 单条工具输出超 800 token 就摘要;③ <b>Order</b> 用 LITM 把关键的放最后。我会做一个 ContextEngine 统一管理,每次 LLM 调用前 build 一次。」<br>
+<b>P9 答</b>:「Context 是 Agent 的<b>第一性能瓶颈</b>。我会:① 监控每轮 context 占用 + 来源分布,看哪类爆得最快;② 不同任务用不同 budget(简单 QA 8K、深度分析 16K、Multi-Agent 32K);③ 把 Context Engineering 做成<b>可观测、可调参、可 A/B</b> 的子系统;④ 评估指标不只是「跑通」,而是「同样质量下 token 成本下降多少」。Context 是省钱和提质双线作战的杠杆。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:Context Engineering 是 2026 最值得押注的方向</h4>
+  <div class="row"><span class="tag p7">P7</span><span>会写 Prompt,知道塞历史进去。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>会做 Context 调度器,Select/Compress/Order 三步走,知道 LITM。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>把 Context 做成可观测可 A/B 的子系统,把 token 成本和质量做成双指标看板。</span></div>
+</div>
+
+<h3 id="ch8">第 8 章:Workflow 约束 Agent + Orchestrator-Worker 多智能体</h3>
+
+<h3>8.1 五句话原理</h3>
+<div class="info">
+<b>① 一句话核心:Agent 越自由越不稳。</b>Anthropic 2024 论文《Building Effective Agents》核心观点——能用 Workflow 解决的就别用 Agent。<br>
+<b>② Workflow vs Agent 边界:</b>Workflow 是<b>预定义路径</b>(if-else/状态机),路径少且可预测;Agent 是<b>LLM 自主决策路径</b>,路径不固定。<br>
+<b>③ 五种 Workflow 模式:</b>Prompt Chaining(串行)、Routing(分类后分流)、Parallelization(并行)、Orchestrator-Workers(主管派活)、Evaluator-Optimizer(生成-评价循环)。<br>
+<b>④ Orchestrator-Worker 是审核场景的最佳形态:</b>主 Agent 拆解任务 → 多个 Worker(文本审核/图片审核/规则匹配)并行 → 主 Agent 汇总判决。<br>
+<b>⑤ 落地原则:能用 Workflow 替代 Agent 的部分用 Workflow;Agent 只用在「需要动态决策的少数节点」。</b>这样既稳定又灵活。
+</div>
+
+<h3>8.2 Workflow 五种模式对照表</h3>
+<table>
+<tr><th>模式</th><th>核心</th><th>典型场景</th><th>稳定性</th></tr>
+<tr><td>Prompt Chaining</td><td>A → B → C 串行</td><td>翻译→润色→校对</td><td>★★★★★</td></tr>
+<tr><td>Routing</td><td>分类后路由到不同 prompt</td><td>客服意图分流</td><td>★★★★★</td></tr>
+<tr><td>Parallelization</td><td>同时多 LLM 调用</td><td>多角度审核投票</td><td>★★★★</td></tr>
+<tr><td>Orchestrator-Workers</td><td>主 LLM 拆任务派 Worker</td><td>多模态审核派单</td><td>★★★★</td></tr>
+<tr><td>Evaluator-Optimizer</td><td>生成-评价循环</td><td>翻译质量提升</td><td>★★★</td></tr>
+</table>
+
+<h3>8.3 完整代码:审核场景 Orchestrator-Worker</h3>
+<pre><code class="ascii">class ModerationOrchestrator:
+    """审核主管:拆解 → 派 Worker → 汇总"""
+    def __init__(self, workers):
+        # workers = {"text": TextModWorker, "image": ImageModWorker, "rule": RuleWorker}
+        self.workers = workers
+
+    def plan(self, content):
+        """让 LLM 决定要派哪些 Worker"""
+        prompt = f"""内容:{content}
+        判断需要哪些审核 Worker(可多选):
+        - text:文本审核(涉黄涉政)
+        - image:图片审核(暴恐违规)
+        - rule:规则引擎(关键词命中)
+        输出 JSON: {{"workers":["text","image"]}}"""
+        return json.loads(llm.call(prompt))["workers"]
+
+    def execute(self, content):
+        # ① 主 Agent 拆解
+        selected = self.plan(content)
+        # ② 并行派 Worker
+        results = {}
+        with ThreadPool(len(selected)) as pool:
+            futures = {w: pool.submit(self.workers[w].run, content)
+                       for w in selected}
+            for w, f in futures.items():
+                results[w] = f.result()
+        # ③ 主 Agent 汇总判决
+        return self.aggregate(content, results)
+
+    def aggregate(self, content, results):
+        """主 Agent 看所有 Worker 结果做最终判决"""
+        prompt = f"""内容:{content}
+        各 Worker 结果:{json.dumps(results, ensure_ascii=False)}
+        最终判决(放出/上报/屏蔽)+ 理由。
+        输出 JSON: {{"verdict":"...","reason":"...","confidence":0.x}}"""
+        return json.loads(llm.call(prompt))</code></pre>
+
+<h3>8.4 何时用 Workflow,何时用 Agent</h3>
+<table>
+<tr><th>场景</th><th>选择</th><th>原因</th></tr>
+<tr><td>固定流程的客服 FAQ</td><td>Workflow(Routing)</td><td>路径可枚举</td></tr>
+<tr><td>多模态审核派单</td><td>Workflow(Orchestrator)</td><td>Worker 固定,只决定派谁</td></tr>
+<tr><td>开放式编程任务</td><td>Agent</td><td>步骤无法预测</td></tr>
+<tr><td>翻译润色</td><td>Workflow(Chaining)</td><td>三步固定</td></tr>
+<tr><td>研究助理</td><td>Agent + Workflow 混合</td><td>大步骤 Agent,子步骤 Workflow</td></tr>
+</table>
+
+<h3>8.5 易踩坑</h3>
+<div class="warn">
+<b>坑 1:能用 Workflow 偏要用 Agent。</b>客服 FAQ 用 Agent 决策意图——既贵又不稳。Routing Workflow 一个分类器搞定。<br>
+<b>坑 2:Worker 之间有依赖。</b>Orchestrator-Worker 假设 Worker 独立。如果 Worker B 要用 Worker A 的结果,改用 Chaining 而不是并行。<br>
+<b>坑 3:Aggregate 阶段权重错。</b>不是简单投票——规则命中 = 直接屏蔽,不需要其他 Worker 同意。要写规则优先级。<br>
+<b>坑 4:Worker 失败没兜底。</b>3 个 Worker 死 1 个就拒绝判决?要支持「partial result」,告诉主 Agent 哪个失败了让它判断要不要重试或保守判决。<br>
+<b>坑 5:不监控 Worker 调用量。</b>主 Agent 每次乱派 Worker 会爆成本。要打点每个 Worker 的命中率和调用频次。
+</div>
+
+<h3>8.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q8:Agent 太不稳怎么办?</div>
+<div class="a"><b>P7 答</b>:加更多 Prompt 约束、用更强模型。<br>
+<b>P8 答</b>:「换思路。Anthropic 那篇《Building Effective Agents》核心观点是『能用 Workflow 解决就别用 Agent』。我会把流程拆开:固定步骤用 Workflow(Chaining/Routing/Orchestrator),只在真需要 LLM 决策的节点用 Agent。审核场景就是 Orchestrator-Worker 的最佳形态:主 LLM 决定派哪些 Worker,Worker 们并行干完,主 LLM 汇总判决。」<br>
+<b>P9 答</b>:「Agent vs Workflow 是<b>架构治理问题</b>,不是技术问题。我的原则是:① <b>边界清楚</b>——Agent 自由度只开放在『需要语义理解才能决策的节点』;② <b>可降级</b>——每个 Agent 节点都要有 Workflow 兜底版本(LLM 不可用就走规则);③ <b>可演进</b>——一开始全 Workflow,跑稳后再把某些节点升级成 Agent。这样既能上线又能持续进化。Workflow 是基本盘,Agent 是增量。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:Workflow 优先,Agent 兜底</h4>
+  <div class="row"><span class="tag p7">P7</span><span>知道有 Workflow 和 Agent 两种形态。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>能根据场景选模式,会落地 Orchestrator-Worker。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>把架构治理做成原则——能 Workflow 别 Agent、可降级可演进、Worker 命中率有看板。</span></div>
+</div>
+
+<h3 id="ch9">第 9 章:Reflection 自纠 + Multi-Agent 协作</h3>
+
+<h3>9.1 五句话原理</h3>
+<div class="info">
+<b>① Reflection 是 Agent 自我纠错的机制:</b>生成一个答案后,让 LLM 自己评价(或让另一个 LLM 评价),发现问题就重新生成。<br>
+<b>② 三种 Reflection 形态:</b>Self-Critique(同一个 LLM 自评)、Generator-Critic(两个 LLM 角色分离)、Reflexion(把失败原因写进 Memory 下次复用)。<br>
+<b>③ 关键不是「让它反思」,是「反思后能改进」。</b>Critic 必须输出<b>结构化错误清单</b>(哪一句错、错在哪、怎么改),Generator 才能针对性修复。<br>
+<b>④ Multi-Agent 不等于多 Agent。</b>真正的 Multi-Agent 是<b>角色分工明确、有协作协议</b>(谁先说、谁拍板、谁兜底),否则就是「N 个 Agent 抢话」。<br>
+<b>⑤ 不要为了酷而上 Multi-Agent。</b>2 个 Agent 能解决的不要上 5 个——多一个 Agent 多一份失败概率,且 token 成本翻倍。
+</div>
+
+<h3>9.2 Reflection 三种形态对照</h3>
+<table>
+<tr><th>形态</th><th>核心</th><th>适合场景</th><th>成本</th></tr>
+<tr><td>Self-Critique</td><td>同 LLM 先生成再自评</td><td>简单纠错(语法/格式)</td><td>2x 调用</td></tr>
+<tr><td>Generator-Critic</td><td>两个不同角色 LLM</td><td>需要多视角(写作/代码)</td><td>2x 调用</td></tr>
+<tr><td>Reflexion</td><td>失败案例写入 Memory</td><td>多轮任务(长期任务)</td><td>更省(下次直接学到)</td></tr>
+</table>
+
+<h3>9.3 完整代码:Generator-Critic 审核质检</h3>
+<pre><code class="ascii">class ModerationGeneratorCritic:
+    """生成-评价循环:提升审核理由质量"""
+    MAX_ROUND = 3
+
+    def generate(self, content, prev_critique=None):
+        prompt = f"""内容:{content}
+        给出审核判决和理由(放出/上报/屏蔽)。"""
+        if prev_critique:
+            prompt += f"\n上一版反馈:{prev_critique}\n请针对性修正。"
+        return llm_generator.call(prompt)
+
+    def critique(self, content, verdict):
+        """Critic 输出结构化问题清单,而不是泛泛点评"""
+        prompt = f"""内容:{content}
+        判决:{verdict}
+        作为审核质检员,从 4 个维度评价(每条 0-5 分 + 问题点):
+        1. 判决是否准确(是否漏判/误判)
+        2. 理由是否引用具体文本
+        3. 是否提到适用规则
+        4. 用词是否专业(避免主观词)
+        输出 JSON: {{"scores":{{...}},"issues":["..."],"pass":true/false}}"""
+        return json.loads(llm_critic.call(prompt))
+
+    def run(self, content):
+        verdict = self.generate(content)
+        for i in range(self.MAX_ROUND):
+            review = self.critique(content, verdict)
+            if review["pass"]:
+                return verdict, i+1
+            verdict = self.generate(content, review["issues"])
+        return verdict, self.MAX_ROUND  # 兜底返回最后一版</code></pre>
+
+<h3>9.4 Multi-Agent 协作四原则</h3>
+<table>
+<tr><th>原则</th><th>含义</th><th>反例</th></tr>
+<tr><td>角色清晰</td><td>每个 Agent 有明确职责和边界</td><td>3 个 Agent 都能写代码、都能审代码</td></tr>
+<tr><td>协议固定</td><td>谁先说、谁拍板、超时怎么办</td><td>Agent 互相喊话停不下来</td></tr>
+<tr><td>共享 State</td><td>统一 State 而不是消息传递</td><td>每个 Agent 自己存自己的</td></tr>
+<tr><td>可观测</td><td>每个 Agent 的输入输出有 Trace</td><td>出问题不知道哪个 Agent 错</td></tr>
+</table>
+
+<h3>9.5 易踩坑</h3>
+<div class="warn">
+<b>坑 1:Self-Critique 自我满意。</b>同一个 LLM 既当生成又当评价容易自我肯定。要么换更强模型当 Critic,要么用结构化打分(用分数压制定性褒贬)。<br>
+<b>坑 2:Reflection 无限循环。</b>必须设 MAX_ROUND(2-3 次),且每轮 critique 必须比上次更短/更具体——否则会陷入「鸡蛋里挑骨头」死循环。<br>
+<b>坑 3:Critic 输出非结构化。</b>「这个理由不够好」没法用。必须强制 JSON Schema:scores、issues、pass。<br>
+<b>坑 4:Multi-Agent 抢话。</b>没设主持人(Orchestrator)的 Multi-Agent 群聊会失控。要么用 Orchestrator-Worker,要么明确发言顺序。<br>
+<b>坑 5:为了 Multi 而 Multi。</b>2 个 Agent 能搞定的别上 5 个。每多一个 Agent 多一倍失败概率 + 翻倍成本。
+</div>
+
+<h3>9.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q9:Agent 输出质量不稳怎么提升?</div>
+<div class="a"><b>P7 答</b>:加几个 few-shot,或者换更强的模型。<br>
+<b>P8 答</b>:「我会上 Generator-Critic 模式:Generator 先出版本 1,Critic 用结构化 JSON 打分(准确性/引用/规则/用词四维度,每个 0-5),不通过就把 issues 喂回 Generator 改。设 MAX_ROUND=3 防死循环。我们审核场景上了之后,理由质量分从 3.2 提到 4.1,采纳率从 35% 升到 50%。」<br>
+<b>P9 答</b>:「Reflection 不是技术,是<b>质量闭环治理</b>。我会:① 把 Critic 的标准做成<b>可版本化的 Rubric</b>(像评分标准一样),业务变了就改 Rubric;② 监控『Reflection 触发率 + 改进幅度』,如果改进幅度小说明 Generator 已经触顶,要换基础模型而不是堆 Reflection;③ 把 Critic 的输出沉淀为<b>训练数据</b>,定期 SFT Generator,长期降本。Reflection 短期提质,长期是数据飞轮。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:Reflection = 质量闭环</h4>
+  <div class="row"><span class="tag p7">P7</span><span>知道可以让 LLM 自评。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>会落地 Generator-Critic + 结构化 Rubric + MAX_ROUND 防死循环。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>把 Reflection 数据反哺 SFT,做成长期质量飞轮。</span></div>
+</div>
+
+<!-- ============== W14 ============== -->
+<h2 id="w14" class="week"><span class="num">14</span><span class="ttl">第 14 周 · MCP 协议 + 权限治理 + Agent 全景架构</span></h2>
+
+<h3 id="ch10">第 10 章:MCP 协议——Anthropic 推的 Agent 工具标准</h3>
+
+<h3>10.1 五句话原理</h3>
+<div class="info">
+<b>① MCP(Model Context Protocol)是 Anthropic 2024 年底推的「Agent 工具协议」:</b>统一 LLM 调用外部工具/资源的接口规范,目标是「USB-C for AI」。<br>
+<b>② 解决的痛点:</b>每个 Agent 框架(LangChain/LlamaIndex/Cursor/Cline)都自己定义工具接口,工具开发者要适配 N 种格式。MCP 出现后,写一次工具,所有支持 MCP 的客户端都能用。<br>
+<b>③ 三大核心概念:</b>Resources(只读资源,如文件/数据库)、Tools(可执行函数)、Prompts(预定义模板)。客户端 Host(LLM 端)通过 Server(工具端)调用三类能力。<br>
+<b>④ 通信形态:</b>Stdio(本地进程通信,最常用)/ HTTP+SSE(远程服务)。JSON-RPC 协议格式。<br>
+<b>⑤ 为什么要懂 MCP?</b>2026 年 Cursor、Cline、Claude Desktop、Codex 全部支持 MCP——内部工具一旦暴露成 MCP Server,所有工具客户端通用,工具复用率拉满。
+</div>
+
+<h3>10.2 MCP 三大概念对照</h3>
+<table>
+<tr><th>概念</th><th>定位</th><th>类比 Spring</th><th>典型例子</th></tr>
+<tr><td>Resources</td><td>只读数据源</td><td>@GetMapping</td><td>读 GitHub Issue / 数据库表</td></tr>
+<tr><td>Tools</td><td>可执行函数(可写)</td><td>@PostMapping</td><td>发邮件 / 创建工单</td></tr>
+<tr><td>Prompts</td><td>预定义 Prompt 模板</td><td>Template Bean</td><td>「分析代码漏洞」固定模板</td></tr>
+</table>
+
+<h3>10.3 完整代码:写一个审核 MCP Server(Python)</h3>
+<pre><code class="ascii">from mcp.server import Server
+from mcp.types import Tool, TextContent
+
+server = Server("moderation-mcp")
+
+@server.list_tools()
+async def list_tools():
+    return [
+        Tool(
+            name="check_sensitive_words",
+            description="检查文本是否命中敏感词库,返回命中词列表",
+            inputSchema={
+                "type":"object",
+                "properties":{
+                    "text":{"type":"string","description":"待检测文本"},
+                    "category":{"type":"string","enum":["all","politics","porn","violence"]}
+                },
+                "required":["text"]
+            }
+        ),
+        Tool(
+            name="moderate_image",
+            description="调多模态模型审核图片",
+            inputSchema={
+                "type":"object",
+                "properties":{
+                    "image_url":{"type":"string"}
+                },
+                "required":["image_url"]
+            }
+        ),
+    ]
+
+@server.call_tool()
+async def call_tool(name, arguments):
+    if name == "check_sensitive_words":
+        hits = sensitive_lib.scan(arguments["text"], arguments.get("category","all"))
+        return [TextContent(type="text", text=json.dumps({"hits":hits}))]
+    elif name == "moderate_image":
+        verdict = vlm.moderate(arguments["image_url"])
+        return [TextContent(type="text", text=json.dumps(verdict))]
+
+# 启动:stdio 模式
+if __name__ == "__main__":
+    import asyncio
+    from mcp.server.stdio import stdio_server
+    asyncio.run(stdio_server(server))</code></pre>
+
+<h3>10.4 客户端配置(Claude Desktop / Cursor)</h3>
+<pre><code class="ascii">// claude_desktop_config.json
+{
+  "mcpServers": {
+    "moderation": {
+      "command": "python",
+      "args": ["/Users/laoli/mcp/moderation_server.py"],
+      "env": {
+        "SENSITIVE_LIB_PATH": "/data/lib/v3.json"
+      }
+    }
+  }
+}</code></pre>
+
+<h3>10.5 易踩坑</h3>
+<div class="warn">
+<b>坑 1:把 MCP 当成 Function Calling 替代品。</b>MCP 是「工具协议」,Function Calling 是「LLM 能力」——MCP Server 内部依然要靠 LLM 的 FC 来调用。<br>
+<b>坑 2:把敏感操作直接暴露成 Tool。</b>「删除数据库」这种危险操作要么不暴露,要么加 confirm 二次确认参数,且必须有 audit log。<br>
+<b>坑 3:Tool 描述太短。</b>LLM 选哪个 Tool 全靠 description——写「审核图片」LLM 不知道用哪个;写「调多模态 VLM 审核图片暴恐黄涉政,返回 verdict 和 confidence」就准。<br>
+<b>坑 4:不区分 Resources 和 Tools。</b>「读取一个 URL」用 Resources(只读、可缓存);「发请求改服务器状态」用 Tools(有副作用、要 audit)。<br>
+<b>坑 5:没有 timeout / 限流。</b>Agent 死循环调你的 MCP Server 一晚上账单爆——Server 端必须有 rate limit + timeout。
+</div>
+
+<h3>10.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q10:MCP 是什么?为什么 2026 都在推?</div>
+<div class="a"><b>P7 答</b>:Anthropic 推的工具协议,让 LLM 调用工具更标准。<br>
+<b>P8 答</b>:「MCP 解决的是『工具碎片化』问题——以前每个 Agent 框架都有自己的 Tool 接口,工具开发者要适配 N 套。MCP 把它统一成 JSON-RPC 协议,三大概念:Resources(只读)、Tools(可写)、Prompts(模板)。我们内部把审核能力(敏感词检查、多模态审核、规则匹配)封成 MCP Server,Cursor、Claude Desktop、内部 IDE 都能复用同一份。」<br>
+<b>P9 答</b>:「MCP 在<b>组织层面是工具治理范式</b>。我推动的方向是:① 内部所有原子能力强制 MCP 化,做成 ToolMarketplace;② 给每个 MCP Server 定 SLA(timeout/rate limit/audit);③ 业务 Agent 只允许通过 MCP 网关调工具,不允许直连——这样能在网关层做权限、计费、observability;④ 工具复用率从 10% 拉到 60%+,业务侧只关心组合不重复造轮子。MCP 不是协议,是组织架构。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:MCP = AI 时代的微服务治理</h4>
+  <div class="row"><span class="tag p7">P7</span><span>知道有 MCP 协议,会调用现成 Server。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>会写 MCP Server 把内部能力工具化,知道 Resources/Tools/Prompts 边界。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>把 MCP 做成组织级 ToolMarketplace + 网关治理 + SLA + 计费。</span></div>
+</div>
+
+<h3 id="ch11">第 11 章:权限治理 + 可观测——Agent 上线前必过的两道关</h3>
+
+<h3>11.1 五句话原理</h3>
+<div class="info">
+<b>① Agent 自由度越高,权限风险越大。</b>能调工具的 Agent = 能改数据库的程序员,必须有权限模型。<br>
+<b>② 权限三层模型:</b>身份(Who)、动作(What)、资源(On What)。Agent 调用任何 Tool 都要带<b>用户身份</b>,Tool 内部按用户权限校验。<br>
+<b>③ 危险操作需要 Human-in-the-Loop:</b>删除/支付/外发邮件 这类不可逆操作,Agent 不能独立完成,必须返回「确认请求」给人类拍板。<br>
+<b>④ 可观测三件套:Logging(每步输入输出) + Tracing(调用链路) + Metrics(成功率/延迟/成本)。</b>没这三个 Agent 出了问题完全黑盒。<br>
+<b>⑤ Trace 不是日志而是结构化:</b>每次 LLM 调用、每次 Tool 调用都是一个 Span,有 parent_id 串成树。LangSmith / Langfuse / Phoenix 是主流。
+</div>
+
+<h3>11.2 权限三层 + HITL 决策矩阵</h3>
+<table>
+<tr><th>操作类型</th><th>风险</th><th>策略</th><th>例子</th></tr>
+<tr><td>只读查询</td><td>低</td><td>身份校验即可</td><td>查订单、查文档</td></tr>
+<tr><td>可逆写入</td><td>中</td><td>身份+审计日志</td><td>建草稿、加标签</td></tr>
+<tr><td>不可逆/有外溢</td><td>高</td><td>HITL 二次确认</td><td>发邮件、删数据、付款</td></tr>
+<tr><td>跨用户操作</td><td>极高</td><td>禁止 Agent 自动</td><td>给别人发消息</td></tr>
+</table>
+
+<h3>11.3 完整代码:Agent + HITL + Trace</h3>
+<pre><code class="ascii">from opentelemetry import trace
+tracer = trace.get_tracer("agent")
+
+class GovernedAgent:
+    HIGH_RISK_TOOLS = {"delete_record","send_email","pay","update_status"}
+
+    def __init__(self, user_id, role):
+        self.user_id = user_id
+        self.role = role
+        self.audit_log = []
+
+    @tracer.start_as_current_span("agent_step")
+    def step(self, plan):
+        tool, args = plan["tool"], plan["args"]
+
+        # ① 权限校验
+        if not has_permission(self.role, tool, args):
+            raise PermissionDenied(f"{self.role} 不能调用 {tool}")
+
+        # ② HITL:高危操作返回确认请求
+        if tool in self.HIGH_RISK_TOOLS:
+            confirm_id = save_pending(self.user_id, tool, args)
+            return {"status":"need_confirm",
+                    "confirm_id": confirm_id,
+                    "preview": render_preview(tool, args)}
+
+        # ③ 实际调用 + Trace + Audit
+        with tracer.start_as_current_span(f"tool.{tool}") as span:
+            span.set_attribute("user_id", self.user_id)
+            span.set_attribute("tool", tool)
+            span.set_attribute("args", json.dumps(args))
+            result = call_tool(tool, args)
+            span.set_attribute("result_length", len(str(result)))
+
+        self.audit_log.append({
+            "ts": now(), "user": self.user_id, "tool": tool,
+            "args": args, "result_summary": summary(result)
+        })
+        return {"status":"ok","result":result}</code></pre>
+
+<h3>11.4 可观测指标 SLA 表</h3>
+<table>
+<tr><th>指标</th><th>定义</th><th>SLA</th></tr>
+<tr><td>Step Success Rate</td><td>单步成功率</td><td>≥98%</td></tr>
+<tr><td>Task Success Rate</td><td>整任务成功率</td><td>≥85%</td></tr>
+<tr><td>P95 Latency</td><td>95% 任务完成时延</td><td>≤30s</td></tr>
+<tr><td>Tool Error Rate</td><td>工具失败率</td><td>≤2%</td></tr>
+<tr><td>Cost / Task</td><td>单次任务成本</td><td>≤¥0.5</td></tr>
+<tr><td>HITL 触发率</td><td>需要人确认的占比</td><td>10-20% 健康</td></tr>
+</table>
+
+<h3>11.5 易踩坑</h3>
+<div class="warn">
+<b>坑 1:权限放在 Agent 层。</b>Agent 是 LLM,可能被绕过(Prompt Injection)——权限必须放在 Tool 层做强校验。<br>
+<b>坑 2:HITL 阻塞 Agent。</b>等用户确认时 Agent 不能傻等——要异步化:返回 confirm_id,用户确认后回调继续。<br>
+<b>坑 3:Trace 只记 LLM 不记 Tool。</b>问题往往出在 Tool 调用上,Trace 必须把每个 Tool span 也串进去。<br>
+<b>坑 4:Audit 日志没脱敏。</b>用户输入可能含个人信息,审计日志要做敏感字段脱敏(手机号/身份证)。<br>
+<b>坑 5:Cost 没归因。</b>知道总花费但不知道哪个 Agent/用户/任务花的多——Trace 必须打 user_id/agent_id/task_id,才能切片分析。
+</div>
+
+<h3>11.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q11:Agent 怎么防止滥用工具?怎么排查问题?</div>
+<div class="a"><b>P7 答</b>:加权限校验 + 打日志。<br>
+<b>P8 答</b>:「权限三层(身份+动作+资源)放在 Tool 层做强校验,不放 Agent 层防 Prompt Injection 绕过。高危操作(删除/支付/外发)走 HITL,异步等用户确认。可观测用 OpenTelemetry,LLM/Tool 每次调用都是 Span,串成 Trace 树,Langfuse 看板。SLA 关键指标:Step Success Rate 98%、Task Success Rate 85%、P95 30s 内、单任务 ¥0.5 内。」<br>
+<b>P9 答</b>:「这是<b>Agent 上线前的工程纪律</b>。我推动的标准:① 权限模型必须 Code Review(我们叫 AgentSafetyReview);② 每个 Agent 上线前必跑 RedTeam 用例(模拟 Prompt Injection / 恶意输入 / 越权请求);③ HITL 触发率纳入产品指标,过低说明阈值过松、过高说明 Agent 不够智能;④ Cost 必须按 user/team/agent 维度切片,做月度复盘和优化。Agent 工程化 = 权限 × 可观测 × 治理流程,缺一不可。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:Agent 工程化的护栏</h4>
+  <div class="row"><span class="tag p7">P7</span><span>知道要加权限和日志。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>能落地三层权限 + HITL + OpenTelemetry Trace + SLA 看板。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>把 RedTeam、AgentSafetyReview、Cost 切片复盘做成组织流程。</span></div>
+</div>
+
+<h3 id="ch12">第 12 章:Agent 全景架构 + 演进路线</h3>
+
+<h3>12.1 五句话原理</h3>
+<div class="info">
+<b>① Agent 不是单点技术,是一个分层系统。</b>从下到上 5 层:基础设施层 / 模型层 / 编排层 / 治理层 / 应用层。<br>
+<b>② 每一层都有可替换组件:</b>模型层(GPT/Claude/Qwen)、编排层(LangGraph/自研)、向量(Milvus/Qdrant)、监控(Langfuse/自研)。架构关键是<b>解耦 + 抽象</b>,不绑死供应商。<br>
+<b>③ 演进三阶段:</b>① Workflow MVP(规则+Prompt) → ② Agent 化(开放 LLM 决策点)→ ③ Multi-Agent + 自我进化(Reflection/数据飞轮)。<br>
+<b>④ 不要一上来就 Multi-Agent。</b>90% 的场景 Workflow + 单 Agent 能搞定。Multi-Agent 是「单 Agent 已经做透,瓶颈在协作」时才上。<br>
+<b>⑤ Agent 的真正壁垒不是模型,是数据 + 工具 + 治理流程。</b>模型 6 个月就被超越,但你的领域数据/工具生态/质量看板是 1-2 年的护城河。
+</div>
+
+<h3>12.2 Agent 全景架构图(ASCII)</h3>
+<pre><code class="ascii">┌──────────────────────────────────────────────────────┐
+│  应用层    审核 Agent / 客服 Agent / 编程 Agent ...   │
+├──────────────────────────────────────────────────────┤
+│  治理层    权限 · HITL · Audit · Trace · Cost · RedTeam│
+├──────────────────────────────────────────────────────┤
+│  编排层    Plan/Reflect/Memory/Workflow/Multi-Agent   │
+│           (LangGraph / 自研 Orchestrator)             │
+├──────────────────────────────────────────────────────┤
+│  能力层    Tools(MCP) | RAG | KG | 多模态 | 规则引擎  │
+├──────────────────────────────────────────────────────┤
+│  模型层    LLM(GPT/Claude/Qwen) | Embedding | Reranker│
+│           Model Gateway(路由+缓存+限流)                │
+├──────────────────────────────────────────────────────┤
+│  基础层    向量库 | 对象存储 | Trace DB | 消息队列    │
+└──────────────────────────────────────────────────────┘</code></pre>
+
+<h3>12.3 三阶段演进路线表</h3>
+<table>
+<tr><th>阶段</th><th>形态</th><th>关键能力</th><th>典型周期</th></tr>
+<tr><td>① MVP</td><td>Workflow + Prompt</td><td>规则路由、固定流程</td><td>0-3 个月</td></tr>
+<tr><td>② Agent 化</td><td>+ LLM 决策点</td><td>FC、Memory、Reflection</td><td>3-9 个月</td></tr>
+<tr><td>③ Multi-Agent</td><td>+ Orchestrator-Worker</td><td>分工、协作、数据飞轮</td><td>9-18 个月</td></tr>
+</table>
+
+<h3>12.4 审核场景全景案例(老李业务直接对应)</h3>
+<pre><code class="ascii">章节内容
+   │
+   ▼
+[Routing Workflow] ── 长度/类型分发
+   │
+   ├── 短章节 ─→ 规则引擎 + 敏感词 ─→ 直接判决(80%)
+   │
+   └── 中长章节 ─→ Orchestrator Agent
+         │
+         ├── Worker1: 文本审核(Qwen3Guard 4B 本地)
+         ├── Worker2: 多模态审核(腾讯云 VM API)
+         ├── Worker3: 上下文回溯(RAG 同人物之前章节)
+         └── 汇总判决 ── Generator-Critic 质检 ── 一审
+                              │
+                              ▼
+                          采纳率 / 误伤率
+                              │
+                              ▼
+                          数据飞轮 → SFT</code></pre>
+
+<h3>12.5 易踩坑</h3>
+<div class="warn">
+<b>坑 1:一上来就 Multi-Agent。</b>没把 Workflow 跑稳就想 5 个 Agent 协作——成本爆 + 不可观测。先 Workflow 跑 3 个月再说。<br>
+<b>坑 2:模型层没解耦。</b>把 OpenAI SDK 直接写到业务代码里——换模型要改 100 处。一定要走 Model Gateway 抽象层。<br>
+<b>坑 3:工具层没 MCP 化。</b>每个 Agent 自己实现工具 = 重复造轮子。统一走 MCP 后工具复用率拉满。<br>
+<b>坑 4:数据飞轮没建立。</b>每天处理几千万条审核但不沉淀数据 = 浪费金矿。Reflection/HITL 修正/审核员标注全部要回流到 SFT 数据集。<br>
+<b>坑 5:把模型当壁垒。</b>6 个月后开源模型追上 GPT-4 你就被替代。真正壁垒是领域数据 + 工具生态 + 治理流程。
+</div>
+
+<h3>12.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q12:你们的 Agent 系统架构是什么样的?怎么演进的?</div>
+<div class="a"><b>P7 答</b>:用 LangChain 串了几个 Tool,做了 ReAct。<br>
+<b>P8 答</b>:「分 5 层:基础(向量库/Trace DB)、模型(LLM+Gateway)、能力(MCP Tools+RAG+规则)、编排(Workflow+Plan/Reflect/Memory)、治理(权限+HITL+Trace+Cost)、应用(审核 Agent)。演进三阶段:Workflow MVP → Agent 化(开 LLM 决策点)→ Multi-Agent。我们审核场景目前在阶段 2,Orchestrator 派 Worker 并行,采纳率从 35% 提到 50%+。」<br>
+<b>P9 答</b>:「Agent 的<b>真正护城河不是模型</b>,模型 6 个月就被超越。我推动三件事:① <b>领域数据沉淀</b>——HITL 修正、Reflection、审核员标注全部回流 SFT,做出我们独有的 Qwen3Guard-4B 微调版;② <b>工具生态 MCP 化</b>——审核能力做成 ToolMarketplace,内部其他业务都能复用;③ <b>治理流程组织化</b>——AgentSafetyReview / RedTeam / Cost 复盘嵌入研发流程。模型可被替代,数据 + 工具 + 流程不可。Agent 工程化的终局是<b>组织能力</b>,不是技术栈。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:Agent 真正的壁垒</h4>
+  <div class="row"><span class="tag p7">P7</span><span>会用 LangChain 搭 Demo。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>能画出 5 层架构,讲清演进三阶段,知道每层选型取舍。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>把数据飞轮 + 工具生态 + 治理流程做成组织能力,而不是技术栈。</span></div>
+</div>
+
+<!-- ============== 25 题集中速查 ============== -->
+<h2 id="qa25" class="week"><span class="num">★</span><span class="ttl">25 题集中面试速查</span></h2>
+
+<div class="info">
+精选 25 题覆盖 Agent 全部高频考点,每题给出 P7/P8/P9 三段位答法骨架。建议按 P8 准备,但要能临场升维到 P9。
+</div>
+
+<h3>一、Agent 范式与决策(Q1-Q6)</h3>
+<table>
+<tr><th>#</th><th>题目</th><th>P8 关键词</th></tr>
+<tr><td>Q1</td><td>什么是 Agent?跟 Chatbot 区别?</td><td>感知-决策-行动闭环 / Tool 使用 / Memory</td></tr>
+<tr><td>Q2</td><td>ReAct vs Plan-Execute 怎么选?</td><td>步骤少用 ReAct / 步骤多用 Plan / ReWOO 省 token</td></tr>
+<tr><td>Q3</td><td>Plan-And-Solve 解决什么问题?</td><td>预先规划完整步骤,减少中途偏题</td></tr>
+<tr><td>Q4</td><td>什么时候选 Workflow 不选 Agent?</td><td>路径可枚举 / 稳定性优先 / 成本敏感</td></tr>
+<tr><td>Q5</td><td>Function Calling 怎么工程化?</td><td>JSON Schema / 错误回灌 / 并发调用</td></tr>
+<tr><td>Q6</td><td>Tool 描述写不好会怎样?</td><td>LLM 选错 Tool / 必须包含场景+参数+示例</td></tr>
+</table>
+
+<h3>二、稳定性 + 失败处理(Q7-Q12)</h3>
+<table>
+<tr><th>#</th><th>题目</th><th>P8 关键词</th></tr>
+<tr><td>Q7</td><td>Agent 死循环怎么防?</td><td>MAX_ITER + 重复签名检测 + Trace 监控 + 心跳</td></tr>
+<tr><td>Q8</td><td>Tool 调用失败怎么办?</td><td>重试退避 + Schema 校验 + Fallback + 错误回灌</td></tr>
+<tr><td>Q9</td><td>JSON 解析失败怎么救?</td><td>JSON Mode / Structured Output / 错误回灌让 LLM 自纠</td></tr>
+<tr><td>Q10</td><td>Agent 输出不稳定怎么提质?</td><td>Generator-Critic + Rubric + MAX_ROUND</td></tr>
+<tr><td>Q11</td><td>Reflection 怎么避免自我满意?</td><td>换更强模型当 Critic / 结构化打分压制定性</td></tr>
+<tr><td>Q12</td><td>Multi-Agent 协作怎么不抢话?</td><td>Orchestrator 主持 / 角色清晰 / 共享 State / Trace</td></tr>
+</table>
+
+<h3>三、Memory + Context(Q13-Q17)</h3>
+<table>
+<tr><th>#</th><th>题目</th><th>P8 关键词</th></tr>
+<tr><td>Q13</td><td>Agent 怎么记住用户偏好?</td><td>三层架构(Short/Long/Episodic) / 独立服务</td></tr>
+<tr><td>Q14</td><td>对话太长 Context 爆怎么办?</td><td>Trim + Summary Buffer + 分类压缩</td></tr>
+<tr><td>Q15</td><td>Context Engineering 是什么?</td><td>Select/Compress/Order / 五要素 / LITM</td></tr>
+<tr><td>Q16</td><td>怎么排序 Context 减少 LITM?</td><td>关键信息放最后 / 历史摘要放中间</td></tr>
+<tr><td>Q17</td><td>长期记忆怎么不矛盾?</td><td>版本化 / TTL / 定期清洗 / 评估抽样</td></tr>
+</table>
+
+<h3>四、工具生态 + 协议(Q18-Q21)</h3>
+<table>
+<tr><th>#</th><th>题目</th><th>P8 关键词</th></tr>
+<tr><td>Q18</td><td>MCP 是什么?和 Function Calling 区别?</td><td>工具协议 / 三大概念 / FC 是 LLM 能力</td></tr>
+<tr><td>Q19</td><td>怎么把内部能力 MCP 化?</td><td>Resources/Tools/Prompts / Stdio 起步 / 网关治理</td></tr>
+<tr><td>Q20</td><td>Tool 太多 LLM 选不准?</td><td>分组 / 检索式选 Tool / 描述写场景化</td></tr>
+<tr><td>Q21</td><td>Agent 怎么调用外部企业系统?</td><td>MCP + 鉴权 + Audit / 不直连数据库</td></tr>
+</table>
+
+<h3>五、治理 + 架构(Q22-Q25)</h3>
+<table>
+<tr><th>#</th><th>题目</th><th>P8 关键词</th></tr>
+<tr><td>Q22</td><td>Agent 怎么防止越权?</td><td>权限三层 / Tool 层强校验 / HITL 高危确认</td></tr>
+<tr><td>Q23</td><td>Agent 怎么排查问题?</td><td>OpenTelemetry / Trace 树 / Langfuse / SLA 指标</td></tr>
+<tr><td>Q24</td><td>怎么控 Agent 成本?</td><td>Cost 切片 / Cache / 小模型路由 / Context 压缩</td></tr>
+<tr><td>Q25</td><td>Agent 系统怎么演进?</td><td>Workflow MVP → Agent → Multi-Agent / 数据飞轮</td></tr>
+</table>
+
+<!-- ============== 速查表 ============== -->
+<h2 id="cheatsheet" class="week"><span class="num">▣</span><span class="ttl">Phase 3 速查表</span></h2>
+
+<h3>★ Agent 核心范式速查</h3>
+<table>
+<tr><th>范式</th><th>核心</th><th>适用</th></tr>
+<tr><td>ReAct</td><td>Thought → Action → Observation 循环</td><td>步骤少、决策需要观察</td></tr>
+<tr><td>Plan-Execute</td><td>先全局规划再执行</td><td>步骤多、可预先规划</td></tr>
+<tr><td>Plan-And-Solve</td><td>规划+一次性解决</td><td>简单数学/推理</td></tr>
+<tr><td>ReWOO</td><td>规划阶段不调 Tool,Worker 一次执行</td><td>省 token / 工具贵</td></tr>
+<tr><td>Reflection</td><td>生成-评价循环</td><td>质量提升场景</td></tr>
+<tr><td>Reflexion</td><td>失败原因写 Memory</td><td>多轮长期任务</td></tr>
+<tr><td>Orchestrator-Worker</td><td>主管派 Worker 并行</td><td>多模态/多视角</td></tr>
+<tr><td>Multi-Agent</td><td>多角色分工协作</td><td>单 Agent 触顶后</td></tr>
+</table>
+
+<h3>★ 死循环防控 6 招</h3>
+<table>
+<tr><th>#</th><th>招数</th><th>实现</th></tr>
+<tr><td>1</td><td>MAX_ITER 上限</td><td>循环计数,超限强制结束</td></tr>
+<tr><td>2</td><td>重复签名检测</td><td>(tool, args_hash) 重复 N 次终止</td></tr>
+<tr><td>3</td><td>无进展计时器</td><td>State 不变 N 步终止</td></tr>
+<tr><td>4</td><td>Trace 实时告警</td><td>P95 耗时/调用次数超阈值告警</td></tr>
+<tr><td>5</td><td>Tool 错误退避</td><td>同 Tool 连续失败 3 次熔断</td></tr>
+<tr><td>6</td><td>Critic 介入</td><td>每 N 步让 Critic 判是否在打转</td></tr>
+</table>
+
+<h3>★ 记忆三层架构</h3>
+<table>
+<tr><th>层</th><th>存什么</th><th>存哪</th><th>策略</th></tr>
+<tr><td>Short-term(Working)</td><td>当前对话/最近 N 轮</td><td>Context 窗口</td><td>Trim + Summary</td></tr>
+<tr><td>Long-term</td><td>用户偏好/事实/资料</td><td>SQL / KV</td><td>按 user_id 加载</td></tr>
+<tr><td>Episodic</td><td>历史成功/失败案例</td><td>向量库</td><td>Top-K 检索做 few-shot</td></tr>
+</table>
+
+<h3>★ Context Engineering 三动作</h3>
+<table>
+<tr><th>动作</th><th>做什么</th><th>典型实现</th></tr>
+<tr><td>Select</td><td>从所有来源选哪些</td><td>RAG Top3 / Tool 最近 5 次</td></tr>
+<tr><td>Compress</td><td>超长内容摘要</td><td>summarize() 兜底</td></tr>
+<tr><td>Order</td><td>按 LITM 排序</td><td>关键放最后,弱相关放中间</td></tr>
+</table>
+
+<h3>★ 治理 + SLA 关键指标</h3>
+<table>
+<tr><th>指标</th><th>SLA</th><th>异常含义</th></tr>
+<tr><td>Step Success Rate</td><td>≥98%</td><td>偏低说明 Tool 不稳</td></tr>
+<tr><td>Task Success Rate</td><td>≥85%</td><td>偏低说明编排有缺陷</td></tr>
+<tr><td>P95 Latency</td><td>≤30s</td><td>超时说明 Context 过大或循环</td></tr>
+<tr><td>Cost / Task</td><td>≤¥0.5</td><td>超标考虑小模型路由+缓存</td></tr>
+<tr><td>HITL 触发率</td><td>10-20%</td><td>过低不安全,过高不智能</td></tr>
+</table>
+
+<h3>★ Phase 3 一句话总结</h3>
+<div class="tip">
+<b>Agent 工程化 = 范式选对(Workflow 优先) × 稳定性闭环(死循环+错误处理+Memory) × 上下文调度(Context Engineering) × 治理护栏(权限+HITL+Trace+Cost) × 数据飞轮(Reflection 反哺 SFT)。</b>
+<br><br>
+P8 答法心法:同一题先答能跑通的工程方案,再加 trade-off + 数据指标 + 演进规划。<br>
+P9 答法心法:把技术问题升维成组织流程/治理范式/数据资产。
+</div>
+
+<div class="footer">
+Phase 3 Agent 教材 完结 · 共 12 章 + 25 题 + 速查表 · 老李 AI 工程转型路径
+</div>
+
+</main>
+</div>
+</body>
+</html>

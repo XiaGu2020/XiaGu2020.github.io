@@ -1,0 +1,1135 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>Phase 5 · LLM 系统设计与架构手册(W19-W21)</title>
+<style>
+:root{
+  --bg:#0e1117;--card:#161b22;--card2:#1c222b;--line:#272d36;--txt:#d0d7de;--muted:#8b949e;--hint:#6e7681;
+  --blue:#378ADD;--teal:#1D9E75;--amber:#EF9F27;--purple:#7F77DD;--coral:#D85A30;--red:#E24B4A;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font:14px/1.65 -apple-system,"PingFang SC","Helvetica Neue",sans-serif}
+.wrap{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.side{background:var(--card);border-right:1px solid var(--line);padding:18px 14px;position:sticky;top:0;height:100vh;overflow:auto}
+.side h1{font-size:14px;color:var(--blue);margin-bottom:14px}
+.side a{display:block;color:var(--muted);font-size:12px;padding:5px 8px;border-radius:5px;text-decoration:none;margin:1px 0}
+.side a:hover{background:var(--card2);color:var(--txt)}
+.side .grp{font-size:11px;color:var(--hint);margin:14px 0 4px;text-transform:uppercase;letter-spacing:1px}
+main{padding:30px 40px;max-width:920px}
+h1.t{font-size:24px;margin-bottom:6px}
+.lead{color:var(--muted);font-size:13px;margin:8px 0 18px;max-width:760px}
+h2{font-size:18px;margin:30px 0 12px;color:var(--blue);padding-bottom:6px;border-bottom:1px solid var(--line)}
+h2.week{display:flex;align-items:center;gap:10px;background:var(--card);border-left:3px solid var(--blue);padding:10px 14px;border-radius:0 6px 6px 0;border-bottom:none}
+h2.week .num{background:var(--blue);color:#fff;width:28px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+h2.week .ttl{font-weight:600;font-size:15px;color:var(--txt)}
+h3{font-size:15px;margin:18px 0 8px;color:var(--amber)}
+h4{font-size:14px;margin:10px 0 6px}
+p{margin:6px 0}
+ol,ul{margin:6px 0 6px 22px}
+li{margin:3px 0}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:500;font-size:12px;background:var(--card2)}
+td code,p code,li code{background:var(--card2);padding:1px 6px;border-radius:4px;font-size:12.5px;color:#f0d97a}
+pre{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:14px 16px;overflow:auto;margin:10px 0;font-size:13px;line-height:1.7;color:#e6edf3}
+pre code{color:#e6edf3;background:transparent;padding:0;font-size:13px}
+code{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+.cmt{color:#8b95b8;font-style:italic}
+.kw{color:#c099f0}
+.num{color:#ff9e64}
+.str{color:#9ece6a}
+.fn{color:#7aa2f7}
+.warn{background:rgba(226,75,74,.08);border-left:3px solid var(--red);padding:10px 14px;border-radius:0 6px 6px 0;margin:8px 0;font-size:13px}
+.tip{background:rgba(29,158,117,.08);border-left:3px solid var(--teal);padding:10px 14px;border-radius:0 6px 6px 0;margin:8px 0;font-size:13px}
+.info{background:rgba(55,138,221,.08);border-left:3px solid var(--blue);padding:10px 14px;border-radius:0 6px 6px 0;margin:8px 0;font-size:13px}
+.qa{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:0;margin:10px 0;overflow:hidden}
+.qa .q{background:var(--card2);padding:8px 14px;font-weight:600;font-size:13px;color:#fbbf24}
+.qa .a{padding:10px 14px;font-size:13px;color:var(--txt);line-height:1.75}
+.lvl{background:linear-gradient(90deg,rgba(127,119,221,.08),transparent);border:1px solid rgba(127,119,221,.3);border-radius:8px;padding:12px 16px;margin:14px 0}
+.lvl h4{color:#a39aef;margin-bottom:6px;font-size:13px}
+.lvl .row{display:flex;gap:10px;align-items:flex-start;margin:4px 0;font-size:12.5px}
+.tag{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600;flex-shrink:0;margin-top:2px}
+.tag.p7{background:rgba(110,118,129,.3);color:#aaa}
+.tag.p8{background:rgba(239,159,39,.18);color:#f0bf7e}
+.tag.p9{background:rgba(127,119,221,.22);color:#b5aef0}
+.ascii{background:#0d1117;border:1px solid #30363d;padding:14px 16px;border-radius:6px;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;line-height:1.7;white-space:pre;overflow:auto;margin:10px 0;color:#e6edf3}
+pre code.ascii{display:block;background:transparent;border:none;padding:0;margin:0}
+.formula{background:var(--card2);padding:10px 14px;border-radius:6px;font-family:ui-monospace,monospace;font-size:13px;text-align:center;margin:8px 0;color:#fbbf24}
+.footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--hint);font-size:12px;line-height:1.8}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="wrap">
+<aside class="side">
+  <h1>📘 Phase 5 · 系统设计</h1>
+  <div class="grp">第 19 周 · 大规模架构</div>
+  <a href="#ch1">① 百万级文档 RAG 架构设计</a>
+  <a href="#ch2">② Model Gateway / 多模型路由</a>
+  <a href="#ch3">③ 语义缓存 + 限流 + 熔断</a>
+  <div class="grp">第 20 周 · LLMOps</div>
+  <a href="#ch4">④ Golden Set + 评估流水线</a>
+  <a href="#ch5">⑤ 灰度 + A/B + 回滚</a>
+  <a href="#ch6">⑥ Trace / Replay / 故障复盘</a>
+  <div class="grp">第 21 周 · 治理与演进</div>
+  <a href="#ch7">⑦ FinOps + 成本治理</a>
+  <a href="#ch8">⑧ 多模态审核全景架构</a>
+  <a href="#ch9">⑨ Agent 平台化 + ToolMarketplace</a>
+  <a href="#ch10">⑩ AI 系统演进路线图</a>
+  <div class="grp">面试与速查</div>
+  <a href="#qa25">★ 25 题速查</a>
+  <a href="#cheatsheet">▣ 速查表</a>
+</aside>
+<main>
+<h1 class="t">Phase 5 · LLM 系统设计与架构手册(W19-W21)</h1>
+<p class="lead">P8/P9 面试的最后一关——「画图讲架构」。这份手册按真实系统设计题套路展开:百万级 RAG、Model Gateway、LLMOps、灰度回滚、FinOps,落到老李审核场景的全景架构。看完能独立给一道「设计一个亿级日活的内容审核 LLM 平台」的题做出 P8 答卷。</p>
+
+<div class="info">
+<b>Phase 5 核心承诺</b>:画得出 5 层架构、讲得清演进路线、算得出成本账本、答得了灰度回滚——P8 系统设计题全覆盖,P9 视角看治理、组织、Pareto 优化。
+</div>
+
+<!-- ============== W19 ============== -->
+<h2 id="w19" class="week"><span class="num">19</span><span class="ttl">第 19 周 · 大规模 RAG + Gateway + 缓存熔断</span></h2>
+
+<h3 id="ch1">第 1 章:百万级文档 RAG 架构设计</h3>
+
+<h3>1.1 五句话原理</h3>
+<div class="info">
+<b>① 设计题套路:容量 → 架构 → 关键链路 → 性能 → 演进。</b>面试官问「设计一个 1 亿文档的 RAG」,要先估容量,再画架构,最后讲扩展和瓶颈。<br>
+<b>② 容量估算:</b>1 亿文档 × 平均 3 个 chunk × 768 维 fp16 ≈ 460 GB 向量;再加 metadata + 反向索引 + 文本主体 ≈ 1 TB+。<br>
+<b>③ 架构分层:</b>① 接入层(Gateway)② 检索编排层(Hybrid Retrieval + Rerank)③ 生成层(LLM Service)④ 索引层(向量库 + ES + KV)⑤ 数据层(原始文档 + 评估 Golden Set)。<br>
+<b>④ 关键链路三条:</b>实时查询、增量索引、离线全量重建——分别有不同 SLA 和优化点。<br>
+<b>⑤ 演进路线:</b>① 单机 FAISS MVP → ② 分片 Milvus + Hybrid → ③ 多租户 + Tiered Storage(热温冷)+ 自动重建。
+</div>
+
+<h3>1.2 容量估算工作表(亿级)</h3>
+<table>
+<tr><th>项</th><th>计算</th><th>结果</th></tr>
+<tr><td>文档总量</td><td>1 亿</td><td>1e8</td></tr>
+<tr><td>切块数</td><td>× 3 chunks/doc</td><td>3e8 chunks</td></tr>
+<tr><td>向量(bge-m3 1024d fp16)</td><td>3e8 × 1024 × 2 B</td><td>≈ 614 GB</td></tr>
+<tr><td>HNSW 索引(1.5x 系数)</td><td>614 × 1.5</td><td>≈ 920 GB</td></tr>
+<tr><td>反向索引(ES,30%)</td><td>原文 × 0.3</td><td>≈ 300 GB</td></tr>
+<tr><td>主体存储(对象)</td><td>1 亿 × 5 KB</td><td>≈ 500 GB</td></tr>
+<tr><td>合计</td><td>—</td><td><b>≈ 2.3 TB</b></td></tr>
+<tr><td>QPS 设计目标</td><td>P99 ≤200ms</td><td>1000 QPS</td></tr>
+<tr><td>分片数</td><td>每片 ≤5000 万向量</td><td>6 shards</td></tr>
+</table>
+
+<h3>1.3 完整架构图(ASCII)</h3>
+<pre><code class="ascii">                ┌─────────────────────────────────────┐
+                │  接入层 API Gateway(限流+鉴权+路由)│
+                └─────────────────────────────────────┘
+                                  ▼
+                ┌─────────────────────────────────────┐
+                │  检索编排服务 RetrievalOrchestrator  │
+                │  ┌─────────┐ ┌─────────┐ ┌────────┐ │
+                │  │ Query   │ │ Hybrid  │ │ Rerank │ │
+                │  │ Rewrite │→│ Search  │→│ (CE)   │ │
+                │  └─────────┘ └─────────┘ └────────┘ │
+                └─────────────────────────────────────┘
+                       ▼            ▼            ▼
+              ┌────────────┐ ┌──────────┐ ┌──────────┐
+              │ Milvus     │ │ ES BM25  │ │ KV Cache │
+              │ 6 shards   │ │ 反向索引 │ │ Prefix   │
+              │ HNSW + IVF │ │          │ │ + Result │
+              └────────────┘ └──────────┘ └──────────┘
+                       ▼            ▼            ▼
+                ┌─────────────────────────────────────┐
+                │       数据底座(全量原文 + 元数据)    │
+                │  对象存储(S3 / COS) + MySQL          │
+                └─────────────────────────────────────┘
+
+      并行链路:增量 ── Kafka → 切块 → Embedding → 索引写入
+      离线链路:全量重建 ── Spark/Flink → 离线 Embed → 双写新索引 → 切流</code></pre>
+
+<h3>1.4 三条关键链路 SLA</h3>
+<table>
+<tr><th>链路</th><th>触发</th><th>SLA</th><th>关键设计</th></tr>
+<tr><td>实时查询</td><td>用户检索</td><td>P99 ≤200ms</td><td>Hybrid + Cache + 同区部署</td></tr>
+<tr><td>增量索引</td><td>新增文档</td><td>分钟级可见</td><td>Kafka + 异步 Embed + 双写</td></tr>
+<tr><td>离线重建</td><td>切片/Embed 升级</td><td>小时级</td><td>Spark + 双索引切流</td></tr>
+</table>
+
+<h3>1.5 易踩坑</h3>
+<div class="warn">
+<b>坑 1:面试只画一层。</b>面试官期望看到分层架构(接入/编排/索引/数据),只画一个「query → 向量库 → LLM」会被打 P6。<br>
+<b>坑 2:容量不估算。</b>P8 设计题必须估容量——内存够不够、QPS 够不够、扩展瓶颈在哪。不估直接降级 P7。<br>
+<b>坑 3:不区分实时 / 增量 / 离线。</b>三条链路 SLA 不同、技术栈不同——只讲实时是单维度答题。<br>
+<b>坑 4:索引升级讲不出双写切流。</b>切片策略 / Embedding 模型升级是真实场景,要讲清「双写 → 影子流量 → 灰度切流 → 旧索引下线」流程。<br>
+<b>坑 5:多租户 / Tiered Storage 不提。</b>P9 期望——热数据 SSD 内存索引、温数据 HDD 磁盘索引、冷数据 OSS 重建索引,成本能省 5-10x。
+</div>
+
+<h3>1.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q1:设计一个 1 亿文档的 RAG 系统,你怎么画?</div>
+<div class="a"><b>P7 答</b>:用 Milvus 存向量,LangChain 串起来。<br>
+<b>P8 答</b>:「先估容量:1 亿文档 × 3 chunk × 1024d fp16 ≈ 920GB HNSW 索引,加 ES + 主体存储约 2.3TB,目标 1000 QPS / P99 200ms。架构 5 层:Gateway(限流鉴权)→ Retrieval Orchestrator(Query Rewrite + Hybrid + Rerank)→ Milvus 6 shards + ES + KV Cache → 对象存储。三条链路:实时查询(同区部署 + Cache)、增量索引(Kafka 异步 + 双写)、离线重建(Spark 双写切流)。Embedding 升级时先双写新索引,影子流量验证 99% 一致后灰度切流。」<br>
+<b>P9 答</b>:「P9 视角看的是<b>系统的成本-质量-演进性</b>三维:① <b>Tiered Storage</b> 热温冷分级(热 SSD HNSW、温 HDD IVF、冷 OSS 重建),成本省 5-10x;② <b>多租户 isolation</b>——租户独立索引 + 共享 Embedding Server + 配额限流,避免大租户挤压小租户;③ <b>评估闭环</b>——Recall@10 + nDCG + 业务任务三件套自动跑,Embedding 升级前必通过;④ 把 RAG 平台做成<b>声明式服务</b>——业务方上传文档 + 切片配置,平台自动建索引 + 评估 + 上线。从一个 RAG 服务进化成 RAG 平台,是 P9 视角。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:P9 看 RAG 是 RAG 平台</h4>
+  <div class="row"><span class="tag p7">P7</span><span>能搭一个 RAG demo。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>能画 5 层架构,估容量,讲三条链路 + 双写切流。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>Tiered Storage + 多租户 + 评估闭环 + 声明式 RAG 平台。</span></div>
+</div>
+
+<h3 id="ch2">第 2 章:Model Gateway / 多模型路由</h3>
+
+<h3>2.1 五句话原理</h3>
+<div class="info">
+<b>① Model Gateway 是 LLM 系统的「Spring Cloud Gateway」:</b>统一接入层,屏蔽下游模型差异,做路由、缓存、限流、计费、可观测。<br>
+<b>② 五大职责:</b>① 协议适配(OpenAI 协议 → 各模型协议)② 路由(按难度/租户/SLA)③ 多级缓存 ④ 限流熔断 ⑤ 计费可观测。<br>
+<b>③ 为什么必须有:</b>没有 Gateway 业务直连模型 = 业务被绑死 + 升级成本指数级 + 无法成本治理 + 无法做 A/B。<br>
+<b>④ 关键设计:</b>异步 + 流式 + 容错——LLM 调用慢且不稳,Gateway 必须支持 SSE Streaming + 上游故障 fallback + 部分降级。<br>
+<b>⑤ 主流方案:</b>自研(大厂主流,深度定制)、LiteLLM(轻量开源)、Portkey(SaaS)、Cloudflare AI Gateway(边缘部署)。
+</div>
+
+<h3>2.2 Gateway 五大职责</h3>
+<table>
+<tr><th>职责</th><th>关键能力</th><th>类比传统</th></tr>
+<tr><td>协议适配</td><td>OpenAI / Anthropic / Qwen 协议互转</td><td>Spring Cloud Gateway 路由</td></tr>
+<tr><td>路由</td><td>难度/租户/SLA 三维选模型</td><td>负载均衡器</td></tr>
+<tr><td>缓存</td><td>Result + Semantic + Prefix 三级</td><td>CDN 多级缓存</td></tr>
+<tr><td>限流熔断</td><td>令牌桶 + 上游熔断 + Fallback</td><td>Sentinel / Hystrix</td></tr>
+<tr><td>计费可观测</td><td>Token 计量 + Trace + 成本切片</td><td>API 网关计费 + APM</td></tr>
+</table>
+
+<h3>2.3 完整代码:Gateway 核心调度</h3>
+<pre><code class="ascii">class ModelGateway:
+    def __init__(self):
+        self.router = ModelRouter()
+        self.cache = MultiLevelCache()    # Result + Semantic
+        self.limiter = TokenBucket()
+        self.circuit = CircuitBreaker()
+        self.tracer = Tracer()
+
+    async def chat(self, req):
+        with self.tracer.span("gateway.chat", user=req.user_id) as span:
+            # ① 限流
+            if not self.limiter.allow(req.user_id, req.estimated_tokens):
+                raise TooManyRequests()
+            # ② 多级缓存
+            if hit := await self.cache.get(req):
+                span.set("cache_hit", True)
+                return hit
+            # ③ 路由选模型
+            model = self.router.route(req)
+            span.set("model", model)
+            # ④ 上游调用 + 熔断 + Fallback
+            try:
+                if self.circuit.is_open(model):
+                    model = self.router.fallback(model)
+                resp = await call_upstream(model, req)
+            except UpstreamError as e:
+                self.circuit.record_fail(model)
+                resp = await call_upstream(self.router.fallback(model), req)
+            # ⑤ 写缓存 + 记账
+            await self.cache.set(req, resp)
+            self.billing.charge(req.user_id, model, resp.usage)
+            return resp</code></pre>
+
+<h3>2.4 路由策略矩阵</h3>
+<table>
+<tr><th>维度</th><th>规则示例</th><th>降本/收益</th></tr>
+<tr><td>难度路由</td><td>短文本 → 0.6B / 长推理 → 32B</td><td>5-10x 成本下降</td></tr>
+<tr><td>租户路由</td><td>VIP → GPT-4 / 普通 → Qwen</td><td>客户分级</td></tr>
+<tr><td>SLA 路由</td><td>对话 → 流式快模型 / 批处理 → 大模型</td><td>P99 满足</td></tr>
+<tr><td>负载路由</td><td>主上游过载 → 备上游</td><td>SLA 兜底</td></tr>
+<tr><td>地域路由</td><td>就近模型实例</td><td>延迟 30% 下降</td></tr>
+</table>
+
+<h3>2.5 易踩坑</h3>
+<div class="warn">
+<b>坑 1:Gateway 同步阻塞。</b>LLM 调用慢,Gateway 必须全异步 + Streaming——任何同步阻塞会导致 worker 耗尽。<br>
+<b>坑 2:不做协议归一。</b>业务直接看到 OpenAI/Anthropic 不同协议——切模型时业务都要改代码。Gateway 内部统一一种内部协议。<br>
+<b>坑 3:熔断粒度太粗。</b>整个上游熔断会让所有路由失败——熔断粒度应该到「上游 × 模型」级别,而不是「上游」级别。<br>
+<b>坑 4:计费不打 user_id/team_id。</b>知道总费用但不知道谁花的——必须 Trace 打全维度,做切片复盘。<br>
+<b>坑 5:Gateway 单点。</b>Gateway 挂了全部业务挂——必须多 AZ 多副本 + 配置中心动态下发。
+</div>
+
+<h3>2.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q2:为什么要做 Model Gateway?核心职责?</div>
+<div class="a"><b>P7 答</b>:做个统一接入,方便业务调用。<br>
+<b>P8 答</b>:「Gateway 是 LLM 系统的中枢,五大职责:协议适配、路由(难度/租户/SLA)、多级缓存、限流熔断、计费可观测。我们的实现:① 异步 SSE 流式;② 路由按难度选模型(80% 简单请求走 Qwen3-0.6B,降本 5x);③ Result + Semantic Cache 命中率 45%;④ 上游熔断粒度到模型级,Fallback 到备上游;⑤ Trace 打 user_id + team_id + scene,FinOps 做月度切片复盘。Gateway 之于 LLM 系统 = Spring Cloud Gateway 之于微服务。」<br>
+<b>P9 答</b>:「Model Gateway 是<b>组织级中枢</b>不是技术组件。我推动:① <b>声明式接入</b>——业务方填模型 + SLA + 配额,平台自动出路由方案;② <b>影子流量基础设施</b>——任何模型升级先跑影子流量做一致性 + SLA 对比;③ <b>多模型 A/B 平台</b>——同一 Prompt 多模型并跑,自动看哪个胜出;④ <b>FinOps 嵌入</b>——超预算自动告警 + 自动降级;⑤ <b>边缘部署</b>(Cloudflare AI Gateway 模式)就近接入降低延迟。Gateway 不只是路由器,是 LLM 平台化的底座。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:Gateway 是 LLM 平台化底座</h4>
+  <div class="row"><span class="tag p7">P7</span><span>知道有 Gateway 做接入。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>能讲清 5 大职责 + 路由策略 + 异步流式 + 熔断 Fallback。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>声明式接入 + 影子流量 + A/B 平台 + FinOps 嵌入 + 边缘部署。</span></div>
+</div>
+
+<h3 id="ch3">第 3 章:语义缓存 + 限流 + 熔断</h3>
+
+<h3>3.1 五句话原理</h3>
+<div class="info">
+<b>① 三级缓存命中率叠加:Result Cache(精确)→ Semantic Cache(语义)→ Prefix Cache(KV)。</b>典型审核场景三级叠加 50%+ 命中。<br>
+<b>② Semantic Cache 关键:</b>用 embedding 算相似度 ≥0.95 视为命中,但要防误命中——必须看场景温度阈值(医疗/支付场景阈值要 0.99)。<br>
+<b>③ 限流三层:</b>用户级(QPS+TPM)、租户级(配额)、全局级(熔断保上游)。LLM 必须按 token 限流不能只按 QPS,因为单请求 token 差异巨大。<br>
+<b>④ 熔断必须细粒度:</b>到「模型 × 实例」级别,不要整个上游一刀切。Half-Open 试探恢复。<br>
+<b>⑤ 优雅降级:</b>大模型不可用降级小模型;LLM 不可用降级规则;实在不行返回 Apology。永远不能让用户看到 500。
+</div>
+
+<h3>3.2 Semantic Cache 实现</h3>
+<pre><code class="ascii">class SemanticCache:
+    \"\"\"基于向量相似度的语义缓存\"\"\"
+    def __init__(self, threshold=0.95, ttl=3600):
+        self.vec_store = Milvus(dim=1024)   # 存请求 embedding
+        self.kv = Redis()                    # 存对应响应
+        self.threshold = threshold
+        self.ttl = ttl
+
+    async def get(self, request):
+        # ① 先查精确命中(prompt hash)
+        if hit := await self.kv.get(f"exact:{hash(request.prompt)}"):
+            return hit
+        # ② 语义近似搜索
+        emb = await embed(request.prompt)
+        results = self.vec_store.search(emb, top_k=1)
+        if results and results[0].score >= self.threshold:
+            # 二次校验:输入参数(如 temperature/system_prompt)必须一致
+            cached = await self.kv.get(f"vec:{results[0].id}")
+            if cached and same_params(cached, request):
+                return cached.response
+        return None
+
+    async def set(self, request, response):
+        emb = await embed(request.prompt)
+        vid = await self.vec_store.insert(emb)
+        await self.kv.setex(f"vec:{vid}",
+                            json.dumps({"req": request, "response": response}),
+                            ex=self.ttl)
+        await self.kv.setex(f"exact:{hash(request.prompt)}",
+                            response, ex=self.ttl)</code></pre>
+
+<h3>3.3 限流三层 + 配置示例</h3>
+<table>
+<tr><th>层</th><th>策略</th><th>实现</th></tr>
+<tr><td>用户级</td><td>QPS + TPM 双维度</td><td>令牌桶 / 滑动窗口</td></tr>
+<tr><td>租户级</td><td>月度配额 + 突发上限</td><td>Redis + Lua 原子计数</td></tr>
+<tr><td>全局级</td><td>上游容量保护</td><td>背压 + 排队</td></tr>
+</table>
+
+<pre><code class="ascii"># 限流配置示例(YAML)
+rate_limits:
+  default:
+    qps: 10
+    tpm: 100000   # tokens per minute
+  vip:
+    qps: 100
+    tpm: 1000000
+  burst_multiplier: 2   # 突发允许 2x
+upstream_limits:
+  qwen3-32b:
+    max_concurrent: 64
+    queue_size: 256
+    timeout: 30s
+fallback_chain:
+  qwen3-32b: [qwen3-14b, qwen3-4b]
+  gpt-4: [claude-3.5-sonnet, qwen3-32b]</code></pre>
+
+<h3>3.4 熔断状态机</h3>
+<pre><code class="ascii">     ┌──────────┐  连续失败 N 次  ┌──────────┐
+     │  CLOSED   │ ─────────────→ │   OPEN    │
+     │ (正常通过)│                │ (全部拒绝)│
+     └──────────┘                 └──────────┘
+           ▲                            │
+           │                            │ 等待 cooldown
+           │ 试探成功                    ▼
+           │                       ┌──────────┐
+           └────────────────────── │ HALF-OPEN│
+                                   │ (放小流量)│
+                                   └──────────┘</code></pre>
+
+<h3>3.5 易踩坑</h3>
+<div class="warn">
+<b>坑 1:Semantic Cache 阈值死板。</b>单一 0.95 阈值不够——医疗/支付要 0.99,聊天可以 0.92。要按业务分场景配。<br>
+<b>坑 2:不二次校验参数。</b>语义命中但 system_prompt / temperature 不同会返回错误响应——必须校验参数一致性。<br>
+<b>坑 3:只按 QPS 限流。</b>LLM 单请求 token 差异巨大(50 vs 50000),只按 QPS 不够,必须 QPS + TPM 双维度。<br>
+<b>坑 4:熔断恢复太激进。</b>OPEN → CLOSED 直接放全量,可能再次打挂上游。必须 HALF-OPEN 试探,渐进恢复。<br>
+<b>坑 5:降级链没演练。</b>真出故障时降级链没人测试过,降到一半失败——每月做<b>故障演练</b>(Chaos)。
+</div>
+
+<h3>3.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q3:LLM 服务怎么做缓存 + 限流 + 熔断?</div>
+<div class="a"><b>P7 答</b>:加个 Redis 缓存,加个限流。<br>
+<b>P8 答</b>:「三件套都要细化:① <b>三级缓存</b>:Result(精确 hash) + Semantic(向量近似 0.95+) + Prefix(KV Cache),叠加命中 45%;Semantic 必须二次校验参数一致性;② <b>双维度限流</b>:用户级 QPS + TPM(LLM 单请求 token 差异大),租户级配额,全局级背压;③ <b>细粒度熔断</b>:到模型 × 实例级别,Half-Open 试探恢复,Fallback 链 32B → 14B → 4B → 规则。每月做故障演练验证降级链。」<br>
+<b>P9 答</b>:「这是<b>SLA 工程纪律</b>。我推动:① <b>故障预算(Error Budget)</b>——SLO 99.9% 留 0.1% 故障预算,超预算暂停发布;② <b>降级链做成代码资产</b>——每个上游都有标准 Fallback 配置,Code Review 卡点;③ <b>Chaos Engineering</b>——定期注入故障(限流/超时/上游 500),验证降级链;④ <b>SLA 驱动产品分层</b>——不同 SLA 卖不同价格,真实把可用性做成商业资产。SLA 不是技术指标,是产品设计。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:SLA 工程纪律</h4>
+  <div class="row"><span class="tag p7">P7</span><span>知道要做缓存和限流。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>三级缓存 + 双维度限流 + 细粒度熔断 + 故障演练。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>Error Budget + Chaos + SLA 产品化。</span></div>
+</div>
+
+<!-- ============== W20 ============== -->
+<h2 id="w20" class="week"><span class="num">20</span><span class="ttl">第 20 周 · LLMOps · 评估 + 灰度 + Trace</span></h2>
+
+<h3 id="ch4">第 4 章:Golden Set + 评估流水线</h3>
+
+<h3>4.1 五句话原理</h3>
+<div class="info">
+<b>① Golden Set 是 LLM 系统的「单元测试集 + 回归测试集」:</b>200-1000 条精选 case,覆盖正常 / 边界 / 对抗 / 业务关键场景,有标准答案。<br>
+<b>② 评估流水线四件套:</b>Golden Set 跑分(回归) + LLM-as-Judge(主观打分) + 业务任务指标(准确率/采纳率) + 用户反馈(线上回流)。<br>
+<b>③ 关键认知:</b>不要只看 perplexity,perplexity 跟业务任务相关性弱——必须建业务任务套件。<br>
+<b>④ Golden Set 维护是产品工作不是技术工作:</b>需求 PM、业务专家、审核员一起参与;每月迭代;失败 case 必须分类沉淀。<br>
+<b>⑤ 评估流水线必须自动化:</b>每次模型/Prompt/RAG 配置变更自动跑 Golden Set,通过率达标才允许发布——这是 LLMOps 的根基。
+</div>
+
+<h3>4.2 Golden Set 设计原则</h3>
+<table>
+<tr><th>类别</th><th>占比</th><th>说明</th></tr>
+<tr><td>正常 case</td><td>40%</td><td>典型业务场景</td></tr>
+<tr><td>边界 case</td><td>20%</td><td>极端长度/罕见格式</td></tr>
+<tr><td>对抗 case</td><td>20%</td><td>诱导/绕过/Prompt Injection</td></tr>
+<tr><td>历史失败</td><td>15%</td><td>线上发现过的 bad case</td></tr>
+<tr><td>关键合规</td><td>5%</td><td>红线场景(必须 100% 通过)</td></tr>
+</table>
+
+<h3>4.3 评估流水线代码</h3>
+<pre><code class="ascii">class EvalPipeline:
+    \"\"\"模型/Prompt/RAG 变更前必跑\"\"\"
+    def __init__(self, golden_set_path):
+        self.golden = load_jsonl(golden_set_path)   # [{input, expected, category, weight}]
+
+    def run(self, target_system):
+        results = []
+        for case in self.golden:
+            actual = target_system(case["input"])
+            score_obj = self.score(case, actual)
+            results.append({**case, "actual": actual, **score_obj})
+
+        # 维度聚合
+        by_cat = defaultdict(list)
+        for r in results:
+            by_cat[r["category"]].append(r["pass"])
+        report = {
+            "overall_pass_rate": sum(r["pass"] for r in results)/len(results),
+            "by_category": {k: sum(v)/len(v) for k,v in by_cat.items()},
+            "critical_pass_rate": self._critical(results),
+            "fail_cases": [r for r in results if not r["pass"]],
+        }
+        return report
+
+    def score(self, case, actual):
+        # 多策略打分
+        if case.get("type") == "exact":
+            p = case["expected"] == actual
+        elif case.get("type") == "json_schema":
+            p = validate_json(actual, case["schema"])
+        elif case.get("type") == "llm_judge":
+            p = llm_judge(case["input"], case["expected"], actual) > 0.7
+        elif case.get("type") == "rouge":
+            p = rouge_l(case["expected"], actual) > 0.6
+        return {"pass": p}
+
+    def _critical(self, results):
+        crit = [r for r in results if r["category"] == "critical"]
+        return sum(r["pass"] for r in crit) / max(len(crit),1)
+
+# CI 集成:发布前必跑
+report = EvalPipeline("golden.jsonl").run(new_system)
+assert report["critical_pass_rate"] == 1.0, "红线场景必须 100% 通过"
+assert report["overall_pass_rate"] >= 0.9, "整体通过率不达标"</code></pre>
+
+<h3>4.4 LLM-as-Judge 注意事项</h3>
+<table>
+<tr><th>陷阱</th><th>对策</th></tr>
+<tr><td>位置偏好(Position Bias)</td><td>双向对比:A vs B 和 B vs A 都跑取一致</td></tr>
+<tr><td>详细度偏好(Verbosity Bias)</td><td>Rubric 明确「不奖励冗长」</td></tr>
+<tr><td>同源偏好(Self-Enhancement)</td><td>Judge 用更强模型(GPT-4o vs Qwen)</td></tr>
+<tr><td>评分不可重复</td><td>T=0 + 多次取平均</td></tr>
+</table>
+
+<h3>4.5 易踩坑</h3>
+<div class="warn">
+<b>坑 1:Golden Set 只覆盖正常场景。</b>边界和对抗才是发现问题的关键——必须有 5% 红线 + 20% 对抗。<br>
+<b>坑 2:Judge 模型和被测模型同家族。</b>用 Qwen 评 Qwen 会自我抬高 → Judge 必须用更强或不同家族模型。<br>
+<b>坑 3:不维护 fail case 沉淀。</b>线上发现的 bad case 不沉淀回 Golden Set = 同类问题反复发生。<br>
+<b>坑 4:评估指标和业务指标脱节。</b>Recall@10 漂亮但用户采纳率没涨——评估必须和业务核心指标对齐。<br>
+<b>坑 5:不评估对抗鲁棒性。</b>Prompt Injection / Jailbreak 攻击必须在 Golden Set 里(20+ 条)。
+</div>
+
+<h3>4.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q4:LLM 系统怎么做评估?</div>
+<div class="a"><b>P7 答</b>:跑 perplexity 和准确率。<br>
+<b>P8 答</b>:「四件套:① Golden Set 200-1000 条覆盖正常 40% / 边界 20% / 对抗 20% / 历史失败 15% / 红线 5%;② LLM-as-Judge 主观打分(用更强 Judge 模型 + 双向对比避位置偏好);③ 业务任务指标(审核采纳率 / 误伤率);④ 线上反馈回流。CI 卡点:红线 100% + 整体 ≥90% 才放行。我们沉淀了 800 条 Golden Set,每月迭代,业务上线前必跑。」<br>
+<b>P9 答</b>:「评估是<b>组织能力</b>。我推动:① <b>Golden Set 治理</b>——业务专家 + 审核员 + 算法三方共同维护,有 owner、有 SLO(每月新增 N 条);② <b>评估即基础设施</b>——任何 Prompt/Model/RAG 变更必跑评估流水线,失败强制阻断;③ <b>Pareto 评估</b>——不光看通过率,看「质量提升 vs 成本变化」的 Pareto 曲线;④ <b>评估数据资产化</b>——Golden Set 是公司核心资产,版本化、权限化、入培训语料库。LLM 系统真正的护城河不是模型,是评估能力。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:评估能力是真正护城河</h4>
+  <div class="row"><span class="tag p7">P7</span><span>知道跑准确率。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>四件套评估 + Golden Set 设计 + CI 卡点 + Judge 防偏。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>Golden Set 治理 + 评估即基础设施 + Pareto 评估 + 评估数据资产化。</span></div>
+</div>
+
+<h3 id="ch5">第 5 章:灰度 + A/B + 回滚</h3>
+
+<h3>5.1 五句话原理</h3>
+<div class="info">
+<b>① LLM 系统更新风险高(模型 / Prompt / RAG 索引 / Agent 流程都会变),发布必须灰度。</b><br>
+<b>② 灰度四阶梯:</b>① 影子流量(0%,只比对不返回)→ ② 1% 真实流量 → ③ 10% 验证 → ④ 100% 全量。<br>
+<b>③ A/B 测试是科学决策:</b>对照组 / 实验组随机分流,看核心指标(采纳率 / 转化率 / 误伤率)显著性差异,而不是「我觉得新版本更好」。<br>
+<b>④ 回滚必须秒级:</b>开关化(配置中心一键回滚),不要重新部署回滚——5 分钟太久了。<br>
+<b>⑤ 灰度三大守门员:</b>SLA 监控、业务指标监控、用户反馈监控。任一异常自动暂停灰度。
+</div>
+
+<h3>5.2 灰度四阶梯流程</h3>
+<table>
+<tr><th>阶段</th><th>流量</th><th>持续</th><th>关键指标</th></tr>
+<tr><td>① 影子流量</td><td>0%(只算不返回)</td><td>1-2 天</td><td>响应一致性 / SLA / Cost</td></tr>
+<tr><td>② 1% 灰度</td><td>1% 真实流量</td><td>1 天</td><td>无异常 + 核心指标平稳</td></tr>
+<tr><td>③ 10% 验证</td><td>10%</td><td>2-3 天</td><td>A/B 显著性达标</td></tr>
+<tr><td>④ 100% 全量</td><td>100%</td><td>—</td><td>全量后继续观察 1 周</td></tr>
+</table>
+
+<h3>5.3 完整代码:灰度路由</h3>
+<pre><code class="ascii">class CanaryRouter:
+    \"\"\"按 user_id 哈希分流,保证同用户稳定看同版本\"\"\"
+    def __init__(self, config_center):
+        self.cc = config_center
+
+    def route(self, request):
+        cfg = self.cc.get("canary")
+        # cfg = {"old": "v1", "new": "v2", "ratio": 0.1, "rules": [...]}
+        # ① 白名单优先
+        if request.user_id in cfg.get("whitelist", []):
+            return cfg["new"]
+        # ② 黑名单不灰度
+        if request.user_id in cfg.get("blacklist", []):
+            return cfg["old"]
+        # ③ 哈希分流(同用户固定版本)
+        h = murmur3(f"{request.user_id}-{cfg['salt']}") % 100
+        if h < int(cfg["ratio"] * 100):
+            return cfg["new"]
+        return cfg["old"]
+
+# 影子流量(双跑不返回)
+async def shadow_compare(request):
+    primary = call_main_version(request)
+    asyncio.create_task(_shadow(request, primary))   # 异步不阻塞
+    return primary
+
+async def _shadow(request, primary):
+    new = await call_new_version(request)
+    diff = compute_diff(primary, new)
+    metrics.record("shadow.diff", diff)
+    if diff > 0.3:
+        alert.send(f"shadow diff too high: {diff}")</code></pre>
+
+<h3>5.4 A/B 显著性检验</h3>
+<div class="formula">显著性需:n ≥ 16 / (delta² × p × (1-p)),delta 是期望提升幅度</div>
+<p>例:基线采纳率 35%、希望识别 +3% 提升 → n ≥ 16 / (0.03² × 0.35 × 0.65) ≈ 7800 条。低于这个量级不要轻易下结论。</p>
+
+<h3>5.5 易踩坑</h3>
+<div class="warn">
+<b>坑 1:灰度路由不稳定。</b>同用户两次请求看到不同版本会破坏体验——必须用 user_id 哈希(不是随机)。<br>
+<b>坑 2:A/B 早停。</b>看到前 100 条胜出就下结论,样本不够显著——必须算样本量。<br>
+<b>坑 3:回滚靠重新部署。</b>5 分钟太久——必须配置中心开关化,秒级生效。<br>
+<b>坑 4:灰度只看 SLA 不看业务指标。</b>SLA 漂亮但采纳率掉了 5% = 灾难——业务指标必须一起监控。<br>
+<b>坑 5:影子流量没异步化。</b>同步双跑会导致主链路延迟翻倍——影子必须异步,不阻塞主路径。
+</div>
+
+<h3>5.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q5:LLM 服务怎么发布?灰度怎么做?</div>
+<div class="a"><b>P7 答</b>:先小流量再放全量。<br>
+<b>P8 答</b>:「四阶梯灰度:① 影子流量异步双跑比对(0%,看响应一致性 + SLA + 成本);② 1% 灰度看异常;③ 10% 跑 A/B 看显著性(用 user_id 哈希分流稳定);④ 全量后观察 1 周。三大守门员:SLA / 业务指标 / 用户反馈,任一异常自动暂停。回滚靠配置中心开关秒级生效,不重新部署。A/B 必须算样本量,基线 35% 想识别 +3% 至少 7800 条样本。」<br>
+<b>P9 答</b>:「灰度是<b>SRE 文化</b>。我推动:① <b>Progressive Delivery 标准化</b>——任何 LLM 变更都走四阶梯,不允许跳级;② <b>自动化决策</b>——指标自动计算显著性 + 自动判断是否进下一阶段,人只做 final approve;③ <b>组织级回滚演练</b>——季度做无预警回滚演练,验证开关 + 配置中心 + 监控全链路;④ <b>事后复盘文化</b>——每个灰度结束写 RFC 沉淀经验,失败案例进教材。灰度不是流程,是组织 DNA。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:灰度是 SRE 文化</h4>
+  <div class="row"><span class="tag p7">P7</span><span>会做小流量上线。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>四阶梯 + 哈希分流 + A/B 显著性 + 配置中心回滚。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>Progressive Delivery 标准化 + 自动化决策 + 回滚演练 + 复盘文化。</span></div>
+</div>
+
+<h3 id="ch6">第 6 章:Trace + Replay + 故障复盘</h3>
+
+<h3>6.1 五句话原理</h3>
+<div class="info">
+<b>① LLM 系统出问题 90% 不在代码,在 Prompt / RAG 上下文 / 工具调用 / 模型输出</b>——传统日志看不出来,必须 Trace 全链路。<br>
+<b>② Trace 必须捕获:</b>原始 input、Prompt 完整版、RAG 召回内容、Tool 调用入参出参、LLM 调用 + 中间步骤、最终输出、异常栈。<br>
+<b>③ Replay 是 Trace 的衍生:</b>把 Trace 变成可重放的 case——能在 dev 环境完整复现生产问题。是 LLM 调试的核武器。<br>
+<b>④ 主流栈:</b>Langfuse(开源 LLM 专用,推荐)、LangSmith(LangChain SaaS)、Phoenix(开源)、自研(基于 OpenTelemetry)。<br>
+<b>⑤ 故障复盘必须做:</b>每个 P0/P1 事件 → RCA 文档 → 加 Golden Set case → 加监控告警 → 沉淀进经验库。
+</div>
+
+<h3>6.2 Trace 必备字段</h3>
+<table>
+<tr><th>字段</th><th>说明</th></tr>
+<tr><td>trace_id / span_id</td><td>全链路串联</td></tr>
+<tr><td>user_id / team_id / scene</td><td>归因切片</td></tr>
+<tr><td>raw_input</td><td>用户原始输入</td></tr>
+<tr><td>full_prompt</td><td>最终送给 LLM 的完整 Prompt</td></tr>
+<tr><td>retrieved_docs</td><td>RAG 召回的 doc id + score</td></tr>
+<tr><td>tool_calls[]</td><td>每次工具调用 input + output + duration</td></tr>
+<tr><td>llm_request / response</td><td>调 LLM 的请求和响应</td></tr>
+<tr><td>token_usage / cost</td><td>token 消耗 + 成本</td></tr>
+<tr><td>latency_breakdown</td><td>各环节耗时拆解</td></tr>
+<tr><td>final_output</td><td>最终返回给用户的内容</td></tr>
+<tr><td>user_feedback</td><td>👍/👎 + 自由文本</td></tr>
+</table>
+
+<h3>6.3 Trace + Replay 实现</h3>
+<pre><code class="ascii">from langfuse import Langfuse
+lf = Langfuse()
+
+@trace(name="audit_pipeline")
+async def audit(content):
+    # 自动捕获 input / output / latency / 异常
+    trace = lf.trace(name="audit", input={"content": content})
+
+    # ① RAG 召回
+    docs = await rag.search(content)
+    trace.span(name="rag_search", output={"docs": docs})
+
+    # ② 工具调用
+    sensitive = await tool_check_sensitive(content)
+    trace.span(name="tool_sensitive", output=sensitive)
+
+    # ③ LLM 调用
+    prompt = build_prompt(content, docs, sensitive)
+    resp = await llm.call(prompt)
+    trace.generation(name="llm", model="qwen3-4b",
+                     input=prompt, output=resp,
+                     usage=resp.usage)
+
+    return parse(resp)
+
+# Replay:从生产 Trace 重放到 dev
+async def replay_from_trace(trace_id):
+    t = lf.get_trace(trace_id)
+    raw_input = t.input["content"]
+    # 用 dev 环境的新版本跑同样输入
+    return await audit_dev(raw_input)
+
+# 故障复盘自动化:把 fail case 加入 Golden Set
+def fail_case_to_golden(trace_id, label, expected):
+    t = lf.get_trace(trace_id)
+    case = {
+        "input": t.input,
+        "expected": expected,
+        "category": "regression-from-prod",
+        "weight": 2.0,
+        "ref_trace": trace_id,
+    }
+    golden_set.add(case)</code></pre>
+
+<h3>6.4 故障复盘 RCA 模板</h3>
+<table>
+<tr><th>段落</th><th>内容</th></tr>
+<tr><td>1. 时间线</td><td>故障发生 / 发现 / 定位 / 修复 / 恢复 时间</td></tr>
+<tr><td>2. 影响范围</td><td>多少用户 / 多少请求 / 多少损失</td></tr>
+<tr><td>3. 根因(5 Why)</td><td>追到根因,不停在表象</td></tr>
+<tr><td>4. 修复动作</td><td>临时措施 + 长期修复</td></tr>
+<tr><td>5. Action Items</td><td>负责人 + 截止日期 + 验收标准</td></tr>
+<tr><td>6. 预防措施</td><td>加监控 / 加 Golden Set / 加自动化</td></tr>
+</table>
+
+<h3>6.5 易踩坑</h3>
+<div class="warn">
+<b>坑 1:只 Trace LLM,不 Trace Tool/RAG。</b>问题往往出在 RAG 召回或 Tool 输出——必须全链路。<br>
+<b>坑 2:Trace 不脱敏。</b>用户输入可能含 PII,Trace 必须做敏感字段脱敏 + 权限控制。<br>
+<b>坑 3:Trace 量级爆炸。</b>每条请求 50KB Trace,百万 QPS 一天 5TB——要采样(全量错误 + 1% 成功 + 100% slow)。<br>
+<b>坑 4:Replay 环境不一致。</b>Replay 时模型版本 / RAG 索引版本不同——必须把版本固化在 Trace 里。<br>
+<b>坑 5:RCA 写完就锁抽屉。</b>Action Items 必须跟踪关闭,定期回顾——没有闭环的复盘等于没做。
+</div>
+
+<h3>6.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q6:LLM 系统怎么排查问题?Trace 怎么设计?</div>
+<div class="a"><b>P7 答</b>:打日志 + 看 Grafana。<br>
+<b>P8 答</b>:「LLM 故障 90% 不在代码,在 Prompt/RAG/Tool/Model 输出——必须全链路 Trace。我们用 Langfuse:每条请求一个 trace_id,捕获 raw_input / full_prompt / retrieved_docs / tool_calls / llm_request_response / token_usage / latency_breakdown / user_feedback。Trace 必须脱敏 + 采样(全量错误 + 1% 成功 + 100% 慢请求)。Replay 能力——任何生产 Trace 一键重放到 dev,这是 LLM 调试核武器。每个 P0/P1 必写 RCA + 加 Golden Set + 加监控,Action Items 闭环。」<br>
+<b>P9 答</b>:「Observability 是<b>P9 视角的护城河</b>。我推动:① <b>Trace 数据资产化</b>——长期保留(脱敏后),沉淀业务真实分布、用户反馈、失败模式;② <b>Trace 驱动改进</b>——每周分析 Top fail trace 找系统性问题;③ <b>Replay 平台</b>——业务方一键回放问题 case,自动跑历史版本对比;④ <b>RCA 文化</b>——RCA 公开、分享、归档,成为新人培训材料。Trace 不只是排查工具,是<b>LLM 系统的记忆</b>——所有的改进都来自这里。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:Trace 是 LLM 系统的记忆</h4>
+  <div class="row"><span class="tag p7">P7</span><span>会打日志看监控。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>全链路 Trace + 脱敏采样 + Replay + RCA 闭环。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>Trace 资产化 + 驱动改进 + Replay 平台 + RCA 文化。</span></div>
+</div>
+
+<!-- ============== W21 ============== -->
+<h2 id="w21" class="week"><span class="num">21</span><span class="ttl">第 21 周 · FinOps + 多模态审核 + Agent 平台 + 演进</span></h2>
+
+<h3 id="ch7">第 7 章:FinOps + 成本治理</h3>
+
+<h3>7.1 五句话原理</h3>
+<div class="info">
+<b>① LLM 时代,推理成本是企业三大成本之一(人 / 算力 / 数据)。</b>2026 大厂 LLM 月费过千万,FinOps 是必修课。<br>
+<b>② FinOps 三件事:</b>看清(Visibility)→ 优化(Optimization)→ 管控(Governance)。<br>
+<b>③ 看清:</b>成本必须按 user / team / scene / model 多维切片,精确到「张三的客服 Agent 调用 GPT-4 用了多少钱」。<br>
+<b>④ 优化:</b>金字塔七层叠加(模型 / 量化 / KV / 调度 / SpecDec / Gateway / Cache)+ 弹性调度(Spot / 预留实例分层)。<br>
+<b>⑤ 管控:</b>预算分配 + 异常告警 + 强制降级 + 月度复盘 RFC——把成本治理融进研发流程。
+</div>
+
+<h3>7.2 FinOps 切片维度</h3>
+<table>
+<tr><th>维度</th><th>用途</th></tr>
+<tr><td>By Team</td><td>组织成本归因,做预算分配</td></tr>
+<tr><td>By Scene</td><td>看哪个业务场景花得多,集中优化</td></tr>
+<tr><td>By Model</td><td>看哪个模型 ROI 低,考虑替换</td></tr>
+<tr><td>By Endpoint</td><td>定位异常调用方</td></tr>
+<tr><td>By Time</td><td>峰谷分析,做弹性调度</td></tr>
+</table>
+
+<h3>7.3 成本看板 + 异常检测</h3>
+<pre><code class="ascii">SELECT team_id, scene, model,
+       SUM(prompt_tokens + completion_tokens) AS total_tokens,
+       SUM(cost_yuan) AS total_cost,
+       COUNT(*) AS req_count,
+       SUM(cost_yuan) / COUNT(*) AS avg_cost
+FROM trace_events
+WHERE date >= today() - 30
+GROUP BY team_id, scene, model
+ORDER BY total_cost DESC
+
+# 异常检测(MoM 同比 +50% 自动告警)
+WITH cur AS (SELECT team_id, SUM(cost) c FROM ... WHERE month=current GROUP BY 1),
+     prev AS (SELECT team_id, SUM(cost) c FROM ... WHERE month=prev GROUP BY 1)
+SELECT cur.team_id, cur.c, prev.c, (cur.c-prev.c)/prev.c AS pct
+FROM cur JOIN prev USING(team_id)
+WHERE pct > 0.5</code></pre>
+
+<h3>7.4 弹性调度模型</h3>
+<table>
+<tr><th>层</th><th>占比</th><th>用什么</th><th>成本</th></tr>
+<tr><td>稳定保留</td><td>60%</td><td>预留实例 / 自有 GPU</td><td>1.0x</td></tr>
+<tr><td>峰值弹性</td><td>30%</td><td>按需实例 + 自动扩缩</td><td>1.3x</td></tr>
+<tr><td>批处理溢出</td><td>10%</td><td>Spot 实例 / 闲时</td><td>0.3x</td></tr>
+</table>
+
+<h3>7.5 易踩坑</h3>
+<div class="warn">
+<b>坑 1:只看总成本不切片。</b>知道月费 500 万但不知道哪些团队花的多 = 没法优化。必须切片。<br>
+<b>坑 2:Spot 用错地方。</b>Spot 会被强制回收,在线服务不能用——只能用在批处理 / 训练。<br>
+<b>坑 3:不做 budget 限额。</b>业务方乱花没人管——必须每月预算 + 超额自动降级 + 通知 owner。<br>
+<b>坑 4:成本归因不到调用方。</b>只到 team_id 不够,要到 user_id / endpoint / scene——异常调用才能定位到人。<br>
+<b>坑 5:FinOps 只是技术问题。</b>错——FinOps 是组织问题,需要 PM / 财务 / 算法多方协作。
+</div>
+
+<h3>7.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q7:LLM 成本怎么治理?</div>
+<div class="a"><b>P7 答</b>:用便宜模型 + 加缓存。<br>
+<b>P8 答</b>:「FinOps 三件事:① <b>看清</b>:成本按 team / scene / model / endpoint / time 五维切片,精确到团队和场景;② <b>优化</b>:金字塔七层叠加 + 弹性调度(60% 预留 / 30% 按需 / 10% Spot);③ <b>管控</b>:月度预算 + MoM +50% 异常告警 + 超额自动降级。我们落地后,LLM 月费从 1200 万降到 380 万,SLA 反而更好。」<br>
+<b>P9 答</b>:「FinOps 是<b>组织能力</b>不是技术。我推动:① <b>把成本指标写进 OKR</b>——每个业务 OKR 都有成本目标,和质量目标平权;② <b>FinOps 周报会</b>——CTO + 业务负责人 + 财务三方,每周看异常和优化项;③ <b>商业化模型</b>——内部把 LLM 服务以单 token 价格『卖给』业务方,业务方为成本买单倒逼优化;④ <b>Pareto 优化</b>——不再追求最低成本,而是『SLA 95% 时的最低成本』,把质量和成本做成 Pareto 曲线。FinOps 真正难的不是技术,是组织协同。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:FinOps 是组织能力</h4>
+  <div class="row"><span class="tag p7">P7</span><span>知道用便宜模型省钱。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>多维切片 + 弹性调度 + 预算管控 + 月度复盘。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>OKR 写入 + 三方复盘 + 内部商业化 + Pareto 优化。</span></div>
+</div>
+
+<h3 id="ch8">第 8 章:多模态审核全景架构(老李业务实战)</h3>
+
+<h3>8.1 五句话原理</h3>
+<div class="info">
+<b>① 内容审核已进入<b>多模态时代</b>:网文 + 图片 + 短剧视频 + 语音对话 + AI 生成内容,单一文本审核无法覆盖。</b><br>
+<b>② 多模态审核四大支柱:</b>规则引擎(快速兜底)+ ML 风控(传统模型)+ LLM 审核(语义理解)+ 多模态 VLM(图文视频)。<br>
+<b>③ 全链路五阶段:</b>机审(规则 + LLM)→ 一审(放出 / 上报)→ 上报审核(通过 / 屏蔽 / 修改)→ 终审 → 质检。<br>
+<b>④ 关键指标:</b>误伤率(False Positive)+ 漏过率(False Negative)+ 入审率(送人审比例)+ 采纳率(AI 修改建议被采纳)。<br>
+<b>⑤ 老李业务现状:</b>章节亿级 / 人审记录千万级 / 敏感词几十万 / 当前入审率 35%(偏高)/ AI 修改采纳率 35%(偏低)——两个核心优化目标。
+</div>
+
+<h3>8.2 多模态审核全景架构图</h3>
+<pre><code class="ascii">┌────────────────────────────────────────────────────────────┐
+│                       内容创作者                            │
+└────────────────────────────────────────────────────────────┘
+                              ▼
+┌────────────────────────────────────────────────────────────┐
+│                  接入网关(API / SDK)                      │
+└────────────────────────────────────────────────────────────┘
+                              ▼
+┌────────────────────────────────────────────────────────────┐
+│              内容预处理(切章 / 分段 / 提帧 / OCR)         │
+└────────────────────────────────────────────────────────────┘
+                              ▼
+┌──────────────────────────────────────────────────────┐
+│                  机审编排(Orchestrator Agent)         │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────┐ │
+│  │ 规则引擎 │  │ ML 风控  │  │ LLM 审核 │  │ VLM  │ │
+│  │ 敏感词库 │  │ 4 通道   │  │ Qwen3   │  │ 多模 │ │
+│  │ 几十万   │  │          │  │ Guard 4B│  │ 态   │ │
+│  └──────────┘  └──────────┘  └──────────┘  └──────┘ │
+│       ▼              ▼              ▼            ▼   │
+│  ┌────────────────────────────────────────────────┐ │
+│  │   汇总判决(Reflection 质检 + Confidence)      │ │
+│  └────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────┘
+            │                 │                 │
+       直接放出           送一审             直接屏蔽
+            │                 │                 │
+            │                 ▼                 │
+            │      ┌────────────────┐           │
+            │      │ 一审(初审员)│           │
+            │      │ 放出/上报      │           │
+            │      └────────────────┘           │
+            │                 │                 │
+            │                 ▼                 │
+            │      ┌────────────────┐           │
+            │      │ 上报审核(主审)│           │
+            │      │ 通过/屏蔽/修改 │           │
+            │      └────────────────┘           │
+            │                 ▼                 │
+            │      ┌────────────────┐           │
+            │      │ 终审 + 质检    │           │
+            │      └────────────────┘           │
+            ▼                 ▼                 ▼
+┌────────────────────────────────────────────────────────────┐
+│           数据飞轮:HITL 修正 → SFT → LoRA 微调            │
+└────────────────────────────────────────────────────────────┘</code></pre>
+
+<h3>8.3 多模态 VLM 选型(2026)</h3>
+<table>
+<tr><th>方案</th><th>能力</th><th>场景</th></tr>
+<tr><td>腾讯云 VM</td><td>暴恐黄涉政内置</td><td>API 直调,起步</td></tr>
+<tr><td>快手 BLM-Guard</td><td>开源 + 中文友好</td><td>本地化部署</td></tr>
+<tr><td>Qwen3-VL-7B</td><td>通用 VLM 微调</td><td>定制场景</td></tr>
+<tr><td>Gemini Vision Pro</td><td>视频原生理解</td><td>短剧 / 视频审核</td></tr>
+<tr><td>InternVL2.5</td><td>开源 SOTA</td><td>研发 / 自建</td></tr>
+</table>
+
+<h3>8.4 关键优化:从入审率 35% → 15%、采纳率 35% → 60%</h3>
+<table>
+<tr><th>优化点</th><th>策略</th><th>预期效果</th></tr>
+<tr><td>降入审率</td><td>LLM 替代部分规则,引入 confidence 阈值</td><td>35% → 15%</td></tr>
+<tr><td>降误伤率</td><td>多 Worker 投票 + Reflection 质检</td><td>误伤 -50%</td></tr>
+<tr><td>升采纳率</td><td>AI 修改建议结构化(引用具体规则 + 改写示例)</td><td>35% → 60%</td></tr>
+<tr><td>降漏过率</td><td>对抗样本注入训练 + 多视角审核</td><td>漏过 -30%</td></tr>
+<tr><td>降成本</td><td>Routing(短章节走规则,长走 LLM)</td><td>成本 -50%</td></tr>
+</table>
+
+<h3>8.5 易踩坑</h3>
+<div class="warn">
+<b>坑 1:全部上 LLM 不留规则。</b>规则引擎极快极便宜,80% 简单 case 应该规则解决——不要为了「AI 化」全用 LLM。<br>
+<b>坑 2:多 Worker 不分权重。</b>规则命中 = 直接屏蔽,不需要其他 Worker 同意,要写明确优先级。<br>
+<b>坑 3:不做对抗样本训练。</b>「绕过技巧」(变体字 / 拆字 / 暗语)层出不穷——必须持续注入对抗样本。<br>
+<b>坑 4:HITL 数据不回流。</b>每天审核员修正几万条但不沉淀 = 错失金矿。必须自动化回流到 SFT 数据集。<br>
+<b>坑 5:多模态 VLM 当文本用。</b>视频审核需要时间维度理解(场景切换 / 动作连贯),静态帧抽样会漏。
+</div>
+
+<h3>8.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q8:你们的内容审核系统架构?核心优化是什么?</div>
+<div class="a"><b>P7 答</b>:用规则引擎 + 机器学习模型,人工兜底。<br>
+<b>P8 答</b>:「四支柱(规则 + ML + LLM + VLM)五阶段(机审 → 一审 → 上报审 → 终审 → 质检)。机审用 Orchestrator Agent 派 Worker 并行(规则 / Qwen3Guard-4B / 腾讯云 VM),Reflection 做质检。核心指标:入审率 35% → 15%(LLM 替规则)、采纳率 35% → 60%(结构化建议)、误伤率 -50%(多 Worker 投票)。HITL 修正数据回流 SFT,做出审核专用 LoRA。」<br>
+<b>P9 答</b>:「内容审核的<b>真正壁垒不是模型而是体系</b>。我推动三件事:① <b>数据飞轮工业化</b>——审核员每修一条都自动入 SFT 数据池,每月微调 LoRA;② <b>红蓝对抗常态化</b>——红队持续生成绕过样本,自动加入训练 + Golden Set;③ <b>多模态联合判决</b>——文本 + 图片 + 上下文(同人物历史章节 RAG)联合决策,单模态绕不过去;④ <b>跨业务复用</b>——把审核能力做成 MCP Server,集团内其他业务(社区 / 直播 / 游戏)直接复用。审核不是单点系统,是<b>集团级 AI 安全平台</b>——这是从 P8 到 P9 的视角差异。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:审核是集团级 AI 安全平台</h4>
+  <div class="row"><span class="tag p7">P7</span><span>能跑通规则 + LLM 二选一审核。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>四支柱五阶段 + Orchestrator + 数据回流 + LoRA 微调。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>数据飞轮工业化 + 红蓝对抗 + 多模态联合 + MCP 跨业务复用。</span></div>
+</div>
+
+<h3 id="ch9">第 9 章:Agent 平台化 + ToolMarketplace</h3>
+
+<h3>9.1 五句话原理</h3>
+<div class="info">
+<b>① 单 Agent 是项目,Agent 平台是产品。</b>2026 大厂的方向是把 Agent 做成 PaaS,业务方上传 Prompt + Tool 配置即可获得 Agent。<br>
+<b>② 平台五大模块:</b>Agent Builder(可视化)+ ToolMarketplace(工具市场)+ Memory Service(记忆服务)+ EvalCenter(评估中心)+ TraceCenter(可观测中心)。<br>
+<b>③ ToolMarketplace 是核心:</b>所有内部能力 MCP 化,Agent 像组装乐高一样组合工具,工具复用率从 10% 提到 60%+。<br>
+<b>④ 平台化关键决策:</b>Builder 选「可视化(low-code)+ Code 双轨」(low-code 给业务,Code 给开发),不要二选一。<br>
+<b>⑤ 商业化路径:</b>内部赋能 → 外部 SaaS → 行业方案。腾讯元器、字节 Coze 等都在走这条路。
+</div>
+
+<h3>9.2 Agent 平台架构</h3>
+<pre><code class="ascii">┌──────────────────────────────────────────────────┐
+│  Agent Builder(low-code 拖拽 + Code SDK 双轨) │
+└──────────────────────────────────────────────────┘
+                           ▼
+┌──────────────────────────────────────────────────┐
+│            Agent Runtime(执行引擎)             │
+│  Plan / ReAct / Reflection / Memory / Workflow  │
+└──────────────────────────────────────────────────┘
+        ▼              ▼               ▼          ▼
+   ┌─────────┐   ┌──────────┐   ┌──────────┐  ┌──────────┐
+   │  Tool   │   │  Memory  │   │   RAG    │  │  Model   │
+   │ Market  │   │ Service  │   │ Platform │  │ Gateway  │
+   │ (MCP)   │   │ 三层记忆 │   │          │  │          │
+   └─────────┘   └──────────┘   └──────────┘  └──────────┘
+                           ▼
+┌──────────────────────────────────────────────────┐
+│  EvalCenter + TraceCenter + FinOps 治理面板      │
+└──────────────────────────────────────────────────┘</code></pre>
+
+<h3>9.3 ToolMarketplace 治理</h3>
+<table>
+<tr><th>治理项</th><th>规则</th></tr>
+<tr><td>工具上架</td><td>必须 MCP 协议 + Schema + Description + 单测</td></tr>
+<tr><td>权限模型</td><td>Public / Team / Private 三级</td></tr>
+<tr><td>SLA 标注</td><td>Latency / Success Rate / Cost 公开</td></tr>
+<tr><td>计费规则</td><td>按调用次数 / token / 自定义</td></tr>
+<tr><td>版本化</td><td>语义化版本 + 兼容性声明</td></tr>
+<tr><td>审计</td><td>每次调用 user / agent / args 全留痕</td></tr>
+</table>
+
+<h3>9.4 易踩坑</h3>
+<div class="warn">
+<b>坑 1:Builder 只做 low-code。</b>专业开发用不顺,无法做复杂 Agent——必须 low-code + Code SDK 双轨。<br>
+<b>坑 2:Tool 上架没规范。</b>谁都能传烂 Tool,LLM 选错 Tool 导致 Agent 失败——必须有 Schema / Description / 单测准入。<br>
+<b>坑 3:平台只重接入不重治理。</b>业务接入快但没 SLA、没成本控制、没评估——后期会失控。<br>
+<b>坑 4:Memory 不做隔离。</b>不同租户的记忆混在一起 = 数据泄漏。必须强隔离 + 加密。<br>
+<b>坑 5:不做工具评分。</b>哪些工具好用、哪些垃圾不知道——必须有 LLM-as-Judge + 用户评分双轨评估。
+</div>
+
+<h3>9.5 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q9:Agent 怎么做平台化?</div>
+<div class="a"><b>P7 答</b>:做个网站让业务方填 Prompt 就行。<br>
+<b>P8 答</b>:「平台五大模块:Builder(low-code + Code 双轨)+ ToolMarketplace(MCP 化)+ Memory Service(三层记忆隔离)+ EvalCenter(Golden Set + Judge)+ TraceCenter(Langfuse + Replay)。ToolMarketplace 是核心:所有能力 MCP 化,Schema + Description + 单测准入,Public/Team/Private 三级权限,SLA + 计费 + 版本化。复用率从 10% 提到 60%+。」<br>
+<b>P9 答</b>:「Agent 平台化是<b>组织变革</b>不是技术升级。我推动:① <b>组织级 ToolMarketplace 战略</b>——CTO 推动各 BU 把核心能力 MCP 化,半年内全集团 500+ Tool;② <b>内部商业化</b>——平台向业务方按调用计费,业务方倒逼优化;③ <b>开放生态</b>——选 10 个核心 Tool 开放成 MCP 标准,让外部开发者贡献;④ <b>对外 SaaS 化</b>——成熟后封装成行业方案对外卖。Agent 平台真正的价值不是技术,是<b>把组织的 AI 能力沉淀为可复用资产</b>——这是 P9 视角。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:Agent 平台 = 组织 AI 能力沉淀</h4>
+  <div class="row"><span class="tag p7">P7</span><span>知道有 Agent 平台。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>五大模块 + 双轨 Builder + ToolMarketplace 治理 + 评估 + Trace。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>组织级战略 + 内部商业化 + 开放生态 + SaaS 化。</span></div>
+</div>
+
+<h3 id="ch10">第 10 章:AI 系统演进路线图</h3>
+
+<h3>10.1 五句话原理</h3>
+<div class="info">
+<b>① AI 系统演进不是单点升级,是<b>组织能力的阶梯式跃升</b>。</b>每个阶段有不同的关键能力、组织结构、商业化路径。<br>
+<b>② 四阶段路线:</b>① 单功能 AI(2023)→ ② AI 应用平台(2024-2025)→ ③ Agent 时代(2025-2026)→ ④ AI 原生组织(2026+)。<br>
+<b>③ 每阶段的护城河不同:</b>① 模型能力 → ② 数据 + 工具 → ③ 评估 + 治理 → ④ 组织 DNA + 飞轮。<br>
+<b>④ 不要跳级:</b>没有数据飞轮就上 Multi-Agent = 海市蜃楼;没有评估就追求 P9 治理 = 空中楼阁。<br>
+<b>⑤ 老李 34 岁的位置:</b>处于 ② → ③ 阶段过渡,正是 P8 主战场,2-3 年深耕后冲 P9。
+</div>
+
+<h3>10.2 四阶段路线表</h3>
+<table>
+<tr><th>阶段</th><th>时间</th><th>关键能力</th><th>护城河</th><th>典型形态</th></tr>
+<tr><td>① 单功能 AI</td><td>2023</td><td>调 API + Prompt</td><td>谁先做</td><td>ChatBot / 内嵌 AI</td></tr>
+<tr><td>② AI 应用平台</td><td>2024-2025</td><td>RAG + 微调 + Eval</td><td>数据 + 工具</td><td>领域 Copilot</td></tr>
+<tr><td>③ Agent 时代</td><td>2025-2026</td><td>Multi-Agent + Workflow + 治理</td><td>评估 + 治理</td><td>Agent 平台</td></tr>
+<tr><td>④ AI 原生组织</td><td>2026+</td><td>组织 AI 化 + 数据飞轮 + 商业化</td><td>组织 DNA</td><td>AI-First 公司</td></tr>
+</table>
+
+<h3>10.3 老李审核场景的演进路线</h3>
+<pre><code class="ascii">2024(已有):
+  ├─ 规则 + ML 风控 + 人工三阶段
+  ├─ 入审率 35%、采纳率 35%
+  └─ 阶段 ① 后期
+
+2025(进行中):
+  ├─ Qwen3Guard-4B 本地部署
+  ├─ Orchestrator Agent + Worker
+  ├─ Reflection 质检
+  ├─ HITL 数据回流
+  └─ 阶段 ② → ③ 过渡
+
+2026(目标):
+  ├─ 多模态联合判决(文+图+上下文 RAG)
+  ├─ 数据飞轮工业化(月度 LoRA 迭代)
+  ├─ 审核能力 MCP Marketplace 化
+  ├─ 红蓝对抗常态化
+  ├─ 入审率 15%、采纳率 60%
+  └─ 阶段 ③ 中期
+
+2027(展望):
+  ├─ 跨业务复用(集团级 AI 安全平台)
+  ├─ 对外 SaaS 输出
+  └─ 阶段 ④ 起步</code></pre>
+
+<h3>10.4 P8 → P9 能力跃迁清单</h3>
+<table>
+<tr><th>能力维度</th><th>P8</th><th>P9</th></tr>
+<tr><td>技术深度</td><td>能讲清单点机制</td><td>能讲清演进史 + 趋势预判</td></tr>
+<tr><td>架构能力</td><td>能画 5 层架构</td><td>能画跨域跨平台架构</td></tr>
+<tr><td>治理能力</td><td>能落地 SLA / 监控 / 灰度</td><td>把治理做成组织流程</td></tr>
+<tr><td>成本意识</td><td>能算账 + 优化</td><td>FinOps 嵌入 OKR</td></tr>
+<tr><td>视角</td><td>项目视角</td><td>平台 + 组织 + 商业视角</td></tr>
+<tr><td>影响力</td><td>跨团队</td><td>跨 BU + 行业</td></tr>
+<tr><td>语言</td><td>「我们做了 X」</td><td>「我推动 X 成为 Y 标准」</td></tr>
+</table>
+
+<h3>10.5 易踩坑</h3>
+<div class="warn">
+<b>坑 1:跳过阶段。</b>没有数据飞轮就上 Multi-Agent / 没有评估就追求治理 = 失败的跃迁。<br>
+<b>坑 2:只看技术不看组织。</b>P9 难度在「推动跨 BU 协同」,不在「写代码」。<br>
+<b>坑 3:不写 RFC 沉淀。</b>每个阶段的决策不写下来,团队迭代后就丢了——RFC 是组织记忆。<br>
+<b>坑 4:盲目追新技术。</b>2024 LangChain 火、2025 LangGraph 火、2026 OpenAI Swarm 火——选型要看自家阶段,不要追风口。<br>
+<b>坑 5:不规划个人路线。</b>34 岁的老李要明确 2-3 年冲 P8,5 年冲 P9——没有清晰路线就是飘。
+</div>
+
+<h3>10.6 面试连接 + P8/P9 升维</h3>
+<div class="qa">
+<div class="q">Q10:你怎么看 AI 系统未来 2-3 年的演进?你的发展规划?</div>
+<div class="a"><b>P7 答</b>:模型会更强,Agent 会更普及。<br>
+<b>P8 答</b>:「四阶段:单功能 AI(2023)→ AI 应用平台(2024-2025)→ Agent 时代(2025-2026)→ AI 原生组织(2026+)。每阶段护城河不同:模型能力 → 数据工具 → 评估治理 → 组织 DNA。我们审核场景在 ② → ③ 过渡,2026 目标:多模态联合判决 + 数据飞轮工业化 + 审核 MCP 化 + 红蓝对抗常态化。我个人定位是『审核领域的 AI 工程化专家』,2 年内做到 P8(领域 + 平台双重),5 年冲 P9(集团级 AI 安全平台 + 跨 BU 复用)。」<br>
+<b>P9 答</b>:「AI 系统演进的本质是<b>组织能力的阶梯式跃升</b>。我看清了三件事:① <b>护城河会变</b>——从模型 → 数据 → 治理 → 组织 DNA,跟不上节奏会被淘汰;② <b>跳级是陷阱</b>——没有数据飞轮上 Multi-Agent / 没评估追治理 = 失败;③ <b>P9 的真正难度在组织</b>——推动跨 BU 协同 / 内部商业化 / 对外 SaaS,不是技术。我的判断是<b>2026-2028 是『AI 原生组织』转型的关键窗口</b>,谁先把 AI 能力沉淀为可复用资产 + 组织 DNA,谁就赢;我会带审核场景做这个示范,然后推动集团 AI 安全平台。这不是技术规划,是组织战略。」
+</div>
+</div>
+
+<div class="lvl">
+  <h4>★ 升维专栏:演进路线 = 组织战略</h4>
+  <div class="row"><span class="tag p7">P7</span><span>知道 AI 在快速演进。</span></div>
+  <div class="row"><span class="tag p8">P8</span><span>能画四阶段路线图,知道每阶段护城河,定个人发展规划。</span></div>
+  <div class="row"><span class="tag p9">P9</span><span>把 AI 演进升维成组织战略,推动 AI 原生组织转型。</span></div>
+</div>
+
+<!-- ============== 25 题集中速查 ============== -->
+<h2 id="qa25" class="week"><span class="num">★</span><span class="ttl">25 题集中面试速查</span></h2>
+
+<div class="info">
+精选 25 题覆盖系统设计高频考点,每题给出 P7/P8/P9 三段位答法骨架。
+</div>
+
+<h3>一、大规模架构(Q1-Q6)</h3>
+<table>
+<tr><th>#</th><th>题目</th><th>P8 关键词</th></tr>
+<tr><td>Q1</td><td>设计 1 亿文档 RAG 系统</td><td>5 层架构 + 容量估算 + 三条链路</td></tr>
+<tr><td>Q2</td><td>RAG 索引升级怎么做?</td><td>双写 + 影子流量 + 灰度切流</td></tr>
+<tr><td>Q3</td><td>Tiered Storage 怎么设计?</td><td>热 SSD HNSW / 温 HDD IVF / 冷 OSS</td></tr>
+<tr><td>Q4</td><td>多租户 RAG 怎么隔离?</td><td>租户独立索引 + 共享 Embed Server</td></tr>
+<tr><td>Q5</td><td>实时 / 增量 / 离线三链路</td><td>不同 SLA + 不同技术栈</td></tr>
+<tr><td>Q6</td><td>Embedding 升级怎么做?</td><td>双索引并行 + 评估对比 + 渐进切流</td></tr>
+</table>
+
+<h3>二、Gateway + 缓存 + 限流(Q7-Q11)</h3>
+<table>
+<tr><th>#</th><th>题目</th><th>P8 关键词</th></tr>
+<tr><td>Q7</td><td>Model Gateway 五大职责?</td><td>协议 / 路由 / 缓存 / 限流 / 计费</td></tr>
+<tr><td>Q8</td><td>Semantic Cache 怎么实现?</td><td>向量近似 + 二次校验参数</td></tr>
+<tr><td>Q9</td><td>LLM 限流怎么做?</td><td>QPS + TPM 双维度</td></tr>
+<tr><td>Q10</td><td>熔断怎么细粒度?</td><td>到模型 × 实例级 / Half-Open</td></tr>
+<tr><td>Q11</td><td>降级链怎么设计?</td><td>32B → 14B → 4B → 规则,故障演练</td></tr>
+</table>
+
+<h3>三、LLMOps(Q12-Q17)</h3>
+<table>
+<tr><th>#</th><th>题目</th><th>P8 关键词</th></tr>
+<tr><td>Q12</td><td>Golden Set 怎么设计?</td><td>5 类占比 + 每月迭代 + CI 卡点</td></tr>
+<tr><td>Q13</td><td>LLM-as-Judge 怎么防偏?</td><td>Judge 用更强模型 + 双向对比</td></tr>
+<tr><td>Q14</td><td>灰度发布怎么做?</td><td>四阶梯 + 哈希分流 + 三大守门员</td></tr>
+<tr><td>Q15</td><td>A/B 显著性怎么算?</td><td>n ≥ 16/(δ²p(1-p))</td></tr>
+<tr><td>Q16</td><td>Trace 必备字段?</td><td>raw_input / prompt / docs / tools / usage</td></tr>
+<tr><td>Q17</td><td>Replay 怎么做?</td><td>版本固化 + 一键回放</td></tr>
+</table>
+
+<h3>四、治理 + FinOps(Q18-Q22)</h3>
+<table>
+<tr><th>#</th><th>题目</th><th>P8 关键词</th></tr>
+<tr><td>Q18</td><td>FinOps 三件事?</td><td>看清 / 优化 / 管控</td></tr>
+<tr><td>Q19</td><td>成本怎么切片归因?</td><td>team / scene / model / endpoint / time</td></tr>
+<tr><td>Q20</td><td>弹性调度怎么分层?</td><td>60% 预留 / 30% 按需 / 10% Spot</td></tr>
+<tr><td>Q21</td><td>故障复盘 RCA 模板?</td><td>时间线 + 5Why + Action 闭环</td></tr>
+<tr><td>Q22</td><td>怎么把成本降一个数量级?</td><td>金字塔七层 + Gateway + Cache</td></tr>
+</table>
+
+<h3>五、业务架构 + 演进(Q23-Q25)</h3>
+<table>
+<tr><th>#</th><th>题目</th><th>P8 关键词</th></tr>
+<tr><td>Q23</td><td>多模态审核架构?</td><td>四支柱五阶段 + Orchestrator + 数据飞轮</td></tr>
+<tr><td>Q24</td><td>Agent 平台五大模块?</td><td>Builder + ToolMarket + Memory + Eval + Trace</td></tr>
+<tr><td>Q25</td><td>AI 系统怎么演进?</td><td>四阶段 + 护城河变化 + 不跳级</td></tr>
+</table>
+
+<!-- ============== 速查表 ============== -->
+<h2 id="cheatsheet" class="week"><span class="num">▣</span><span class="ttl">Phase 5 速查表</span></h2>
+
+<h3>★ 系统设计题答题框架</h3>
+<table>
+<tr><th>步骤</th><th>内容</th><th>时长</th></tr>
+<tr><td>① 容量估算</td><td>QPS / 数据量 / 存储 / SLA</td><td>2 分钟</td></tr>
+<tr><td>② 5 层架构</td><td>接入 / 编排 / 索引 / 数据 / 治理</td><td>5 分钟</td></tr>
+<tr><td>③ 关键链路</td><td>实时 / 增量 / 离线</td><td>3 分钟</td></tr>
+<tr><td>④ 性能优化</td><td>缓存 / 路由 / 量化 / 调度</td><td>5 分钟</td></tr>
+<tr><td>⑤ 灰度演进</td><td>四阶梯 + 双写切流</td><td>3 分钟</td></tr>
+<tr><td>⑥ 治理能力</td><td>SLA / Cost / Eval / Trace</td><td>2 分钟</td></tr>
+</table>
+
+<h3>★ Gateway 核心能力清单</h3>
+<table>
+<tr><th>能力</th><th>实现要点</th></tr>
+<tr><td>协议适配</td><td>OpenAI / Anthropic / Qwen 互转</td></tr>
+<tr><td>路由</td><td>难度 / 租户 / SLA / 负载 / 地域</td></tr>
+<tr><td>多级缓存</td><td>Result + Semantic + Prefix</td></tr>
+<tr><td>限流</td><td>QPS + TPM 双维度</td></tr>
+<tr><td>熔断 Fallback</td><td>模型 × 实例级 / Half-Open</td></tr>
+<tr><td>计费可观测</td><td>Trace 全维度归因</td></tr>
+</table>
+
+<h3>★ 灰度四阶梯</h3>
+<table>
+<tr><th>阶段</th><th>流量</th><th>持续</th></tr>
+<tr><td>影子流量</td><td>0%(异步比对)</td><td>1-2 天</td></tr>
+<tr><td>1% 灰度</td><td>1%</td><td>1 天</td></tr>
+<tr><td>10% 验证</td><td>10%(A/B 显著性)</td><td>2-3 天</td></tr>
+<tr><td>100% 全量</td><td>100%</td><td>观察 1 周</td></tr>
+</table>
+
+<h3>★ Golden Set 设计</h3>
+<table>
+<tr><th>类别</th><th>占比</th><th>SLA</th></tr>
+<tr><td>正常 case</td><td>40%</td><td>≥95%</td></tr>
+<tr><td>边界 case</td><td>20%</td><td>≥85%</td></tr>
+<tr><td>对抗 case</td><td>20%</td><td>≥80%</td></tr>
+<tr><td>历史失败</td><td>15%</td><td>100%(回归不能挂)</td></tr>
+<tr><td>关键合规</td><td>5%</td><td>100%(红线)</td></tr>
+</table>
+
+<h3>★ FinOps 弹性调度</h3>
+<table>
+<tr><th>层</th><th>占比</th><th>用途</th><th>成本</th></tr>
+<tr><td>稳定保留</td><td>60%</td><td>在线服务基础</td><td>1.0x</td></tr>
+<tr><td>峰值弹性</td><td>30%</td><td>峰值扩容</td><td>1.3x</td></tr>
+<tr><td>批处理溢出</td><td>10%</td><td>训练 / 离线</td><td>0.3x(Spot)</td></tr>
+</table>
+
+<h3>★ AI 系统演进四阶段</h3>
+<table>
+<tr><th>阶段</th><th>时间</th><th>护城河</th></tr>
+<tr><td>① 单功能 AI</td><td>2023</td><td>谁先做</td></tr>
+<tr><td>② AI 应用平台</td><td>2024-2025</td><td>数据 + 工具</td></tr>
+<tr><td>③ Agent 时代</td><td>2025-2026</td><td>评估 + 治理</td></tr>
+<tr><td>④ AI 原生组织</td><td>2026+</td><td>组织 DNA</td></tr>
+</table>
+
+<h3>★ Phase 5 一句话总结</h3>
+<div class="tip">
+<b>系统设计 = 容量估算 × 分层架构 × 关键链路 × 性能优化 × 灰度演进 × 治理能力 × 演进路线</b><br><br>
+P8 心法:能画图 + 能算账 + 能讲灰度 + 能讲治理。<br>
+P9 心法:把架构问题升维成组织战略,把技术问题升维成商业问题。把每个 P8 答案再加一层「这背后是<b>组织能力</b>而非技术」。
+</div>
+
+<div class="footer">
+Phase 5 系统设计教材 完结 · 共 10 章 + 25 题 + 速查表 · 老李 AI 工程转型路径<br>
+🎉 P8/P9 四份拦路教材(RAG + Agent + 推理 + 系统设计)全部完结!
+</div>
+
+</main>
+</div>
+</body>
+</html>

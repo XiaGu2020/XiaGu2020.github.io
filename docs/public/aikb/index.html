@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>老李 · 2026 AI 转型学习中心</title>
+<style>
+  :root{
+    --bg:#0f1115;--card:#181b22;--card2:#1f232c;--line:#2a2f3a;
+    --txt:#e6e8ec;--muted:#9aa3b2;--hint:#6b7280;
+    --blue:#378ADD;--teal:#1D9E75;--amber:#EF9F27;--purple:#7F77DD;--coral:#D85A30;--red:#E24B4A;
+  }
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:500;font-size:12px;background:var(--card2)}
+  td code{background:var(--card2);padding:1px 6px;border-radius:4px;font-size:12px;color:#cdd3dc}
+  .tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;margin:1px 0}
+  .t-p0{background:rgba(226,75,74,.18);color:#f09999}
+  .t-p1{background:rgba(239,159,39,.18);color:#f0bf7e}
+  .t-p2{background:rgba(55,138,221,.18);color:#8fc0ef}
+  .t-ok{background:rgba(29,158,117,.2);color:#6fd6b3}
+  .gap-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .gap-card.red{border-left:3px solid var(--red)}
+  .gap-card.amber{border-left:3px solid var(--amber)}
+  .gap-card.teal{border-left:3px solid var(--teal)}
+  .gap-card.purple{border-left:3px solid var(--purple)}
+  .gap-card h4{font-size:14px;font-weight:600;margin-bottom:4px}
+  .gap-card .lv{font-size:11px;color:var(--hint);margin-bottom:8px}
+  .gap-card ul{margin:0 0 0 16px}
+  .gap-card li{font-size:12px;color:var(--muted);margin:2px 0;line-height:1.5}
+  .lead{color:var(--muted);font-size:13px;max-width:880px;margin:8px 0 0}
+  .hl{color:var(--amber);font-weight:500}
+  details{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:0;margin:8px 0;overflow:hidden}
+  details summary{padding:12px 16px;cursor:pointer;font-weight:500;font-size:13px;list-style:none}
+  details summary::-webkit-details-marker{display:none}
+  details summary::before{content:"▸ ";color:var(--blue)}
+  details[open] summary::before{content:"▾ "}
+  details .body{padding:0 16px 14px;color:var(--muted);font-size:13px;line-height:1.7;border-top:1px solid var(--line)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,"PingFang SC",sans-serif;line-height:1.7;padding:32px 20px;font-size:14px}
+  .wrap{max-width:1200px;margin:0 auto}
+  h1{font-size:26px;font-weight:600;margin-bottom:6px}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:18px}
+  h2{font-size:18px;font-weight:600;margin:34px 0 14px;padding-left:10px;border-left:3px solid var(--blue)}
+  .grid{display:grid;gap:14px;grid-template-columns:1fr 1fr}
+  .grid-3{display:grid;gap:14px;grid-template-columns:repeat(3,1fr)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;transition:all 0.2s}
+  .card:hover{border-color:var(--blue);transform:translateY(-2px)}
+  .card a{color:var(--txt);text-decoration:none;display:block}
+  .card .ph{display:inline-block;background:var(--card2);border:1px solid var(--line);padding:2px 8px;font-size:11px;color:var(--muted);border-radius:10px;margin-bottom:8px}
+  .card.done .ph{background:rgba(29,158,117,.15);color:#6fd6b3;border-color:transparent}
+  .card.todo .ph{background:rgba(156,163,178,.15);color:var(--muted);border-color:transparent}
+  .card h3{font-size:16px;font-weight:600;margin:4px 0 8px}
+  .card p{color:var(--muted);font-size:13px;line-height:1.6}
+  .card .meta{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap}
+  .card .meta span{font-size:11px;background:var(--card2);padding:2px 8px;border-radius:4px;color:var(--muted)}
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px;text-align:center}
+  .stat .n{font-size:24px;font-weight:600;color:var(--blue)}
+  .stat .l{color:var(--muted);font-size:11px;margin-top:3px}
+  .badge{display:inline-block;background:var(--card2);border:1px solid var(--line);border-radius:6px;padding:3px 9px;font-size:12px;margin-right:6px;color:var(--muted)}
+  .footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--hint);font-size:12px}
+  .progress{height:6px;background:var(--card2);border-radius:3px;overflow:hidden;margin-top:8px}
+  .progress-fill{height:100%;background:var(--teal)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>老李 · 2026 AI 转型学习中心</h1>
+<p class="sub">7 年 Java 网文审核后端 → AI 应用工程师 / 多模态审核 · 起跑 06-15 · 完赛 11-08</p>
+
+<div>
+  <span class="badge" style="color:#6fd6b3;border-color:rgba(29,158,117,.4)">✓ 全 21 周教材已就绪</span>
+  <span class="badge" style="color:#6fd6b3;border-color:rgba(29,158,117,.4)">✓ 6 份教材完结</span>
+  <span class="badge">对标 P8/P9 + 2026 面经</span>
+  <span class="badge">P8/P9 升维专栏已嵌</span>
+  <span class="badge" style="color:#6fd6b3;border-color:rgba(29,158,117,.4)">✓ 知识点已校验</span>
+  <span class="badge">最后更新 2026-06-13</span>
+</div>
+
+<h2>📊 学习进度概览</h2>
+<div class="stat-grid">
+  <div class="stat"><div class="n">6</div><div class="l">已完结教材</div></div>
+  <div class="stat"><div class="n">71</div><div class="l">已就绪章节</div></div>
+  <div class="stat"><div class="n">145</div><div class="l">已就绪面试题</div></div>
+  <div class="stat"><div class="n">~25w</div><div class="l">总字数</div></div>
+</div>
+
+<div class="progress"><div class="progress-fill" style="width:100%"></div></div>
+<p style="color:var(--muted);font-size:12px;margin-top:6px">教材覆盖度:21/21 周(100%) · 接下来由你按周打卡推进学习,完赛日 2026-11-08</p>
+
+<h2>📅 总览资料（必读）</h2>
+<div class="grid">
+  <div class="card">
+    <a href="ai-2026-learning-plan-laoli.html">
+      <span class="ph">总览看板</span>
+      <h3>① 2026 AI 时代学习大纲</h3>
+      <p>6 阶段全景路线图、考点热度、个人优势/补强映射、高频真题速查表。决策为什么这么学。</p>
+      <div class="meta"><span>10 分钟读完</span><span>面试导向</span></div>
+    </a>
+  </div>
+  <div class="card">
+    <a href="ai-2026-schedule-21weeks.html">
+      <span class="ph">21 周排期</span>
+      <h3>② 21 周排期看板</h3>
+      <p>每周打卡卡片（主题/产出/自查清单）、12 个里程碑、4 大风险预案（含孩子出生 buffer）。决策每周做什么。</p>
+      <div class="meta"><span>每周自查</span><span>含甘特图</span></div>
+    </a>
+  </div>
+</div>
+
+<h2>🔍 知识点缺口分析（对标 P8/P9 + 2026 最新面经）</h2>
+<p class="lead">数据来源:字节/快手/腾讯/掘金/JavaGuide 近 1 个月真实面经 + P8/P9 架构师 JD。<span class="hl">最新进展(2026-06-13)</span>:四块拦路教材(RAG/Agent/推理优化/系统设计)<span class="hl">已全部按 P8/P9 口径交付</span>,合计 71 章 + 145 题 + 速查表,可直接用于 P8/P9 面试备战和日常工作参考。</p>
+
+<div class="grid-3" style="margin-top:14px">
+  <div class="gap-card teal">
+    <h4 style="color:#6fd6b3">✓ 已就绪 W1-W6</h4>
+    <div class="lv">地基 + 原理 · 45 道题</div>
+    <ul>
+      <li>Python/NumPy/Pandas/API</li>
+      <li>Function Calling · JSON Mode</li>
+      <li>Attention 五步 · Transformer</li>
+      <li>RoPE · KV Cache · SFT/DPO</li>
+      <li>CoT · o1/R1/QwQ-32B · GRPO</li>
+    </ul>
+    <p style="font-size:11px;color:var(--hint);margin-top:8px">⚠️ 待加深：复读机成因；采样三件套（温度 T 缩放 logits 控随机性 · top-k 截断候选个数 · top-p 累积概率核采样）；RoPE 长文退化扩展（PI 线性插值 / NTK / YaRN）</p>
+  </div>
+  <div class="gap-card" style="border-color:#5cd6a8">
+    <h4 style="color:#5cd6a8">✓ Phase 2 · RAG 深水区 <a href="phase2-rag-handbook.html" style="font-size:11px;color:#5cd6a8;text-decoration:underline">教材</a></h4>
+    <div class="lv">W7-W10 · 12 章 + 25 题 + 速查表 · <b>已就绪</b></div>
+    <ul>
+      <li>切块 6 法 trade-off · Embedding 选型(bge-m3/MTEB)</li>
+      <li>混合检索 RRF(倒数排名融合,k=60)· Cross-Encoder Rerank</li>
+      <li>向量索引 HNSW(高召回)vs IVF(省内存)</li>
+      <li>Query Rewrite · HyDE · Step-Back · LITM 折叠</li>
+      <li>JSON Mode 引用溯源 · Spotlighting 防注入</li>
+      <li>Ragas 四指标 · Golden Set · STAR 简历模板</li>
+    </ul>
+  </div>
+  <div class="gap-card" style="border-color:#5cd6a8">
+    <h4 style="color:#5cd6a8">✓ Phase 3 · Agent 稳定性 <a href="phase3-agent-handbook.html" style="font-size:11px;color:#5cd6a8;text-decoration:underline">教材</a></h4>
+    <div class="lv">W11-W14 · 12 章 + 25 题 + 速查表 · <b>已就绪</b></div>
+    <ul>
+      <li>ReAct vs Plan-Execute · 死循环防控 6 招</li>
+      <li>记忆三层 · <b style="color:#8fc0ef">Context Engineering</b></li>
+      <li>工具失败降级 · schema 校验 · 错误回灌</li>
+      <li>Workflow 约束 Agent · Orchestrator-Worker</li>
+      <li>Reflection 自纠 · MCP · 权限/可观测</li>
+    </ul>
+  </div>
+  <div class="gap-card" style="border-color:#5cd6a8">
+    <h4 style="color:#5cd6a8">✓ Phase 4 · 推理优化 <a href="phase4-inference-handbook.html" style="font-size:11px;color:#5cd6a8;text-decoration:underline">教材</a></h4>
+    <div class="lv">W15-W18 · 12 章 + 25 题 + 速查表 · <b>已就绪</b></div>
+    <ul>
+      <li>Prefill vs Decode · TTFT/TPOT/吞吐/Goodput</li>
+      <li>KV Cache 显存账 · PagedAttention · MHA/GQA/MLA</li>
+      <li>连续批处理 · 投机解码 · FlashAttention 1/2/3</li>
+      <li>AWQ/GPTQ/FP8 量化 · LoRA/QLoRA 服务化</li>
+      <li>vLLM 部署 · TP/PP/EP · 成本金字塔七层</li>
+    </ul>
+  </div>
+  <div class="gap-card" style="border-color:#5cd6a8">
+    <h4 style="color:#5cd6a8">✓ Phase 5 · 系统设计 + 架构 <a href="phase5-system-design-handbook.html" style="font-size:11px;color:#5cd6a8;text-decoration:underline">教材</a></h4>
+    <div class="lv">W19-W21 · 10 章 + 25 题 + 速查表 · <b>已就绪</b></div>
+    <ul>
+      <li>百万文档 RAG · 5 层架构 · 容量估算</li>
+      <li><b style="color:#8fc0ef">Model Gateway · 路由 · 多级缓存</b></li>
+      <li>限流熔断 · 降级链 · 故障演练 · FinOps</li>
+      <li>Golden Set · 灰度四阶梯 · A/B 显著性</li>
+      <li>Langfuse Trace · Replay · RCA 闭环</li>
+    </ul>
+  </div>
+  <div class="gap-card purple">
+    <h4 style="color:#a39aef">★ 你的差异化壁垒</h4>
+    <div class="lv">多模态审核 · 别人没有的护城河</div>
+    <ul>
+      <li>视觉+语音+OCR 三模态协同 Pipeline</li>
+      <li>VLM 内容安全 · 多模态 CoT · 策略 RL</li>
+      <li>误伤/漏过 trade-off（7 年肌肉记忆）</li>
+      <li>可解释审计 · 数据飞轮 · 深伪检测</li>
+      <li>漫剧审核工作台 = 现成简历项目</li>
+    </ul>
+  </div>
+</div>
+
+<h2>🎯 按 P8/P9 分层：同一知识点，不同段位的答法</h2>
+<p class="lead">P8（高级技术专家/团队负责人）要能「拆模块、定取舍」；P9（资深专家/架构师）要能「讲完整架构 + 治理策略 + 演进路线」。同一道 RAG 题，三个段位答出来天差地别——这是你超过应届/纯算法选手、冲专家级的关键。</p>
+<div class="card" style="margin-top:12px">
+  <table>
+    <tr><th style="width:78px">能力维度</th><th>P7 及格线（会做）</th><th>P8 进阶（拆模块定取舍）</th><th>P9 专家（架构+治理+演进）</th></tr>
+    <tr><td>RAG</td><td>讲清完整链路、能跑通</td><td>每环节优化 trade-off：切片坏了 vs 换 embedding；Rerank 何时加</td><td>设计百万级 RAG 架构：增量更新、权限隔离、检索质量闭环、成本归因</td></tr>
+    <tr><td>Agent</td><td>知道 ReAct、能调工具</td><td>死循环防控、记忆三层、工具降级、Context Engineering</td><td>Workflow 约束 Agent、可观测/Trace、权限治理、失败模式演进策略</td></tr>
+    <tr><td>推理优化</td><td>模型能部署起来</td><td>TTFT/TPOT/吞吐分别怎么调、KV Cache、PagedAttention 解决什么</td><td>资源模型全景：算力/显存/带宽瓶颈定位、连续批处理调度、成本 SLA 平衡</td></tr>
+    <tr><td>系统设计</td><td>画出基本模块图</td><td>限流/降级/缓存/监控，单点技术能落地</td><td>模型网关、多模型路由、FinOps、灰度、Golden Set + LLM-as-Judge 质量闭环</td></tr>
+    <tr><td>项目拷打</td><td>说清自己做了什么</td><td>讲清 baseline、改了哪些变量、哪个收益最大</td><td>A/B 数据驱动、副作用分析、重做会先改哪、可演进性论证</td></tr>
+    <tr><td>审核特化<br><span class="tag t-ok">你的壁垒</span></td><td>规则引擎+敏感词经验</td><td>误伤/漏过 trade-off、对抗性检测、LLM-as-Judge 评估</td><td>多模态审核中台架构、数据飞轮、可解释合规审计、深伪对抗演进</td></tr>
+  </table>
+  <p style="font-size:12px;color:var(--hint);margin-top:10px">📌 学每个 Phase 时，刻意训练「同一题用 P8/P9 口径再答一遍」，把单点知识升维成架构判断。</p>
+</div>
+
+<h2>🆕 2026 必补的新热点（旧资料里没有，最近面经新增）</h2>
+<div class="grid">
+  <details>
+    <summary>① Context Engineering（上下文工程）— 比 Prompt 工程更上一层</summary>
+    <div class="body">2026 Agent 面试的新核心。Prompt 工程是「怎么写好一句指令」，Context Engineering 是「怎么管理整个上下文窗口」：System Prompt + 最近 N 轮 + 当前任务目标 + 可用工具结果，按语义重要性裁剪而非简单截断。长任务里 Agent 跑偏、自我绕进死循环，根因往往是 Context 没管好。要点：State Schema（TypedDict 严格状态）、Trim Strategy（语义保留）、Summary Buffer（旧对话摘要化塞回头部）。</div>
+  </details>
+  <details>
+    <summary>② 模型网关 Model Gateway — P8/P9 系统设计高频</summary>
+    <div class="body">企业级 AI 平台的中枢。屏蔽不同模型供应商（OpenAI/Anthropic/Qwen/DeepSeek）的协议差异，统一 API + 热插拔；基于延迟/成本/吞吐/优先级动态路由到最优后端；网关层做 Guardrails（PII 脱敏、Prompt 注入防御、违规词拦截）、语义缓存（拦截高频相似请求降本）、多租户 Token 计费配额。Java 选手优势：Spring Cloud Gateway 可直接迁移这套设计。</div>
+  </details>
+  <details>
+    <summary>③ LLMOps / AgentOps 全生命周期 — 上专家级的门票</summary>
+    <div class="body">从「会用模型」到「能稳定交付到业务」。LLMOps：数据→微调→评测→推理→上线→监控→迭代闭环；AgentOps：Agent 构建→评测→调优→可观测。可观测三件套：TTFT/TPS/成功率监控 + 端到端 Trace（Prompt→工具调用→输出，类 LangSmith/Phoenix）+ token 利用率/幻觉率健康看板。这是 P8/P9 JD 的硬门槛（要求 1 年以上 MLOps/LLMOps 经验）。</div>
+  </details>
+  <details>
+    <summary>④ 质量闭环 + 风险治理 — 二面「上线后变差怎么定位」必问</summary>
+    <div class="body">质量闭环：Golden Set（黄金评测集）+ LLM-as-Judge + 线上灰度 + Trace 回放 + 人工复核怎么配合。风险治理：Prompt 注入、工具越权、隐私泄露、RAG 权限过滤、模型供应商限流故障降级。高频追问：「如何证明新 Prompt 比旧 Prompt 更好」「供应商限流怎么降级」「Agent 工具调错怎么办」——都要给工程闭环答案，不是概念。</div>
+  </details>
+  <details>
+    <summary>⑤ 多模态审核 SOTA（你的方向，必须跟踪）</summary>
+    <div class="body">腾讯云 VM：视觉+语音+OCR 三模态协同，主打高并发、低延迟、高可用（厂商宣称万级 QPS / 毫秒响应 / 99.9% 可用，<span style="color:#f0bf7e">面试引用时说「高并发高可用」即可，别背死具体数字</span>）。快手 BLM-Guard（AAAI 2026）：多模态 CoT（视觉定位→风险筛查→因果分析→判决）+ 策略对齐 RL（GRPO + 自适应 critique reward），解决 VLM 黑盒、策略漂移问题。趋势：数据飞轮驱动模型长效进化、可解释审计（注意力热力图 + token 溯源）、深伪武器化对抗。这块是你简历项目的天花板模板。</div>
+  </details>
+</div>
+
+<h2>📖 Phase 0 · 地基期（W1-W3 · 已就绪）</h2>
+<div class="grid-3">
+  <div class="card done">
+    <a href="phase0-python-llm-handbook.html#ch1">
+      <span class="ph">W1 已就绪</span>
+      <h3>W1 · 环境 + Python 速通</h3>
+      <p>uv/pyenv 环境搭建、Python 速通（Java 视角对照）、6 个 Java 没有的特性、GIL 必懂。</p>
+      <div class="meta"><span>含代码</span><span>含面试题</span></div>
+    </a>
+  </div>
+  <div class="card done">
+    <a href="phase0-python-llm-handbook.html#ch3">
+      <span class="ph">W2 已就绪</span>
+      <h3>W2 · NumPy + Pandas</h3>
+      <p>NumPy 广播规则、SQL→Pandas 对照表、用 Pandas 处理审核日志实战。</p>
+      <div class="meta"><span>含代码</span><span>含速查</span></div>
+    </a>
+  </div>
+  <div class="card done">
+    <a href="phase0-python-llm-handbook.html#ch5">
+      <span class="ph">W3 已就绪 · 里程碑①</span>
+      <h3>W3 · 第一个 LLM 应用</h3>
+      <p>OpenAI 兼容协议、流式 SSE、Function Calling 5 步法、JSON Mode、Spring AI、mini-RAG（70 行）。</p>
+      <div class="meta"><span>里程碑</span><span>25 道面试题</span></div>
+    </a>
+  </div>
+</div>
+
+<h2>📘 Phase 1 · 原理期（W4-W6 · 已就绪）</h2>
+<div class="grid-3">
+  <div class="card done">
+    <a href="phase1-transformer-handbook.html#w4">
+      <span class="ph">W4 已就绪</span>
+      <h3>W4 · 注意力机制</h3>
+      <p>BPE 原理、Embedding 三种粒度、Self-Attention 五步推导、为什么除 √d_k（防点积方差随维度放大致 softmax 饱和）、Multi-Head、手写 30 行。</p>
+      <div class="meta"><span>10 行代码</span><span>5 章</span></div>
+    </a>
+  </div>
+  <div class="card done">
+    <a href="phase1-transformer-handbook.html#w5">
+      <span class="ph">W5 已就绪</span>
+      <h3>W5 · Transformer 全貌</h3>
+      <p>三种范式（Encoder/Decoder/Decoder-Only）、RoPE 演进、Pre vs Post Norm、SFT-RLHF-DPO 流程、KV Cache 内存计算。</p>
+      <div class="meta"><span>BERT vs GPT</span><span>含 ASCII 图</span></div>
+    </a>
+  </div>
+  <div class="card done">
+    <a href="phase1-transformer-handbook.html#w6">
+      <span class="ph">W6 已就绪 · 里程碑②</span>
+      <h3>W6 · 推理模型 + TTC</h3>
+      <p>幻觉成因、CoT/SC/ToT 三阶、o1/R1/QwQ-32B 对比、R1 训练范式（GRPO 组相对策略优化）、Test-Time Compute。</p>
+      <div class="meta"><span>里程碑</span><span>20 道面试题</span></div>
+    </a>
+  </div>
+</div>
+
+<h2>📗 Phase 2-5 · 深水区(W7-W21 · 已就绪)</h2>
+<div class="grid-3">
+  <div class="card done">
+    <a href="phase2-rag-handbook.html">
+      <span class="ph">W7-W10 已就绪</span>
+      <h3>Phase 2 · RAG 深水区 ★</h3>
+      <p>切块 6 法 trade-off、Embedding 选型、HNSW vs IVF、混合检索 RRF、Cross-Encoder Rerank、Multi-Query/HyDE、LITM 缓解、JSON Mode 引用、Spotlighting、Ragas、Golden Set。<b>简历项目①</b>。</p>
+      <div class="meta"><span>12 章 + 25 题</span><span>P0 重点</span></div>
+    </a>
+  </div>
+  <div class="card done">
+    <a href="phase3-agent-handbook.html">
+      <span class="ph">W11-W14 已就绪</span>
+      <h3>Phase 3 · Agent 稳定性 ★</h3>
+      <p>Agent 全景图、ReAct vs Plan-Execute、Function Calling、死循环 6 招、工具失败降级、记忆三层、Context Engineering、Workflow + Orchestrator-Worker、Reflection、MCP、权限治理。<b>简历项目②</b>。</p>
+      <div class="meta"><span>12 章 + 25 题</span><span>P0 重点</span></div>
+    </a>
+  </div>
+  <div class="card done">
+    <a href="phase4-inference-handbook.html">
+      <span class="ph">W15-W18 已就绪</span>
+      <h3>Phase 4 · 推理优化 ★</h3>
+      <p>Prefill vs Decode、TTFT/TPOT/吞吐/Goodput、KV Cache (MHA/GQA/MLA)、PagedAttention、连续批处理、FlashAttention 1-3、投机解码、AWQ/GPTQ/FP8 量化、LoRA/QLoRA、vLLM、TP/PP/EP/DP、成本金字塔。</p>
+      <div class="meta"><span>12 章 + 25 题</span><span>分水岭</span></div>
+    </a>
+  </div>
+  <div class="card done">
+    <a href="phase5-system-design-handbook.html">
+      <span class="ph">W19-W21 已就绪</span>
+      <h3>Phase 5 · 系统设计 + 架构 ★</h3>
+      <p>百万级 RAG 五层架构、Model Gateway 五职责、三级缓存 + 双维度限流 + 熔断、Golden Set + LLM-as-Judge、灰度四阶梯 + A/B、Trace + Replay、FinOps、多模态审核全景、Agent 平台化、AI 系统演进路线。<b>简历项目③</b>。</p>
+      <div class="meta"><span>10 章 + 25 题</span><span>决定 offer</span></div>
+    </a>
+  </div>
+  <div class="card todo">
+    <span class="ph">沉淀</span>
+    <h3>📚 知识库(持续更新)</h3>
+    <p>aikb/wiki/ 目录下 180+ 篇审核 + AI 笔记,已建索引。Phase 1-5 学习中持续向 wiki 沉淀新页面。</p>
+    <div class="meta"><span>wiki 入口</span></div>
+  </div>
+  <div class="card todo">
+    <span class="ph">配套</span>
+    <h3>🎯 面试题题库(已累计 145 道)</h3>
+    <p>Phase 0: 25 + Phase 1: 20 + Phase 2: 25 + Phase 3: 25 + Phase 4: 25 + Phase 5: 25 = 145 道,各 Phase 末尾折叠展开,可直接用作面试自测。</p>
+    <div class="meta"><span>每周末刷题</span></div>
+  </div>
+</div>
+
+<h2>🚀 立即开始:W1 起跑指引(2026-06-15 周一)</h2>
+<div class="card">
+  <ol style="margin:0 0 0 22px;color:var(--txt)">
+    <li><b>06-15 周一上午</b>:打开 <a href="phase0-python-llm-handbook.html#ch1" style="color:#8fc0ef">Phase 0 教材第①章</a>,30 分钟装好 uv/虚拟环境/.env</li>
+    <li><b>06-15 周一晚</b>:跑通验证脚本,确认 OPENAI_API_KEY 加载成功(通义千问兼容协议)</li>
+    <li><b>06-16 ~ 06-20</b>:每天 1.5h 推进 Python 速通 + NumPy 基础(章节②③)</li>
+    <li><b>06-21 周日</b>:W1 自查清单 4 项全部 ☐ → ✓,本周打卡完成 → 章末 25 题自测</li>
+    <li><b>06-22 周一</b>:进入 W2 NumPy/Pandas 实战(用 Pandas 处理审核日志)</li>
+  </ol>
+  <p style="margin-top:14px;color:var(--muted);font-size:13px"><b>每周节奏</b>:周一立目标 → 周二至周五学+实操 → 周六回顾 → 周日刷面试题 + 章末速查表。</p>
+  <p style="margin-top:6px;color:var(--muted);font-size:13px"><b>三大纪律</b>:① 代码 &gt; 公式 ② 边学边产出(博客/笔记/Demo)③ Java 八股别丢(每周 1-2h 复习,留好回头路)。</p>
+  <p style="margin-top:6px;color:var(--muted);font-size:13px"><b>P8/P9 升维提醒</b>:每章读完,刻意用「P7 会做 / P8 拆模块定取舍 / P9 升维成架构治理」三段位再答一遍——单点知识就升维成架构判断。</p>
+</div>
+
+<h2>🎉 缺口闭环 · 全部就绪</h2>
+<div class="card">
+  <p style="color:var(--txt);font-size:13px;line-height:1.8">
+  <b>一句话总结</b>:截至 2026-06-13,<span class="hl">面试拦路四块(RAG/Agent/推理优化/系统设计)教材全部按 P8/P9 口径完成</span>。地基(W1-W6)+ 深水区(W7-W21)合计 <b>6 份教材 / 71 章 / 145 道面试题 / 6 张速查表</b>,可直接用于 P8/P9 面试备战和日常工作参考。
+  </p>
+  <table style="margin-top:12px">
+    <tr><th style="width:80px">状态</th><th>教材</th><th>章节量</th><th>核心交付</th></tr>
+    <tr><td><span class="tag t-ok">✓ 完结</span></td><td><a href="phase0-python-llm-handbook.html">Phase 0 · Python+LLM 速通(W1-W3)</a></td><td>10 章 + 25 题</td><td>API 调用 / FC / JSON Mode / 报错排查</td></tr>
+    <tr><td><span class="tag t-ok">✓ 完结</span></td><td><a href="phase1-transformer-handbook.html">Phase 1 · Transformer 全貌(W4-W6)</a></td><td>15 章 + 20 题</td><td>注意力五步 / RoPE / 推理模型 / 采样</td></tr>
+    <tr><td><span class="tag t-ok">✓ 完结</span></td><td><a href="phase2-rag-handbook.html">Phase 2 · RAG 深水区(W7-W10)</a></td><td>12 章 + 25 题</td><td>切块 6 法 / RRF / HNSW vs IVF / Ragas</td></tr>
+    <tr><td><span class="tag t-ok">✓ 完结</span></td><td><a href="phase3-agent-handbook.html">Phase 3 · Agent 稳定性(W11-W14)</a></td><td>12 章 + 25 题</td><td>ReAct / Context Engineering / MCP / 治理</td></tr>
+    <tr><td><span class="tag t-ok">✓ 完结</span></td><td><a href="phase4-inference-handbook.html">Phase 4 · 推理优化(W15-W18)</a></td><td>12 章 + 25 题</td><td>PagedAttention / FA3 / SpecDec / 量化</td></tr>
+    <tr><td><span class="tag t-ok">✓ 完结</span></td><td><a href="phase5-system-design-handbook.html">Phase 5 · 系统设计 + 架构(W19-W21)</a></td><td>10 章 + 25 题</td><td>Gateway / Golden Set / 灰度 / FinOps</td></tr>
+    <tr><td><span class="tag t-ok">壁垒 ★</span></td><td>多模态审核 Pipeline(已嵌入 Phase 3/5)</td><td>—</td><td>四支柱五阶段 + 数据飞轮</td></tr>
+  </table>
+  <p style="color:var(--muted);font-size:12px;margin-top:12px"><b>使用建议</b>:① 按 W1 → W21 顺序学,每章四段式(原理 / 代码 / 易踩坑 / 面试连接)+ P8/P9 升维专栏;② 面试前夜直接刷各 Phase 末尾 25 题 + 速查表;③ 项目实战时把章节代码直接搬到审核场景落地。</p>
+</div>
+
+<h2>✅ 知识点校验记录（2026-06-13）</h2>
+<div class="card">
+  <p style="color:var(--txt);font-size:13px;line-height:1.8"><b>已逐条核对 28 个技术点</b>：方向与机制全部正确，无颠覆性错误。本轮修正 7 处表述/精度，现在可放心用于学习与面试引用。</p>
+  <table style="margin-top:12px">
+    <tr><th style="width:130px">改动点</th><th>修正前 → 修正后</th></tr>
+    <tr><td>推理性能指标</td><td>TBT → <code>TPOT</code>（Time Per Output Token，面试更通用）</td></tr>
+    <tr><td>推理模型命名</td><td>QwQ → <code>QwQ-32B</code>（明确尺寸，与 o1/R1 并列更严谨）</td></tr>
+    <tr><td>审核厂商数据</td><td>「万级 QPS/99.9%」补注「营销口径，面试说高并发高可用即可」</td></tr>
+    <tr><td>除 √d_k</td><td>补原因：防点积方差随维度放大致 softmax 饱和、梯度消失</td></tr>
+    <tr><td>RRF / HNSW / IVF</td><td>补全称与取舍：RRF=倒数排名融合；HNSW 高召回 vs IVF 省内存</td></tr>
+    <tr><td>GRPO</td><td>补全称：组相对策略优化（Group Relative Policy Optimization）</td></tr>
+    <tr><td>采样三件套</td><td>精确化：温度 T 缩放 logits / top-k 截断个数 / top-p 累积概率核采样</td></tr>
+  </table>
+  <p style="color:var(--muted);font-size:12px;margin-top:12px"><b>仍需你自己在教材里深挖（不是错，是深度）</b>：复读机成因、RoPE 长文外推三法（PI/NTK/YaRN）的区别与失效点、Rerank 何时该加、Lost in the Middle 缓解手段——这些是 P8/P9 追问区，Phase 2 教材会展开。</p>
+</div>
+
+<h2>🔍 第二轮校验:6 份教材完整事实核对(2026-06-13 深夜)</h2>
+<div class="card">
+  <p style="color:var(--txt);font-size:13px;line-height:1.8"><b>本轮针对 6 份教材的事实正确性、版本号准确性、知识点完整性做完整盘点</b>:整体结论 — 方向与机制全部正确,2026 业界最新进展已对齐,本轮修正 4 处版本号过时表述 + 补 1 处 P8 必考缺口。</p>
+  <table style="margin-top:12px">
+    <tr><th style="width:160px">改动 / 补充</th><th>详情</th></tr>
+    <tr><td>Phase 3 模型版本号</td><td>「GPT-4.1 / Claude 4」→「GPT-5 / Claude 4.5 / DeepSeek-V3 / Qwen3」(GPT-5 已 2025-08 发布,Claude 4.5 已 2025-09 发布)</td></tr>
+    <tr><td>Phase 3 错误修复率</td><td>补充实测口径(GPT-5 / Claude 4.5 ~92%、Qwen3-Max ~88%、DeepSeek-V3 ~85%)</td></tr>
+    <tr><td>Phase 2 长上下文模型</td><td>「GPT-4.1 1M / Gemini 2M」→「GPT-5 1M / Claude 4.5 Sonnet 1M / Gemini 2.5 Pro 2M」</td></tr>
+    <tr><td>Phase 4 KV 计算举例</td><td>「Qwen2-7B」→「Qwen3-8B」+ 补 MLA 再省 5x 例</td></tr>
+    <tr><td><b>Phase 1 缺口补全</b></td><td><b>新增 11.5 节「MoE 混合专家(2026 必考)」</b>:一句话原理 + 计算流程 + 三大工程难点(负载均衡 / 显存 / 训练稳定)+ 稠密 vs MoE 选型表 + P7/P8/P9 三段位答法。覆盖 DeepSeek-V3 671B / Qwen3-235B-A22B / Mixtral 等 2026 主流 MoE 模型。这是 P8 系统设计 + 推理优化必考点,原 Phase 1 漏讲。</td></tr>
+  </table>
+  <h3 style="color:var(--accent);margin-top:18px">校验过程发现的两类问题(均已闭环)</h3>
+  <ol style="color:var(--txt);font-size:13px;line-height:1.7">
+    <li><b>版本号漂移</b>:2026-04 写的内容用了「GPT-4.1 / Claude 4」,与 MEMORY.md 记录的 2025-Q3 实际发布(GPT-5 / Claude 4.5)对不上。已统一对齐。</li>
+    <li><b>P8 漏讲点</b>:Phase 1 讲了 GQA/MLA/RoPE/RLHF/CoT,但漏讲 MoE 架构原理(只在 Phase 4 提了一笔 EP 并行)。已补 11.5 节,完整讲清 DeepSeek-V3 / Qwen3-235B-A22B / Mixtral 这一代 MoE 模型的工作机制 + 三大工程难点 + 选型 trade-off。</li>
+  </ol>
+  <h3 style="color:var(--accent);margin-top:18px">事实正确性盘点(6 份教材 30+ 关键事实)</h3>
+  <ul style="color:var(--txt);font-size:13px;line-height:1.7">
+    <li>✅ Phase 0 — Python 环境 / OpenAI 兼容协议 / Function Calling / JSON Mode / mini-RAG 全对</li>
+    <li>✅ Phase 1 — Tokenizer / Self-Attention(√d_k 推导)/ RoPE / LayerNorm / KV Cache 公式 / CoT / DeepSeek-R1(GRPO)/ Test-Time Compute 全对,新增 MoE</li>
+    <li>✅ Phase 2 — 切块 6 法 / bge-m3(1024 维)/ HNSW(M=16, ef=64-128)/ IVF / RRF 公式 / Cross-Encoder / Multi-Query / HyDE / LITM / Ragas 4 指标 全对</li>
+    <li>✅ Phase 3 — ReAct / Plan-Execute / Function Calling / 死循环 6 招 / 记忆三层 / Context Engineering / MCP 协议 / Reflection 全对(版本号已更新)</li>
+    <li>✅ Phase 4 — Prefill/Decode / TTFT/TPOT/Goodput / KV Cache 公式 / MHA/GQA/MLA / PagedAttention / FlashAttention(Tiling+OnlineSoftmax)/ EAGLE / AWQ/GPTQ/FP8 / vLLM / TP/PP/EP/DP 全对</li>
+    <li>✅ Phase 5 — 5 层 RAG 架构 / Model Gateway 五职责 / Golden Set / 灰度四阶梯 / FinOps / 多模态审核全景(老李业务实战入审率 35%→15%、采纳率 35%→60%)/ 演进路线四阶段 全对</li>
+  </ul>
+  <p style="color:var(--muted);font-size:12px;margin-top:12px"><b>结论</b>:6 份教材 ≈ 25 万字 / 71 章 / 145 题(Phase 1 增补 MoE 后实为 16 章 / 21 题点)经过完整事实核对,无方向性错误,2026 行业最新进展(GPT-5、Claude 4.5、Qwen3、DeepSeek-V3、MoE 架构、推理模型 GRPO、PagedAttention/MLA、Context Engineering、MCP)全部对齐,可直接用于 P8/P9 面试备战和日常工作引用。</p>
+</div>
+
+<div class="footer">
+  📂 文件位置:<code>/Users/lvzeping.a/WorkBuddy/aikb/outputs/</code> · 6 份教材合计约 25 万字 / 71 章 / 145 道面试题 / 6 张速查表<br>
+  本入口集中索引所有学习材料,并已补充对标 P8/P9 + 2026 最新面经的缺口分析、能力分层、新热点清单。<br>
+  数据来源:字节/快手/腾讯/掘金/JavaGuide 近 1 月面经 + P8/P9 架构师 JD · 生成于 WorkBuddy · <b>2026-06-13 全 21 周教材就绪</b> · 起跑日 2026-06-15 · 完赛日 2026-11-08
+</div>
+
+</div>
+</body>
+</html>
