@@ -1,0 +1,239 @@
+/**
+ * 老李的博客 · 仿火山引擎配色
+ * Volcengine-inspired palette for VitePress home page
+ */
+
+/* ============ 主题变量 ============ */
+:root {
+  /* 主色：火山引擎纯净蓝 */
+  --vp-c-brand-1: #1664ff;
+  --vp-c-brand-2: #4080ff;
+  --vp-c-brand-3: #0e4fd4;
+  --vp-c-brand-soft: rgba(22, 100, 255, 0.08);
+
+  --vp-c-brand: var(--vp-c-brand-1);
+  --vp-c-brand-light: var(--vp-c-brand-2);
+  --vp-c-brand-lighter: #85b7eb;
+  --vp-c-brand-dark: var(--vp-c-brand-3);
+  --vp-c-brand-darker: #042c53;
+
+  /* 四个板块的强调色 */
+  --accent-tech:   #1664ff;  /* 蓝 · 技术 */
+  --accent-lab:    #7e5cf6;  /* 紫 · 项目 */
+  --accent-notes:  #00c2c7;  /* 青 · 读书 */
+  --accent-essay:  #00b365;  /* 绿 · 随笔 */
+}
+
+/* ============ Hero 区渐变背板 ============ */
+/* VitePress 默认 Hero 紧贴 NavBar，火山引擎风格需要大留白 */
+.VPHome .VPHero {
+  padding-top: 96px !important;
+  padding-bottom: 80px !important;
+  background: linear-gradient(180deg, #eef3ff 0%, #f7faff 55%, transparent 100%);
+  margin-bottom: 24px;
+}
+
+.VPHero .container {
+  max-width: 1200px !important;
+}
+
+.VPHero .name {
+  font-size: 56px !important;
+  line-height: 1.15 !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.5px;
+}
+
+.VPHero .text {
+  font-size: 44px !important;
+  line-height: 1.2 !important;
+  font-weight: 600 !important;
+  color: #0f1c36 !important;
+  margin-top: 8px;
+}
+
+.VPHero .name .clip {
+  background: linear-gradient(135deg, #1664ff 0%, #7e5cf6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.VPHero .tagline {
+  color: #5f6b80 !important;
+  font-size: 18px !important;
+  margin-top: 20px !important;
+  line-height: 1.6;
+}
+
+/* ============ 按钮：火山引擎胶囊 ============ */
+.VPHero .actions {
+  margin-top: 32px !important;
+  gap: 12px !important;
+}
+
+.VPButton.brand {
+  background: #1664ff !important;
+  border-color: #1664ff !important;
+  border-radius: 22px !important;
+  padding: 0 28px !important;
+  height: 44px !important;
+  line-height: 44px !important;
+  font-weight: 500 !important;
+  font-size: 15px !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 2px 8px rgba(22, 100, 255, 0.2);
+}
+.VPButton.brand:hover {
+  background: #4080ff !important;
+  border-color: #4080ff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(22, 100, 255, 0.3);
+}
+
+.VPButton.alt {
+  border-radius: 22px !important;
+  padding: 0 28px !important;
+  height: 44px !important;
+  line-height: 44px !important;
+  border: 1px solid #e1e6f0 !important;
+  background: #fff !important;
+  color: #0f1c36 !important;
+  font-weight: 500 !important;
+  font-size: 15px !important;
+}
+.VPButton.alt:hover {
+  border-color: #1664ff !important;
+  color: #1664ff !important;
+  background: #fff !important;
+}
+
+/* ============ Features 四宫格卡片 ============ */
+.VPFeatures .container {
+  max-width: 1200px !important;
+  padding: 0 24px;
+}
+
+.VPFeatures .items {
+  gap: 20px !important;
+}
+
+.VPFeature {
+  border: 1px solid rgba(15, 30, 60, 0.06) !important;
+  border-radius: 16px !important;
+  background: #ffffff !important;
+  padding: 28px !important;
+  transition: all 0.25s ease !important;
+  box-shadow: 0 1px 2px rgba(15, 30, 60, 0.04);
+  height: 100%;
+}
+
+.VPFeature:hover {
+  border-color: rgba(22, 100, 255, 0.24) !important;
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px rgba(22, 100, 255, 0.12);
+}
+
+/* icon 容器：让 SVG 原样显示，不再做背景染色（SVG 自带渐变） */
+.VPFeature .icon {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin-bottom: 20px !important;
+  overflow: visible !important;
+}
+
+.VPFeature .icon img,
+.VPFeature .icon svg {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 12px;
+  filter: drop-shadow(0 6px 14px rgba(22, 100, 255, 0.18));
+}
+
+/* 按序给每张卡的 icon 配阴影色（跟 SVG 渐变色呼应） */
+.VPFeatures .items > .item:nth-child(2) .VPFeature .icon img {
+  filter: drop-shadow(0 6px 14px rgba(126, 92, 246, 0.22));
+}
+.VPFeatures .items > .item:nth-child(3) .VPFeature .icon img {
+  filter: drop-shadow(0 6px 14px rgba(0, 194, 199, 0.22));
+}
+.VPFeatures .items > .item:nth-child(4) .VPFeature .icon img {
+  filter: drop-shadow(0 6px 14px rgba(0, 179, 101, 0.22));
+}
+
+.VPFeature .title {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  margin-bottom: 10px !important;
+  color: #0f1c36 !important;
+  letter-spacing: -0.2px;
+}
+
+.VPFeature .details {
+  color: #5f6b80 !important;
+  line-height: 1.7 !important;
+  font-size: 14px !important;
+}
+
+.VPFeature .link-text-value {
+  color: #1664ff !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+}
+
+/* ============ 顶部导航 ============ */
+.VPNavBar {
+  backdrop-filter: saturate(180%) blur(14px);
+  background: rgba(255, 255, 255, 0.75) !important;
+}
+
+.VPNavBar.has-sidebar .content,
+.VPNavBar .divider {
+  background: transparent !important;
+}
+
+.VPNavBarMenuLink.active,
+.VPNavBarMenuLink:hover {
+  color: #1664ff !important;
+}
+
+/* ============ 暗色模式微调 ============ */
+.dark {
+  --vp-c-brand-1: #4080ff;
+  --vp-c-brand-2: #6a9bff;
+  --vp-c-brand-3: #1664ff;
+}
+
+.dark .VPHome .VPHero {
+  background: linear-gradient(180deg, rgba(22, 100, 255, 0.12) 0%, transparent 100%);
+}
+
+.dark .VPHero .text {
+  color: #f0f2f5 !important;
+}
+
+.dark .VPFeature {
+  background: #1a1d24 !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.dark .VPFeature:hover {
+  border-color: rgba(64, 128, 255, 0.3) !important;
+  box-shadow: 0 16px 32px rgba(22, 100, 255, 0.2);
+}
+
+.dark .VPFeature .title {
+  color: #f0f2f5 !important;
+}
+
+.dark .VPFeature .details {
+  color: #a0a8b8 !important;
+}
+
+.dark .VPNavBar {
+  background: rgba(20, 22, 28, 0.75) !important;
+}

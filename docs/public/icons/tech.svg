@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <linearGradient id="g-tech" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4080FF"/>
+      <stop offset="1" stop-color="#1664FF"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="12" fill="url(#g-tech)"/>
+  <path d="M16 18h16M16 24h10M16 30h13" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+</svg>
